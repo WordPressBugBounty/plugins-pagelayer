@@ -24,7 +24,7 @@ if(!defined('PAGELAYER_VERSION')) {
 	exit('Hacking Attempt !');
 }
 
-// PageLayer Class
+// Pagelayer Class
 class PageLayer{
 	
 	var $BRAND_TEXT;

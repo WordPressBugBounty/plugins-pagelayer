@@ -32,7 +32,7 @@ class PageLayer_LiveEditor{
 
 		global $pagelayer;
 		
-		// Convert the post to a PageLayer Post first
+		// Convert the post to a Pagelayer Post first
 		$this->check_post();
 
 		// Add the shortcodes

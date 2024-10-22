@@ -867,7 +867,7 @@ function pagelayer_create_sc(&$el, $is_block = 0){
 	// Add the tag
 	$el['attr'][] = 'pagelayer-tag="'.$el['tag'].'"';
 	
-	// Make it a PageLayer element for editing
+	// Make it a Pagelayer element for editing
 	$el['classes'][] = 'pagelayer-ele';
 	
 }

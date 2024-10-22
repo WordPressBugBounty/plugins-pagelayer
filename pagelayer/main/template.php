@@ -359,7 +359,7 @@ jQuery(document).ready(function(){
 	
 }
 
-// This function will handle the Template Builder pages in PageLayer 
+// This function will handle the Template Builder pages in Pagelayer 
 add_action('init', 'pagelayer_builder_post_type', 9999);
 function pagelayer_builder_post_type() {
 	global $pagelayer;

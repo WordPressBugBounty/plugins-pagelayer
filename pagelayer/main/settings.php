@@ -894,7 +894,7 @@ function pagelayer_settings_page(){
 					
 					<span class="nav-tab pagelayer-acc-tab"><?php _e('2: Support');?></span>
 					<div class="pagelayer-acc-panel">
-						<p><?php _e('You can contact the PageLayer Group via email. Our email address is <a href="mailto:support@pagelayer.com">support@pagelayer.com</a>. We will get back to you as soon as possible!');?></p>
+						<p><?php _e('You can contact the Pagelayer Group via email. Our email address is <a href="mailto:support@pagelayer.com">support@pagelayer.com</a>. We will get back to you as soon as possible!');?></p>
 					</div>
 				</div>
 			</div>

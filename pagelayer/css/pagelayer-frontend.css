@@ -1,5 +1,5 @@
 /*
-PageLayer Frontend Framework
+Pagelayer Frontend Framework
 */
 
 [pagelayer-id]{
@@ -2925,7 +2925,7 @@ margin-right: auto;
 
 /*******************/
 
-/* PageLayer Owl */
+/* Pagelayer Owl */
 
 .pagelayer-owl-stage-outer [class^="pagelayer-owl-"],
 .pagelayer-owl-carousel .pagelayer-owl-item > .pagelayer-ele-wrap,
@@ -2965,7 +2965,7 @@ transform:translate(-50%, -53%);
 vertical-align: middle;
 }
 
-/* PageLayer Owl End */
+/* Pagelayer Owl End */
 
 /* Space Widget */
 .pagelayer-space-holder{

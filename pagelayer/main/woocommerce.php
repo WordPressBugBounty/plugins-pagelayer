@@ -314,7 +314,7 @@ function pagelayer_get_customize_options(){
 add_action( 'customize_register', 'pagelayer_woo_customize_register', 11 );
 function pagelayer_woo_customize_register( $wp_customize ) {
 	
-	//PageLayer + WooCommerce Panel
+	//Pagelayer + WooCommerce Panel
 	$wp_customize->add_panel( 'pgl_woocommerce', array(
 		'priority'       => 10,
 		'title'          => __('Pagelayer + WooCommerce'),

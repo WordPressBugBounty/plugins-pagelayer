@@ -4,7 +4,7 @@ Tags: page builder, editor, drag and drop, gutenberg, blocks, form builder, land
 Requires at least: 4.7
 Tested up to: 6.6
 Requires PHP: 5.5
-Stable tag: 1.9.1
+Stable tag: 1.9.2
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -131,6 +131,9 @@ Do you have questions related to Pagelayer? Use the following links :
 
 == Changelog ==
 
+= 1.9.2 (Oct 18, 2024) =
+* [Task] Licensing functionality has been further improved.
+
 = 1.9.1 (Sep 19, 2024) =
 * [Bug-fix] Readme.txt had the old version. Hence launching a new version with correct number.
 
@@ -145,7 +148,7 @@ Do you have questions related to Pagelayer? Use the following links :
 * [Bug-fix] There was some PHP warnings. This is fixed.
 
 = 1.8.7 (Jul 25, 2024) =
-* [Bug-fix] In some cases PageLayer auto installer was not working properly. This is fixed.
+* [Bug-fix] In some cases Pagelayer auto installer was not working properly. This is fixed.
 
 = 1.8.6 (Jul 16, 2024) =
 * [Task] Tested compatibility with WordPress 6.5 and made required changes.
@@ -185,7 +188,7 @@ Do you have questions related to Pagelayer? Use the following links :
 
 = 1.7.7 (Sep 13, 2023) =
 * [Security-Fix] An XSS and scheduled post vulnerability was found. This is fixed. Please upgrade to this version ASAP !
-* [Improvement] The "Edit with PageLayer" button UI on Gutenberg and Classic Editor has been further improved.
+* [Improvement] The "Edit with Pagelayer" button UI on Gutenberg and Classic Editor has been further improved.
 * [Bug-fix] Pagelayer getting started notice could be dismissed by unauthorized users. This is fixed.
 
 = 1.7.6 (July 12, 2023) =

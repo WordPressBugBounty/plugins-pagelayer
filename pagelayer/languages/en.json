@@ -313,7 +313,7 @@
 	"posts_grid_sort_order": "Sort order",
 	"posts_grid_sort_order_ascending": "Ascending",
 	"posts_grid_sort_order_descending": "Descending",
-	"posts_grid_custom_query_desc": "Build custom query according to PageLayer Codex. Example: post_type=portfolio&posts_per_page=5&orderby=title",
+	"posts_grid_custom_query_desc": "Build custom query according to Pagelayer Codex. Example: post_type=portfolio&posts_per_page=5&orderby=title",
 	"posts_grid_ids_label": "IDs of posts",
 	"posts_grid_ids_desc": "Separate with ','",
 	"columns_count": "Columns count",

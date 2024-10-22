@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '1.9.1');
+define('PAGELAYER_VERSION', '1.9.2');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -304,7 +304,7 @@ function pagelayer_admin_menu() {
 	
 }
 
-// This function will handle the Settings Pages in PageLayer
+// This function will handle the Settings Pages in Pagelayer
 function pagelayer_website_page(){
 
 	global $wp_version, $pagelayer;
@@ -326,7 +326,7 @@ function pagelayer_getting_started(){
 	
 }
 
-// This function will handle the post_metas Pages in PageLayer
+// This function will handle the post_metas Pages in Pagelayer
 function pagelayer_meta_handler(){
 
 	global $wp_version, $pagelayer;
@@ -502,7 +502,7 @@ function pagelayer_save_post( $post_id, $post, $update ) {
 	
 }
 
-// This function will handle the Settings Pages in PageLayer
+// This function will handle the Settings Pages in Pagelayer
 function pagelayer_page_handler(){
 
 	global $wp_version, $pagelayer;
@@ -513,7 +513,7 @@ function pagelayer_page_handler(){
 
 }
 
-// This function will handle the Settings Pages in PageLayer
+// This function will handle the Settings Pages in Pagelayer
 function pagelayer_license_page(){
 
 	global $wp_version, $pagelayer;
