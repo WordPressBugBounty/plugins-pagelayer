@@ -576,7 +576,7 @@ function pagelayer_get_section_shortcodes(){
 	$data = '';
 	if(isset($_REQUEST['pagelayer_section_id'])){
 		
-		$get_url = PAGELAYER_API.'/library.php?give_id='.$_REQUEST['pagelayer_section_id'].(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '');
+		$get_url = PAGELAYER_API.'/library.php?give_id='.$_REQUEST['pagelayer_section_id'].(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '').'&url='.rawurlencode(site_url());
 		
 		// For SitePad users
 		if(function_exists('get_softaculous_file')){
@@ -663,7 +663,7 @@ function pagelayer_get_section_blocks(){
 	$data = '';
 	if(isset($_REQUEST['pagelayer_section_id'])){
 		
-		$get_url = PAGELAYER_API.'/library.php?give_id='.$_REQUEST['pagelayer_section_id'].(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '');
+		$get_url = PAGELAYER_API.'/library.php?give_id='.$_REQUEST['pagelayer_section_id'].(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '').'&url='.rawurlencode(site_url());
 		
 		// For SitePad users
 		if(function_exists('get_softaculous_file')){

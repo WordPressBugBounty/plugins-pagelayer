@@ -123,11 +123,13 @@ class pagelayerQuery implements ArrayAccess, IteratorAggregate, IQuery {
     public function offsetExists($offset): bool {
         return isset($this->nodes[$offset]);
     }
-
+	
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset) {
         return isset($this->nodes[$offset]) ? $this->nodes[$offset] : null;
     }
-
+	
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value) {
 
         if (is_null($offset) || !isset($this->nodes[$offset])) {
@@ -136,7 +138,8 @@ class pagelayerQuery implements ArrayAccess, IteratorAggregate, IQuery {
             $this->nodes[$offset]->replaceWith($value);
         }
     }
-
+	
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset) {
         if (isset($this->nodes[$offset])) {
             $this->nodes[$offset]->remove();
