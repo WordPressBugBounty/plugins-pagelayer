@@ -1223,7 +1223,7 @@ function pagelayer_xss_content($data){
 	$not_allowed = implode('|', $not_allowed);
 		
 	if(preg_match('/(on|onwebkit)+('.($not_allowed).')=/is', $data, $matches)){
-		return $matches[1]+$matches[2];
+		return $matches[1].$matches[2];
 	}
 	
 	return;
@@ -1234,7 +1234,7 @@ function pagelayer_xss_content($data){
 function pagelayer_sanitize_blocks_save_pre($block){
 	
 	foreach($block as $k => $v){
-				
+		
 		// Recurse on  arrays
 		if(is_array($v)){
 			$block[$k] = pagelayer_sanitize_blocks_save_pre($v);
@@ -1270,6 +1270,70 @@ function pagelayer_sanitize_blocks_save_pre($block){
 	}
 
 	return $block;
+}
+
+// Check for XSS codes in our shortcode attributes
+function pagelayer_sanitize_shortcode_atts($content){
+	
+	// Do we have something suspicious ?
+	$tmp_check = pagelayer_xss_content($content);
+	if(empty($tmp_check)){
+		return $content;
+	}
+	
+	pagelayer_load_shortcodes();
+	
+	preg_match_all( '/' . get_shortcode_regex() . '/', $content, $matches, PREG_SET_ORDER );
+	
+	$prefixes = ['pl_'];
+		
+	$prefixes = apply_filters( 'pagelayer_valid_shortcode_tag', $prefixes);
+		
+	foreach ($matches as $shortcode) {
+		
+		$shortcode_name = $shortcode[2];
+		
+		$vailid = false;
+		
+		foreach($prefixes as $prefix) {
+			if (strpos($shortcode_name, $prefix) === 0) {
+				$vailid = true;
+				break;
+			}
+		}
+		
+		if(!$vailid){
+			continue;
+		}
+		
+		$attrs = shortcode_parse_atts( $shortcode[3] );
+		$atts = ' ';
+		
+		foreach($attrs as $key => $value){
+			
+			// Skip if key contains XSS
+			if (!is_numeric($key) && strlen(pagelayer_xss_content($key . '=')) > 0) continue;
+			
+			$value = wp_filter_post_kses($value);
+			
+			// Skip if value contains XSS
+			if (strlen(pagelayer_xss_content('"' . $value)) > 0) continue;
+			
+			$atts .= is_numeric($key) ? $value . ' ' : $key . '="' . $value . '" ';
+			
+		}
+		
+		$new_shortcode = '[' . $shortcode_name . $atts . ']';
+		
+		if(!empty($shortcode[5])){
+			$new_shortcode .= $shortcode[5].'[/' . $shortcode_name .']';
+		}
+		
+		// Replace the original shortcode with sanitized attributes
+		$content = str_replace($shortcode[0], $new_shortcode, $content);
+	}
+
+	return $content;
 }
 
 function pagelayer_getting_started_notice(){
@@ -2754,11 +2818,11 @@ function pagelayer_upload_media($filename, $blob){
 	$wp_upload_dir = wp_upload_dir();
 
 	$post_info = array(
-		'guid'           => $wp_upload_dir['url'] . '/' . $file_name,
-		'post_mime_type' => $file_type['type'],
-		'post_title'     => $attachment_title,
-		'post_content'   => '',
-		'post_status'    => 'inherit',
+		'guid'		=> $wp_upload_dir['url'] . '/' . $file_name,
+		'post_mime_type'=> $file_type['type'],
+		'post_title'	=> $attachment_title,
+		'post_content'	=> '',
+		'post_status'	=> 'inherit',
 	);
 
 	$attach_id = wp_insert_attachment( $post_info, $file_path, $parent_post_id );
@@ -3035,7 +3099,7 @@ function pagelayer_load_font_options(){
 }
 
 function pagelayer_is_utf8($str) {
-    return (bool) preg_match('//u', $str);
+	return (bool) preg_match('//u', $str);
 }
 
 // Create blank images
@@ -3106,21 +3170,21 @@ function pagelayer_post_cats($post, &$cat_name = ''){
 	include_once(ABSPATH.PAGELAYER_CMS_DIR_PREFIX.'-admin/includes/template.php');
 
 	$args1 = array(
-		'taxonomy'             => $cat_name,
-		'checked_ontop'        => false,
-		'echo'        		   => false,
+		'taxonomy'	=> $cat_name,
+		'checked_ontop'	=> false,
+		'echo'		=> false,
 	);
 	
 	$ret['with_checkbox'] = '<ul class="pagelayer-post-category" >'.wp_terms_checklist($post->ID, $args1 ).'</ul>';
 		
 	$args2 = array(
-		'taxonomy'	   => $cat_name,
-		'hierarchical' => true,
-		'echo' 		   => 0,
-		'class'   	   => 'pagelayer-add-cat',
-		'name'		   => 'pagelayer_cat_parent',
-		'style'        => 'list',
-		'hide_empty'   => 0,
+		'taxonomy'	=> $cat_name,
+		'hierarchical'	=> true,
+		'echo'		=> 0,
+		'class'		=> 'pagelayer-add-cat',
+		'name'		=> 'pagelayer_cat_parent',
+		'style'		=> 'list',
+		'hide_empty'	=> 0,
 	);
 	
 	$ret['without_checkbox'] = wp_dropdown_categories( $args2 );

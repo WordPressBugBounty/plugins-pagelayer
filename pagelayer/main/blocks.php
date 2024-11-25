@@ -170,6 +170,11 @@ add_action('enqueue_block_editor_assets', 'pagelayer_enqueue_block_assets');
 function pagelayer_enqueue_block_assets(){
 	global $pagelayer;
 	
+	// For gutenberg
+	if(!pagelayer_is_gutenberg_editor()){	
+		return;
+	}
+
 	wp_enqueue_style( 'pagelayer-block-icon', PAGELAYER_CSS . '/pagelayer-icons.css', array('wp-edit-blocks'), PAGELAYER_VERSION );
 
 	// Load styles and javascript

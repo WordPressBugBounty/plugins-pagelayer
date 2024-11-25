@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '1.9.4');
+define('PAGELAYER_VERSION', '1.9.5');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -444,6 +444,10 @@ function pagelayer_sanitize_postmeta( $meta_value, $meta_key ) {
 // Pre post save handler
 add_filter( 'content_save_pre', 'pagelayer_content_save_pre' );
 function pagelayer_content_save_pre($content){
+	
+	if(!pagelayer_user_can_add_js_content() && strpos($content, '[') !== false){
+		$content = pagelayer_sanitize_shortcode_atts($content);
+	}
 	
 	if(pagelayer_user_can_add_js_content() || !pagelayer_has_blocks($content)){
 		return $content;
