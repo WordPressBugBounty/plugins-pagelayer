@@ -190,19 +190,20 @@ function pagelayer_save_content(){
 			$content = utf8_encode($content);
 		}*/
 		
-		$content = wp_slash($content);
-		
-		$post = array(
-			'ID' => $postID,
-			'post_content' => $content,
-		);
-		
 		$is_xss = pagelayer_xss_content($content);
 		 
 		if(!pagelayer_user_can_add_js_content() && strlen($is_xss) > 0){
 			$msg['error'][] =  __pl('xss_found').' - '.$is_xss;
 			pagelayer_json_output($msg);
 		}
+		
+		// Add slash to save data in post
+		$content = wp_slash($content);
+		
+		$post = array(
+			'ID' => $postID,
+			'post_content' => $content,
+		);
 		
 		// Any properties ?			
 		$allowed = ['post_title', 'post_name', 'post_excerpt', 'post_status', 'post_password', 'post_date', 'post_author', 'post_parent', 'menu_order'];
@@ -412,7 +413,6 @@ function pagelayer_save_templ_content($echo = false){
 		
 		// Decode base64 data
 		$value['content'] = base64_decode($value['content']);
-		$value['content'] = wp_slash($value['content']);
 		
 		$is_xss = pagelayer_xss_content($value['content']);
 		 
@@ -420,6 +420,9 @@ function pagelayer_save_templ_content($echo = false){
 			$ret['error'][$g_post_id] =  __pl('xss_found').' - '.$is_xss;
 			pagelayer_json_output($ret);
 		}
+		
+		// Add slash to save data in post
+		$value['content'] = wp_slash($value['content']);
 		
 		// We need to create the post
 		if(empty($value['post_id'])){
@@ -2207,4 +2210,3 @@ function pagelayer_infinite_posts(){
 	$wp['posts'] = pagelayer_the_content($content);
 	pagelayer_json_output( $wp );
 }
-

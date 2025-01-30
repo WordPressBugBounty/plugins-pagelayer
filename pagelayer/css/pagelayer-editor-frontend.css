@@ -549,3 +549,207 @@ border: 1px dashed #5a5a5a;
 cursor: pointer;
 color: #007bff !important;
 }
+
+/* Image map */
+.pagelayer-imgmap-toolbar,
+.pagelayer-imgmap-navigator-item-drag,
+.pagelayer-imgmap-navigator-title{
+display: flex;
+}
+
+.pagelayer-imgmap-toolbar {
+position: absolute !important;
+left: 10px;
+top: 0;
+background: #ffffffb0;
+border-radius: 6px;
+padding: 4px;
+}
+
+.pagelayer-imgmap-toolbar-item,
+.pagelayer-map-navigator-trigger,
+.pagelayer-map-list-trigger{
+width: 24px;
+padding: 6px;
+border: none;
+color: #666161 !important;
+cursor: pointer;
+display: inline-block;
+border-radius: 0;
+background: transparent !important;
+font-size: 12px;
+margin: auto;
+}
+
+.pagelayer-imgmap-toolbar-mover{
+padding: 2px;
+background: gray;
+border-radius: 10px;
+cursor: move;
+}
+
+.pagelayer-imgmap-toolbar.pagelayer-imgmap-selected .pagelayer-map_append,
+.pagelayer-imgmap-toolbar:not(.pagelayer-imgmap-edit) .pagelayer-map_save,
+.pagelayer-imgmap-toolbar:not(.pagelayer-imgmap-edit) .pagelayer-map_remove,
+.pagelayer-imgmap-toolbar:not(.pagelayer-imgmap-edit) .pagelayer-map_href,
+.pagelayer-imgmap-toolbar:not(.pagelayer-imgmap-edit) .pagelayer-map_edit,
+.pagelayer-imgmap-toolbar.pagelayer-imgmap-edit .pagelayer-map_append,
+.pagelayer-imgmap-toolbar.pagelayer-imgmap-edit .pagelayer-map_edit{
+display: none;
+}
+
+.pagelayer-imgmap-toolbar.pagelayer-imgmap-selected .pagelayer-map_edit,
+.pagelayer-imgmap-toolbar.pagelayer-imgmap-selected .pagelayer-map_remove{
+display: block;
+}
+
+.pagelayer-imgmap-toolbar-link {
+position: absolute;
+width: max-content;
+padding: 2px 5px 3px 5px;
+background: #ffffffb0;
+border-radius: 6px;
+margin: 28px 0 0 0;
+display: none;
+} 
+
+.pagelayer-imgmap-toolbar-link input {
+width: 180px;
+font-size: 12px;
+padding: 2px !important;
+}
+
+.pagelayer-imgmap-save-link {
+padding: 4px 6px;
+font-size: 12px;
+font-weight: bold;
+border-radius: 6px;
+margin: 0 0 0 6px;
+cursor: pointer;
+}
+
+.pagelayer-imgmap-hover-active .pagelayer-imgmap-item {
+cursor: pointer;
+opacity: 0;
+}
+
+.pagelayer-map-item-active_is_editable{
+opacity: 1;
+}
+
+.pagelayer-imgmap-coord {
+position: absolute;
+background: #bfbfbf;
+top: 0;
+border-radius: 100%;
+margin-top: -5px;
+width: 10px;
+height: 10px;
+border: 2px solid #000000bf;
+margin-left: -5px;
+cursor: pointer;
+display: none;
+}
+
+span.pagelayer-imgmap-remove-cord {
+padding: 5px 6px;
+position: absolute;
+top: 11px;
+background: #fff;
+font-size: 12px;
+border-radius: 5px;
+left: -8px;
+color: gray;
+cursor: pointer;
+z-index: 999;
+display: none;
+}
+
+.pagelayer-imgmap-remove-cord::after {
+content: '';
+padding: 4px;
+position: absolute;
+top: -4px;
+background: inherit;
+transform: rotate(47deg);
+left: 7px;
+}
+
+.pagelayer-imgmap-coord:hover > .pagelayer-imgmap-remove-cord,
+.pagelayer-imgmap-coord.pagelayer-mapele-dragging{
+display: block;
+}
+
+.pagelayer-imgmap-coord.pagelayer-mapele-dragging span{
+display: none !important;
+}
+
+.pagelayer-imgmap-navigator {
+position: absolute;
+width: 245px;
+background: #f6f6f8;
+top: 38px;
+border-radius: 2px;
+padding: 1px 4px 6px 4px;
+box-shadow: 0px 0px 4px -1px #666;
+display: none;
+}
+
+.pagelayer-imgmap-navigator-close {
+position: absolute;
+right: 12px;
+top: 9px;
+cursor: pointer;
+}
+
+.pagelayer-imgmap-navigator-wrap {
+height: 162px;
+overflow-y: auto;
+scrollbar-width: thin;
+resize: vertical;
+padding: 2px 0;
+}
+
+.pagelayer-imgmap-navigator-item {
+display: grid;
+grid-template-columns: 30px auto 86px;
+background: #fff;
+color: #4f4f4f;
+padding: 4px;
+font-size: 12px;
+margin: 6px 4px;
+border-radius: 4px;
+border: 1px solid #d9d9d9;
+}
+
+.pagelayer-imgmap-navigator-item:first-child {
+margin-top: 0;
+}
+
+.pagelayer-imgmap-navigator-header {
+text-align: left;
+padding: 4px 6px;
+font-size: 12px;
+font-weight: bolder;
+}
+
+.pagelayer-imgmap-navigator-title {
+text-align: left;
+}
+
+.pagelayer-imgmap-navigator-item-drag i{
+margin: auto;
+}
+
+.pagelayer-imgmap-navigator-title{
+align-self: center;
+}
+
+.pagelayer-map-navigator-trigger{
+width: 18px;
+}
+
+.pagelayer-navigator-item-active {
+outline: 1px solid #ff6b6b;
+}
+/* Image map end*/

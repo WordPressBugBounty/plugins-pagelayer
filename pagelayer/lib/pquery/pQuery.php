@@ -80,7 +80,9 @@ class pagelayerQuery implements ArrayAccess, IteratorAggregate, IQuery {
      *
      * @return int Returns the count of matched elements.
      */
-    public function count(): int {
+     
+    #[\ReturnTypeWillChange]
+    public function count() {
         return count($this->nodes);
     }
 
@@ -96,7 +98,8 @@ class pagelayerQuery implements ArrayAccess, IteratorAggregate, IQuery {
 //        return $formatter->format($dom);
 //    }
 
-    public function getIterator(): Traversable {
+    #[\ReturnTypeWillChange]
+    public function getIterator() {
         return new ArrayIterator($this->nodes);
     }
 
@@ -119,8 +122,9 @@ class pagelayerQuery implements ArrayAccess, IteratorAggregate, IQuery {
         }
         return $this;
     }
-
-    public function offsetExists($offset): bool {
+    
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset){
         return isset($this->nodes[$offset]);
     }
 	

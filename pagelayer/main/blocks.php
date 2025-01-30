@@ -227,7 +227,8 @@ function pagelayer_block_global_js(){
 	pagelayer_load_global_palette();
 		
 	$pagelayer_recaptch_lang = get_option('pagelayer_google_captcha_lang');
-	
+	$pagelayer_recaptch_version = get_option('pagelayer_recaptcha_version', '');
+
 	// Get CAPTCHA site key
 	$pagelayer_recaptch_site_key = get_option('pagelayer_google_captcha');
 	$pro_url = defined('POPULARFX_PRO_URL') ? POPULARFX_PRO_URL : PAGELAYER_PRO_PRICE_URL;
@@ -246,6 +247,7 @@ pagelayer_pro_txt = "'. $pro_txt .'";
 pagelayer_facebook_id = "'.get_option('pagelayer-fbapp-id').'";
 pagelayer_settings = '.json_encode($pagelayer->settings).';
 pagelayer_recaptch_lang = "'.(!empty($pagelayer_recaptch_lang) ? $pagelayer_recaptch_lang : '').'";
+pagelayer_recaptch_version = "'.(!empty($pagelayer_recaptch_version) ? $pagelayer_recaptch_version : '').'";
 pagelayer_global_colors = '.json_encode($pagelayer->global_colors).';
 pagelayer_global_fonts = '.json_encode($pagelayer->global_fonts).';
 pagelayer_ajax_nonce = "'.wp_create_nonce('pagelayer_ajax').'";

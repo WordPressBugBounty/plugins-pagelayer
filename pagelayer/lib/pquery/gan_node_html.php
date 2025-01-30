@@ -2353,7 +2353,8 @@ class DomNode implements IQuery {
       return $this;
    }
 
-   public function count(): int {
+   #[\ReturnTypeWillChange]
+   public function count() {
        return 1;
    }
 

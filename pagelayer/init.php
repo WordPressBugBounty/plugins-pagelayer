@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '1.9.5');
+define('PAGELAYER_VERSION', '1.9.6');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -767,6 +767,7 @@ function pagelayer_global_js(){
 	global $pagelayer;
 	
 	$pagelayer_recaptch_lang = get_option('pagelayer_google_captcha_lang');
+	$pagelayer_recaptch_version = get_option('pagelayer_recaptcha_version', '');
 
 	echo '<script>
 var pagelayer_ajaxurl = "'.admin_url( 'admin-ajax.php' ).'?";
@@ -776,6 +777,7 @@ var pagelayer_is_live = "'.pagelayer_is_live().'";
 var pagelayer_facebook_id = "'.get_option('pagelayer-fbapp-id').'";
 var pagelayer_settings = '.json_encode($pagelayer->settings).';
 var pagelayer_recaptch_lang = "'.(!empty($pagelayer_recaptch_lang) ? $pagelayer_recaptch_lang : '').'";
+var pagelayer_recaptch_version = "'.(!empty($pagelayer_recaptch_version) ? $pagelayer_recaptch_version : '').'";
 </script>';
 
 }
@@ -1505,8 +1507,8 @@ function pagelayer_after_logout($user_id){
 }
 
 // Replace Media
-$media_replace = get_option( 'pagelayer_disable_media_replace');
-if(empty($media_replace)){
+$pagelayer_media_replace = get_option( 'pagelayer_disable_media_replace');
+if(empty($pagelayer_media_replace)){
 	
 // Add URL to Replace Meda 
 add_filter('media_row_actions', 'pagelayer_add_media_action', 10, 2);

@@ -58,7 +58,7 @@ jQuery(document).ready(function(){
 		pagelayer_pl_row_parallax(jQuery(this));
 	});
 	
-	jQuery('.pagelayer-recaptcha').each(function(){
+	jQuery('.pagelayer-recaptcha, .pagelayer-g-recaptcha-v3-token').each(function(){
 		pagelayer_recaptcha_loader(jQuery(this));
 	});
 	
@@ -257,7 +257,7 @@ function pagelayer_pl_row_video(jEle){
 }
 
 function pagelayer_create_yt_player(jEle){
-    
+
 	var pEle = jEle.parent(),
 	aspectRatioSetting = '16:9',
 	containerWidth = pEle.outerWidth(),
@@ -1022,6 +1022,7 @@ function pagelayer_recaptcha_loader(jEle, loadScript){
 	
 	// Render recaptcha
 	var reParam = '';
+	var sitekey = jEle.data("sitekey");
 	
 	if(!pagelayer_empty(pagelayer_recaptch_lang)){
 		reParam = '&hl='+pagelayer_recaptch_lang;
@@ -1029,7 +1030,8 @@ function pagelayer_recaptcha_loader(jEle, loadScript){
 	
 	// Add recaptcha script
 	if(pagelayer_empty(window.grecaptcha) && !pagelayer_empty(loadScript)){
-		pagelayer_query('body').append('<script src="https://www.google.com/recaptcha/api.js?render=explicit'+reParam+'" async defer></script>');
+		var render = (pagelayer_recaptch_version == 'v3') ? sitekey : 'explicit';
+		pagelayer_query('body').append('<script src="https://www.google.com/recaptcha/api.js?render='+render+reParam+'" async defer></script>');
 	}
 	
 	// Render recaptcha
@@ -1037,9 +1039,22 @@ function pagelayer_recaptcha_loader(jEle, loadScript){
 		
 		if(!pagelayer_empty(window.grecaptcha)){
 			grecaptcha.ready(function() {
-				try{			
-					var widgetID = grecaptcha.render(jEle.get(0), {'sitekey' : jEle.data("sitekey")});
-					jEle.attr('recaptcha-widget-id', widgetID);
+				try{
+					// Call grecaptcha.execute() to trigger reCAPTCHA v3 and get a token
+					if(pagelayer_recaptch_version == 'v3'){
+						var form = jEle.closest('form');
+						form.find('[type="submit"]').off('click').on('click', function(e){
+							e.preventDefault();
+							grecaptcha.execute(sitekey, { action: 'submit' }).then(function (token) {
+								// Append the token to the form or element to be submitted
+								form.find('input.pagelayer-g-recaptcha-v3-token').val(token);
+								form.submit();
+							});
+						});
+					}else{					
+						var widgetID = grecaptcha.render(jEle.get(0), {'sitekey' : sitekey});
+						jEle.attr('recaptcha-widget-id', widgetID);
+					}
 				}catch(e){
 					console.log("There is some issue in rendering reCaptcha. Please check your recaptcha site-key !");
 				}
@@ -1485,8 +1500,8 @@ function pagelayer_anim_heading(jEle){
 				if(word.parents('.pagelayer-aheading-rotate2').length > 0) letters[i] = '<b>' + letters[i] + '</b>';
 				letters[i] = (selected) ? '<strong class="pagelayer-aheading-in">' + letters[i] + '</strong>': '<strong>' + letters[i] + '</strong>';
 			}
-		    var newLetters = letters.join('');
-		    word.html(newLetters).css('opacity', 1);
+			var newLetters = letters.join('');
+			word.html(newLetters).css('opacity', 1);
 		});
 	}
 
@@ -1507,7 +1522,7 @@ function pagelayer_anim_heading(jEle){
 					width = 0;
 				words.each(function(){
 					var wordWidth = jQuery(this).width();
-				    if (wordWidth > width) width = wordWidth;
+					if (wordWidth > width) width = wordWidth;
 				});
 				headline.find('.pagelayer-words-wrapper').css('width', width);
 			};

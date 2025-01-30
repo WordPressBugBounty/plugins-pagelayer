@@ -2007,5 +2007,10 @@
 	"resizer" : "Resizer",
 	"before_after_button" : "Before After Button",
 	"before_after_image" : "Before After Image",
-	"missing_content" : "Missing Content"
+	"missing_content" : "Missing Content",
+	"image_map" : "Image Map",
+	"cord_color":"Cord color",
+	"show_area" : "Show Image Area",
+	"cord_color":"Cord color",
+	"show_area_to_live":"The area will become visible on hover in the live."
 }

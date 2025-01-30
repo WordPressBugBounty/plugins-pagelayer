@@ -1165,6 +1165,33 @@ function pagelayer_unescapeHTML($str){
 	return $str;
 }
 
+// To make decode entities faster
+function pagelayer_optimized_decode_entities($string) {
+
+	$string = preg_replace_callback(
+		'/\\\\u([0-9a-fA-F]{4})|&#x([0-9a-fA-F]+);|&#([0-9]+);/',
+		function ($matches) {
+			if (!empty($matches[1])) {
+				// Decode \uXXXX Unicode sequences
+				return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UTF-16BE');
+			} elseif (!empty($matches[2])) {
+				// Decode hexadecimal HTML entities (&#x6A; → j)
+				return mb_convert_encoding(pack('H*', $matches[2]), 'UTF-8', 'UTF-16BE');
+			} elseif (!empty($matches[3])) {
+				// Decode decimal HTML entities (&#106; → j)
+				return mb_convert_encoding(pack('n', (int)$matches[3]), 'UTF-8', 'UTF-16BE');
+			}
+			return $matches[0];
+		},
+		$string
+	);
+
+	// Additional decoding using `html_entity_decode()` to cover remaining cases
+	$string = html_entity_decode($string, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+	return $string;
+}
+
 // Return true if user can add js content
 function pagelayer_user_can_add_js_content(){
 	
@@ -1192,7 +1219,8 @@ function pagelayer_user_can_add_js_content(){
 
 // Check for XSS codes in our shortcodes submitted
 function pagelayer_xss_content($data){
-	$data = pagelayer_unescapeHTML($data);
+	$data = pagelayer_unescapeHTML(pagelayer_optimized_decode_entities($data));
+	
 	$data = preg_split('/\s/', $data);
 	$data = implode('', $data);
 	//echo $data;
@@ -1780,27 +1808,71 @@ function pagelayer_posts($params, $args = []){
 			$args['paged'] = $params['paged'];
 		}
 		
-		if(!empty($params['term'])){
+		if (!empty($params['term']) || !empty($params['exc_term'])) {
+			$tax_query = [];
 			
-			$term = explode(':', $params['term']);
-			//pagelayer_print($term);
-			if($term[0] == 'category'){
-				$args['category_name'] = $term[1];
+			if (!empty($params['term'])) {
+				$terms = explode(',', $params['term']);
+				$include = array_reduce($terms, function ($carry, $term) {
+					[$taxonomy, $slug, $id] = explode(':', $term);
+					$carry[$taxonomy][] = $slug;
+					return $carry;
+				}, []);
+
+				$filters = array_filter([
+					isset($include['category']) ? [
+						'taxonomy' => 'category',
+						'field'    => 'slug',
+						'terms'    => $include['category'],
+						'include_children' => false,
+					] : null,
+					isset($include['post_tag']) ? [
+						'taxonomy' => 'post_tag',
+						'field'    => 'slug',
+						'terms'    => $include['post_tag'],
+						'include_children' => false,
+					] : null,
+				]);
+
+				if(!empty($filters)){
+					$tax_query[] = array_merge(['relation' => 'OR'], $filters);
+				}
 			}
-			if($term[0] == 'post_tag'){
-				$args['tag'] = $term[1];
-			}
-		}
 		
-		if(!empty($params['exc_term'])){
-			
-			$term = explode(':', $params['exc_term']);
-			//pagelayer_print($term);
-			if($term[0] == 'category'){
-				$args['category__not_in'] = $term[2];
+			// Handle exclusions
+			if (!empty($params['exc_term'])) {
+				$terms = explode(',', $params['exc_term']);
+				$include = array_reduce($terms, function ($carry, $term) {
+					[$taxonomy, $slug, $id] = explode(':', $term);
+					$carry[$taxonomy][] = $slug;
+					return $carry;
+				}, []);
+
+				$filters = array_filter([
+					isset($include['category']) ? [
+						'taxonomy' => 'category',
+						'field'    => 'slug',
+						'terms'    => $include['category'],
+						'operator' => 'NOT IN',
+						'include_children' => false,
+					] : null,
+					isset($include['post_tag']) ? [
+						'taxonomy' => 'post_tag',
+						'field'    => 'slug',
+						'terms'    => $include['post_tag'],
+						'operator' => 'NOT IN',
+						'include_children' => false,
+					] : null,
+				]);
+				
+				if(!empty($filters)){
+					$tax_query[] = array_merge(['relation' => 'AND'], $filters);
+				}
 			}
-			if($term[0] == 'post_tag'){
-				$args['tag__not_in'] = $term[2];
+		
+			// Apply the combined tax_query
+			if(!empty($tax_query)){
+				$args['tax_query'] = array_merge(['relation' => 'AND'], $tax_query);
 			}
 		}
 		
@@ -3034,7 +3106,8 @@ function pagelayer_captcha_verify(){
 		return true;
 	}
 	
-	$response = (!empty($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '');
+	$response = !empty($_POST['g-recaptcha-response']) ? sanitize_text_field($_POST['g-recaptcha-response']) : '';
+	
 	$ip = pagelayer_getip();
 	
 	// Is the IP or response not there ?
@@ -3070,7 +3143,9 @@ function pagelayer_captcha_verify(){
 	
 	$json = json_decode($resp, true);
 	
-	if(!empty($json['success'])){
+	if(!empty($json['success']) && // for v2 and v3
+		(!isset($json['score']) ||  $json['score'] >= 0.5 && $json['action'] === 'submit') // For v3
+	){
 		return true;
 	}
 	

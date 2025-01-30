@@ -800,7 +800,7 @@ function pagelayer_alpha_color_control_init(){
 			return;
 		}
 			
-		setTimeout(function(){			
+		setTimeout(function(){
 			// Get a clean starting value for the option.
 			startingColor = $control.val().replace( /\s+/g, '' );
 

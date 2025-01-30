@@ -4,7 +4,7 @@ Tags: page builder, editor, drag and drop, gutenberg, blocks, form builder, land
 Requires at least: 4.7
 Tested up to: 6.7
 Requires PHP: 5.5
-Stable tag: 1.9.5
+Stable tag: 1.9.6
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -130,6 +130,12 @@ Do you have questions related to Pagelayer? Use the following links :
 9. **Content Slides** can be designed without the effort of installing extra plugins.
 
 == Changelog ==
+
+= 1.9.6 (Jan 21, 2025) =
+* [Feature] Added Image Mapping widget.
+* [Feature] Added support for reCAPTCHA V3 in contact form.
+* [Task] Added x-Twitter icons to Font Awesome icons list.
+* [Task] The Posts widget has been further improved. You can now select multiple terms to display posts.
 
 = 1.9.5 (Nov 22, 2024) =
 * [Security-Fix] An XSS vulnerability has been fixed. Please upgrade to this version as soon as possible!

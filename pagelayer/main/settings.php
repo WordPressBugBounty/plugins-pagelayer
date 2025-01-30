@@ -303,6 +303,16 @@ function pagelayer_settings_page(){
 			$done = 1;
 			
 		}
+
+		if(isset($_POST['pagelayer_recaptcha_version'])){
+
+			$version = sanitize_text_field($_REQUEST['pagelayer_recaptcha_version']);
+			
+			update_option( 'pagelayer_recaptcha_version', $version );
+		
+			$done = 1;
+			
+		}
 		
 		if(isset($_POST['pagelayer_google_captcha'])){
 
@@ -842,6 +852,21 @@ function pagelayer_settings_page(){
 				 </table>
 			</div>
 			<div class="pagelayer-tab-panel" id="captcha">
+				<table>
+					<tr>
+						<th scope="row"><?php _e('Select reCAPTCHA Version', 'pagelayer'); ?></th>
+						<td>
+							<select name="pagelayer_recaptcha_version" id="pagelayer_recaptcha_version">
+								<option value="" <?php echo esc_html(get_option('pagelayer_recaptcha_version', '')) === '' ? 'selected' : ''; ?>>
+									<?php _e('Google reCAPTCHA v2', 'pagelayer'); ?>
+								</option>
+								<option value="v3" <?php echo esc_html(get_option('pagelayer_recaptcha_version', '')) === 'v3' ? 'selected' : ''; ?>>
+									<?php _e('Google reCAPTCHA v3', 'pagelayer'); ?>
+								</option>
+							</select>
+						</td>
+					</tr>
+				</table>
 				 <table>
 					<tr>
 						<th scope="row"><?php _e('reCaptcha Site Key');?></th>

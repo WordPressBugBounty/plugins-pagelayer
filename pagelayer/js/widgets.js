@@ -1440,6 +1440,12 @@ function pagelayer_render_pl_contact(el){
 	// Set post id in atts 
 	el.atts['con_post_id'] = pagelayer_postID;
 	el.atts['grecaptcha'] = pagelayer_recaptch_site_key;	
+
+		if(pagelayer_recaptch_version == 'v3') {
+			el.atts['grecaptcha_v3'] = true; 
+		}else{
+			el.atts['grecaptcha_v2'] = true;
+		}
 }
 
 // Render the contact form
@@ -1449,7 +1455,7 @@ function pagelayer_render_end_pl_contact(el){
 		var recaptcha = jQuery(this);
 		var widgetID = recaptcha.attr('recaptcha-widget-id');
 		
-		if( !pagelayer_empty(window.grecaptcha) && (!pagelayer_empty(widgetID) || widgetID == 0) ){
+		if( !pagelayer_empty(window.grecaptcha) && (!pagelayer_empty(widgetID) || widgetID == 0) && pagelayer_recaptch_version != 'v3'){
 			grecaptcha.reset(widgetID);
 		}else{
 			pagelayer_recaptcha_loader(recaptcha, true);
