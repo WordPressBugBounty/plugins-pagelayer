@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '1.9.6');
+define('PAGELAYER_VERSION', '1.9.7');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -1311,10 +1311,6 @@ function pagelayer_clone_post(){
 
 	// Nonce verification
 	check_admin_referer('pagelayer-options');
-	
-	if(!current_user_can('edit_posts')){
-		wp_die('You don\'t have access to clone this post.');
-	}
 
 	// Get the original post id
 	$post_id = (int) $_REQUEST['post'];
@@ -1323,6 +1319,10 @@ function pagelayer_clone_post(){
 	// If post data exists, create the post clone
 	if(empty($post)){
 		wp_die('No post found');
+	}
+	
+	if(!current_user_can('edit_post', $post->ID)){
+		wp_die('You don\'t have access to clone this post.');
 	}
 	
 	$current_user = wp_get_current_user();

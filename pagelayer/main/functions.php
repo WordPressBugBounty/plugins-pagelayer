@@ -1166,7 +1166,22 @@ function pagelayer_unescapeHTML($str){
 }
 
 // To make decode entities faster
-function pagelayer_optimized_decode_entities($string) {
+function pagelayer_optimized_decode_entities($string, $req = true) {
+	
+	// Fast replace common HTML entities
+	$common_entities_map = [
+		'&#93;' => ']', '&#91;' => '[', '&lt;' => '<', '&gt;' => '>', '&amp;' => '&', '&quot;' => '"', '&#39;' => "'",
+		'&copy;' => '©', '&reg;' => '®', '&ndash;' => '–', '&mdash;' => '—', '&bull;' => '•',
+		'&hellip;' => '…', '&lsquo;' => '‘', '&rsquo;' => '’', '&ldquo;' => '“', '&rdquo;' => '”'
+	];
+
+	// Replace common entities first for performance
+	$string = str_replace(array_keys($common_entities_map), array_values($common_entities_map), $string);
+	
+	// Return early if no encoded entities exist
+	if(!preg_match('/\\\\u[0-9a-fA-F]{4}|&#x[0-9a-fA-F]+;|&#\d+;/', $string)) {
+		return $string;
+	}
 
 	$string = preg_replace_callback(
 		'/\\\\u([0-9a-fA-F]{4})|&#x([0-9a-fA-F]+);|&#([0-9]+);/',
@@ -1174,9 +1189,9 @@ function pagelayer_optimized_decode_entities($string) {
 			if (!empty($matches[1])) {
 				// Decode \uXXXX Unicode sequences
 				return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UTF-16BE');
-			} elseif (!empty($matches[2])) {
+			}elseif (!empty($matches[2])) {
 				// Decode hexadecimal HTML entities (&#x6A; → j)
-				return mb_convert_encoding(pack('H*', $matches[2]), 'UTF-8', 'UTF-16BE');
+				return mb_convert_encoding(pack('n', hexdec($matches[2])), 'UTF-8', 'UTF-16BE');
 			} elseif (!empty($matches[3])) {
 				// Decode decimal HTML entities (&#106; → j)
 				return mb_convert_encoding(pack('n', (int)$matches[3]), 'UTF-8', 'UTF-16BE');
@@ -1186,8 +1201,10 @@ function pagelayer_optimized_decode_entities($string) {
 		$string
 	);
 
-	// Additional decoding using `html_entity_decode()` to cover remaining cases
-	$string = html_entity_decode($string, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+	// Additional decoding to cover remaining cases
+	if($req){
+		$string = pagelayer_optimized_decode_entities($string, false);
+	}
 
 	return $string;
 }
@@ -1219,7 +1236,8 @@ function pagelayer_user_can_add_js_content(){
 
 // Check for XSS codes in our shortcodes submitted
 function pagelayer_xss_content($data){
-	$data = pagelayer_unescapeHTML(pagelayer_optimized_decode_entities($data));
+	
+	$data = pagelayer_optimized_decode_entities($data);
 	
 	$data = preg_split('/\s/', $data);
 	$data = implode('', $data);
@@ -1814,7 +1832,7 @@ function pagelayer_posts($params, $args = []){
 			if (!empty($params['term'])) {
 				$terms = explode(',', $params['term']);
 				$include = array_reduce($terms, function ($carry, $term) {
-					[$taxonomy, $slug, $id] = explode(':', $term);
+					list($taxonomy, $slug, $id) = explode(':', $term);
 					$carry[$taxonomy][] = $slug;
 					return $carry;
 				}, []);
@@ -1843,7 +1861,7 @@ function pagelayer_posts($params, $args = []){
 			if (!empty($params['exc_term'])) {
 				$terms = explode(',', $params['exc_term']);
 				$include = array_reduce($terms, function ($carry, $term) {
-					[$taxonomy, $slug, $id] = explode(':', $term);
+					list($taxonomy, $slug, $id) = explode(':', $term);
 					$carry[$taxonomy][] = $slug;
 					return $carry;
 				}, []);
@@ -1886,8 +1904,13 @@ function pagelayer_posts($params, $args = []){
 			$args['author'] = '-'.$exc_author[1];
 		}
 		
-		if(!empty($params['offset'])){
-			$args['offset'] = $params['offset'];
+		if (!empty($params['offset'])) {
+			$args['offset'] = (int) $params['offset'];
+			
+			// Make Compatible for Infinite load 
+			if(!empty($params['infinite_types']) && !empty($params['paged']) && $params['paged'] > 1 ){
+				$args['offset'] = $args['offset'] + (($params['paged'] - 1) * $params['posts_per_page']);
+			}
 		}
 		
 		if(!empty($params['ignore_sticky'])){

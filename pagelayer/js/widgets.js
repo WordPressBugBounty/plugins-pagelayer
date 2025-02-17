@@ -1648,6 +1648,7 @@ function pagelayer_render_pl_share(el){
 	
 	var labelList = { 'Facebook' : ['facebook', 'facebook-official', 'facebook-f', 'facebook-messenger', 'facebook-square'],
 		'Twitter' : ['twitter', 'twitter-square'],
+		'X' : [ 'x-twitter', 'x-twitter-square'],
 		'Google+' : ['google-plus', 'google-plus-square', 'google-plus-g'],
 		'Instagram' : ['instagram'],
 		'Linkedin' : ['linkedin', 'linkedin-square', 'linkedin-in'],

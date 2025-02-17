@@ -5670,7 +5670,6 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_btn', array(
 	)
 );
 
-
 // Social Profile Item
 pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_social', array(
 		'name' => __pl('Social Profile'),
@@ -5688,7 +5687,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_social', array(
 				'label' => __pl('list_icon_label'),
 				'default' => 'fab fa-facebook-square',
 				'addAttr' => ['{{element}} .pagelayer-icon-holder' => 'data-icon="{{icon}}"'],
-				'list' => ['facebook', 'facebook-f', 'facebook-square', 'facebook-messenger', 'twitter', 'twitter-square', 'google-plus', 'google-plus-g', 'google-plus-square', 'instagram', 'linkedin', 'linkedin-in', 'behance', 'behance-square', 'pinterest', 'pinterest-p', 'pinterest-square', 'reddit-alien', 'reddit-square', 'reddit', 'rss', 'rss-square', 'skype', 'slideshare', 'snapchat', 'snapchat-ghost', 'snapchat-square', 'soundcloud', 'spotify', 'stack-overflow', 'steam', 'steam-symbol', 'steam-square', 'stumbleupon', 'stumbleupon-circle', 'telegram', 'telegram-plane', 'thumbtack', 'tripadvisor', 'tumblr', 'tumblr-square', 'twitch', 'vimeo-v', 'vimeo', 'vimeo-square', 'vk', 'weibo', 'weixin', 'whatsapp', 'whatsapp-square', 'wordpress', 'wordpress-simple', 'xing', 'xing-square', 'yelp', 'youtube', 'youtube-square', '500px', 'flickr', 'android', 'github', 'github-alt', 'github-square', 'gitlab', 'apple', 'jsfiddle', 'houzz', 'bitbucket', 'codepen', 'delicious', 'medium', 'medium-m', 'meetup', 'mixcloud', 'dribbble', 'dribbble-square', 'foursquare', 'get-pocket', 'tiktok'],
+				'list' => ['facebook', 'facebook-f', 'facebook-square', 'facebook-messenger', 'twitter', 'twitter-square', 'x-twitter', 'x-twitter-square', 'google-plus', 'google-plus-g', 'google-plus-square', 'instagram', 'linkedin', 'linkedin-in', 'behance', 'behance-square', 'pinterest', 'pinterest-p', 'pinterest-square', 'reddit-alien', 'reddit-square', 'reddit', 'rss', 'rss-square', 'skype', 'slideshare', 'snapchat', 'snapchat-ghost', 'snapchat-square', 'soundcloud', 'spotify', 'stack-overflow', 'steam', 'steam-symbol', 'steam-square', 'stumbleupon', 'stumbleupon-circle', 'telegram', 'telegram-plane', 'thumbtack', 'tripadvisor', 'tumblr', 'tumblr-square', 'twitch', 'vimeo-v', 'vimeo', 'vimeo-square', 'vk', 'weibo', 'weixin', 'whatsapp', 'whatsapp-square', 'wordpress', 'wordpress-simple', 'xing', 'xing-square', 'yelp', 'youtube', 'youtube-square', '500px', 'flickr', 'android', 'github', 'github-alt', 'github-square', 'gitlab', 'apple', 'jsfiddle', 'houzz', 'bitbucket', 'codepen', 'delicious', 'medium', 'medium-m', 'meetup', 'mixcloud', 'dribbble', 'dribbble-square', 'foursquare', 'get-pocket', 'tiktok'],
 				'onchange' => 'pagelayer_social_icon_onchange'
 			),
 			'social_url' => array(
@@ -7775,6 +7774,11 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_tab', array(
 				'type' => 'icon',
 				'label' => __pl('icon'),
 				'addAttr' => 'pagelayer-tab-icon="{{tab_icon}}"',
+			),
+			'anchor_id' => array(
+				'type' => 'text',
+				'label' => __pl('ele_id'),
+				'addAttr' => 'id="{{anchor_id}}"'
 			),
 			'title' => array(
 				'type' => 'text',

@@ -1152,6 +1152,11 @@ background-color:#1DA1F2;
 color:#1DA1F2;
 }
 
+.pagelayer-social_grp[class*="pagelayer-social-shape"] .pagelayer-icon-holder[class*="pagelayer-x-twitter"],
+.pagelayer-share-content[class*="pagelayer-x-twitter"]{
+background-color:#000000;
+}
+
 .pagelayer-icon-holder[class*="pagelayer-android"] .pagelayer-social-fa{
 color:#A4C639
 }

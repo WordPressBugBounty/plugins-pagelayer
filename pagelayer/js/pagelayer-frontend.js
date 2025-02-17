@@ -394,7 +394,8 @@ var pagelayer_tab_timers = {};
 function pagelayer_pl_tabs(jEle) {
 	
 	var default_active = '';
-	var jEle_id = jEle.attr('pagelayer-id');	
+	var jEle_id = jEle.attr('pagelayer-id');
+	var hashTabId = '';	
 
 	var tabCont = jEle.children('.pagelayer-tabcontainer');
 	var children = pagelayer_get_tab_ele(tabCont);
@@ -405,6 +406,7 @@ function pagelayer_pl_tabs(jEle) {
 		var pl_id = tEle.attr('pagelayer-id');
 				
 		var title = tEle.attr('pagelayer-tab-title') || 'Tab';
+		var id = tEle.attr('id');
 		var func = "pagelayer_tab_show(this, '"+pl_id+"')";
 		
 		var icon = '';
@@ -417,11 +419,27 @@ function pagelayer_pl_tabs(jEle) {
 			default_active = pl_id;
 		}
 		
-		jEle.children('.pagelayer-tabs-holder').append('<span tab-id="'+pl_id+'" class="pagelayer-tablinks" onclick="'+func+'"> <i class="'+icon+'"></i> <span>'+title+'</span></span>');
+		jEle.children('.pagelayer-tabs-holder').append('<span tab-id="'+pl_id+'" id="'+id+'" class="pagelayer-tablinks" onclick="'+func+'"> <i class="'+icon+'"></i> <span>'+title+'</span></span>');
 	});
 
+	// Default Active by Hash
+	var hash = location.hash.slice(1);
+	if (!pagelayer_empty(hash)) {
+		var hashTab = jEle.find('#' + hash);
+		
+		if (!pagelayer_empty(hashTab) && hashTab.length > 0) {
+			var currentTab = hashTab.closest('.pagelayer-tablinks');
+			if (currentTab.length > 0) {
+				var currentTabId = currentTab.attr('tab-id');
+				hashTabId = currentTabId;
+			}
+		}
+	}
+  
+	if(hashTabId.length > 0){
+		pagelayer_tab_show(jEle.find('[tab-id=' + hashTabId + ']'), hashTabId);
 	// Set the default tab
-	if(default_active.length > 0){
+	}else if(default_active.length > 0){
 		pagelayer_tab_show(jEle.find('[tab-id='+default_active+']'), default_active);
 	// Set the first tab as active
 	}else{
@@ -1048,7 +1066,11 @@ function pagelayer_recaptcha_loader(jEle, loadScript){
 							grecaptcha.execute(sitekey, { action: 'submit' }).then(function (token) {
 								// Append the token to the form or element to be submitted
 								form.find('input.pagelayer-g-recaptcha-v3-token').val(token);
-								form.submit();
+								if(form[0].requestSubmit){
+									form[0].requestSubmit();
+								}else{
+									form.submit();
+								}
 							});
 						});
 					}else{					
