@@ -1165,6 +1165,26 @@ function pagelayer_unescapeHTML($str){
 	return $str;
 }
 
+// Converts a Unicode code point to its UTF-8 encoded string.
+function pagelayer_codepoint_to_utf8($num) {
+	if ($num < 0x80) {
+		return chr($num);
+	} elseif ($num < 0x800) {
+		return chr(0xC0 | ($num >> 6))
+			 . chr(0x80 | ($num & 0x3F));
+	} elseif ($num < 0x10000) {
+		return chr(0xE0 | ($num >> 12))
+			 . chr(0x80 | (($num >> 6) & 0x3F))
+			 . chr(0x80 | ($num & 0x3F));
+	} elseif ($num < 0x110000) {
+		return chr(0xF0 | ($num >> 18))
+			 . chr(0x80 | (($num >> 12) & 0x3F))
+			 . chr(0x80 | (($num >> 6) & 0x3F))
+			 . chr(0x80 | ($num & 0x3F));
+	}
+	return '';
+}
+
 // To make decode entities faster
 function pagelayer_optimized_decode_entities($string, $req = true) {
 	
@@ -1188,13 +1208,13 @@ function pagelayer_optimized_decode_entities($string, $req = true) {
 		function ($matches) {
 			if (!empty($matches[1])) {
 				// Decode \uXXXX Unicode sequences
-				return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UTF-16BE');
+				return pagelayer_codepoint_to_utf8( hexdec($matches[1]) );
 			}elseif (!empty($matches[2])) {
 				// Decode hexadecimal HTML entities (&#x6A; → j)
-				return mb_convert_encoding(pack('n', hexdec($matches[2])), 'UTF-8', 'UTF-16BE');
+				return pagelayer_codepoint_to_utf8( hexdec($matches[2]) );
 			} elseif (!empty($matches[3])) {
 				// Decode decimal HTML entities (&#106; → j)
-				return mb_convert_encoding(pack('n', (int)$matches[3]), 'UTF-8', 'UTF-16BE');
+				return pagelayer_codepoint_to_utf8( (int)$matches[3] );
 			}
 			return $matches[0];
 		},
@@ -1301,6 +1321,11 @@ function pagelayer_sanitize_blocks_save_pre($block){
 					//echo (string)$v.'--'.$found."\n";
 				
 					if(strlen($found) > 0){
+						// There is htmlentities?
+						if(strpos($v, $found) === false){
+							$v = '';
+							break;
+						}
 						$v = str_replace($found, '', $v);
 					}else{
 						break;
