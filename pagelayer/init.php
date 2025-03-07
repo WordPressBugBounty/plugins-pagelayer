@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '1.9.8');
+define('PAGELAYER_VERSION', '1.9.9');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -479,6 +479,8 @@ function pagelayer_save_post( $post_id, $post, $update ) {
 	if( !isset($_REQUEST['is_pagelayer_editor']) || !pagelayer_user_can_edit($post_id)){
 		return;
 	}
+	
+	check_admin_referer('update-post_' . $post_id);
 	
 	// Save Header, body and footer code
 	$header_code = !empty($_REQUEST['pagelayer_header_code']) ? $_REQUEST['pagelayer_header_code'] : '' ;

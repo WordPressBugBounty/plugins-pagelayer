@@ -428,7 +428,9 @@ function pagelayer_builder_posts_shortcode($atts){
 	$post = get_post((int) $atts['id']);
 	
 	// If post is not empty
-	if(empty($post)){return '';}
+	if(empty($post) || $post->post_type != 'pagelayer-template' || ($post->post_status === 'private' && !current_user_can('read_private_posts'))){
+		return '';
+	}	
 	
 	$pagelayer->dont_make_editable = true;
 	$content = $post->post_content;
