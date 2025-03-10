@@ -174,7 +174,11 @@ function pagelayer_save_content(){
 		$msg['error'] = __pl('invalid_post_id');
 		pagelayer_json_output($msg);
 	}
-
+	
+	// Get the post type and its capabilities
+	$post_type = $_post->post_type;
+	$post_type_obj = get_post_type_object($post_type);
+	
 	// Are you allowed to edit ?
 	if(!pagelayer_user_can_edit($postID)){
 		$msg['error'][] =  __pl('no_permission');
@@ -205,20 +209,50 @@ function pagelayer_save_content(){
 			'post_content' => $content,
 		);
 		
-		// Any properties ?			
-		$allowed = ['post_title', 'post_name', 'post_excerpt', 'post_status', 'post_password', 'post_date', 'post_author', 'post_parent', 'menu_order'];
+		// Any properties ?
+		$allowed = ['post_title', 'post_name', 'post_excerpt', 'post_status', 'post_password', 'post_date', 'post_parent', 'menu_order'];
 
 		foreach($allowed as $k){
 			if(isset($_REQUEST[$k])){
-				$post[$k] = $_REQUEST[$k];
+				$post[$k] = sanitize_text_field($_REQUEST[$k]);
 			}
 		}
 		
-		if(!empty($post['post_password']) && $_REQUEST['post_sticky'] == true){
-			$msg['error'] = __pl('post_pass_with_sticky_err');
-			pagelayer_json_output($msg);
+		// Restrict contributors from setting 'publish' or modifying unauthorized fields
+		$can_publish = current_user_can($post_type_obj->cap->publish_posts);
+		if(!$can_publish){
+			if(!in_array($post['post_status'], ['draft', 'pending'])){
+				$post['post_status'] = 'pending'; // Force pending status
+			}
 		}
 		
+		if(!empty($post['post_password'])){
+			if($_REQUEST['post_sticky'] == true){
+				$msg['error'] = __pl('post_pass_with_sticky_err');
+				pagelayer_json_output($msg);
+			}
+			
+			// Prevent unauthorized password protection
+			$can_protect = current_user_can($post_type_obj->cap->edit_private_posts);
+			if(!$can_protect){
+				$msg['error'][] = __pl('no_permission_to_set_password');
+				pagelayer_json_output($msg);
+			}
+		}
+		
+		// Prevent unauthorized modification of `post_author`
+		if(isset($_REQUEST['post_author']) && $_REQUEST['post_author'] != $_post->post_author){
+
+			$edit_others_posts = current_user_can($post_type_obj->cap->edit_others_posts);
+
+			if($edit_others_posts){
+				$post['post_author'] = (int) $_REQUEST['post_author'];
+			}else{
+				$msg['error'][] = __pl('no_permission_to_change_author');
+				pagelayer_json_output($msg);
+			}
+		}
+
 		$post['comment_status'] = !empty($_REQUEST['comment_status']) ? 'open' : 'closed';
 		$post['ping_status'] = !empty($_REQUEST['ping_status']) ? 'open' : 'closed';
 		$post['post_status'] = empty($post['post_status']) ? $_post->post_status : $post['post_status'];
@@ -235,7 +269,7 @@ function pagelayer_save_content(){
 			if($_post->post_type == 'post' && !current_user_can('publish_posts')){
 				$post['post_status'] = 'pending';
 			}
-		}	
+		}
 		
 		if(!empty($post['post_password'])){
 			$post['post_password'] = (in_array($post['post_status'], array('pass_protected', 'publish')) ? $post['post_password'] : '');
