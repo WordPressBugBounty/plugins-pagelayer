@@ -107,6 +107,11 @@ jQuery(document).ready( function(){
 				for (x in sval['choices'][value]){
 					fontHtml += option((jQuery.isNumeric(x) ? sval['choices'][value][x] : x), sval['choices'][value][x]);
 				}
+				
+				// Close the optgroup if it was opened
+				if(value !== 'default'){
+					fontHtml += '</optgroup>';
+				}
 			}
 			
 			pagelayer_fontHtmlArray[sk] = fontHtml;

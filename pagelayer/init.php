@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.0.0');
+define('PAGELAYER_VERSION', '2.0.1');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -15,6 +15,7 @@ define('PAGELAYER_PRO_PRICE_URL', 'https://pagelayer.com/pricing?from=plugin');
 define('PAGELAYER_WWW_URL', 'https://pagelayer.com/');
 define('PAGELAYER_DOCS', 'https://pagelayer.com/docs/');
 define('PAGELAYER_API', 'https://api.pagelayer.com/');
+define('PAGELAYER_AI_API', 'https://s2.softaculous.com/a/softai/ai.php');
 define('PAGELAYER_SC_PREFIX', 'pl');
 define('PAGELAYER_YOUTUBE_BG', 'https://www.youtube.com/watch?v=Csa6rvCWmLU');
 define('PAGELAYER_CMS_NAME', defined('SITEPAD') ? 'SitePad' : 'WordPress');

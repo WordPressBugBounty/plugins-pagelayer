@@ -1412,7 +1412,7 @@ function pagelayer_login_submit(){
 			update_user_option($user->ID, 'pagelayer_logout_url', $_REQUEST['logout_url']);
 		}
 	
-		$data['redirect'] = (empty($_REQUEST['login_url']) ? '' : $_REQUEST['login_url']);
+		$data['redirect'] = (empty($_REQUEST['login_url']) ? '' : sanitize_url($_REQUEST['login_url']));
 		$data['error'] = '';
 	}
 

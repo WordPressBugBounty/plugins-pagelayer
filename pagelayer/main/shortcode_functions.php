@@ -340,7 +340,7 @@ function pagelayer_render_shortcode($atts, $content = '', $tag = '', $inner_bloc
 						}
 					}
 					
-					$el['tmp'][$prop] = pagelayer_permalink($link);
+					$el['tmp'][$prop] = esc_url(pagelayer_permalink($link));
 				}
 				
 				// Handle the AddClasses

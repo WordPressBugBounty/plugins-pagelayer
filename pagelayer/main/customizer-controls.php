@@ -264,7 +264,7 @@ class Pagelayer_typo_Control extends Pagelayer_Customize_Control {
 							
 							<select name="<?php echo $field_name; ?>" <?php $this->link($field_name); ?> data-font-key="<?php echo $sk;?>" data-default-value="<?php echo $field_val; ?>" <?php echo $show_device; ?>>
 								<?php
-								// This add this js
+								// This add using js
 								//echo pagelayer_create_font_options($sval['choices'], $this->value($field_name));
 								?>
 							</select>
@@ -533,7 +533,7 @@ class Pagelayer_Font_Repeater_Control extends Pagelayer_Customize_Control {
 							if(isset($sval['choices'])){ ?>
 								<select name="<?php echo $field_name; ?>" data-font-key="<?php echo $sk;?>" data-default-value="<?php  echo $field_val; ?>" <?php echo $show_device;?>>
 									<?php
-									// This add this js
+									// This add using js
 									//echo pagelayer_create_font_options($sval['choices'], $val['value'][$sk]);
 									?>
 								</select>

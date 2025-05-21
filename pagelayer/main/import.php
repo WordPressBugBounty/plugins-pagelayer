@@ -333,10 +333,26 @@ function pagelayer_import_conf(&$conf){
 	
 }
 
+// The actual function to get page content to import the theme
+function pagelayer_file_get_import_contents($path){
+	
+	$pre_content = apply_filters('pagelayer_pre_get_import_contents', null, $path);
+	
+	if(!empty($pre_content)){
+		return $pre_content;
+	}
+	
+	$content = file_get_contents($path);
+	
+	$content = apply_filters('pagelayer_get_import_contents', $content, $path);
+
+	return $content;
+}
+
 // The actual function to import the theme
 function pagelayer_import_single($template_name, $items, $pagelayer_theme_path = ''){
 	
-global $wpdb, $wp_rewrite;	
+global $wpdb, $wp_rewrite;
 global $pagelayer, $pl_error;
 	
 	if(empty($pagelayer_theme_path)){
@@ -408,7 +424,7 @@ global $pagelayer, $pl_error;
 		}
 			
 		// Make an array
-		$new_post['post_content'] = file_get_contents($path);
+		$new_post['post_content'] = pagelayer_file_get_import_contents($path);
 		$new_post['post_title'] = $v['post_title'];
 		$new_post['post_name'] = $v['post_name'];
 		$new_post['post_type'] = 'page';
@@ -429,7 +445,7 @@ global $pagelayer, $pl_error;
 	}
 	
 	//To import typography and breakpoint
-	if(!empty($data['conf'])){		
+	if(!empty($data['conf'])){
 		pagelayer_import_conf($data['conf']);
 	}
 	
@@ -520,7 +536,6 @@ global $pagelayer, $pl_error, $sitepad;
 		require_once ABSPATH . PAGELAYER_CMS_DIR_PREFIX.'-admin/includes/file.php';
 	}
 	
-		
 	$_media = list_files($pagelayer_theme_path.'/images', 1);
 	$imgs_json = array(); 
 	//pagelayer_print($_media);die();
@@ -625,7 +640,7 @@ global $pagelayer, $pl_error, $sitepad;
 				}
 			}
 		}
-	}	
+	}
 	//r_print($pagelayer->import_media);die();
 	
 	// If we are to import default templates
@@ -713,7 +728,7 @@ global $pagelayer, $pl_error, $sitepad;
 		}
 		
 		// Make an array
-		$new_post['post_content'] = empty($v['post_content']) ? file_get_contents($path) : $v['post_content'];
+		$new_post['post_content'] = empty($v['post_content']) ? pagelayer_file_get_import_contents($path) : $v['post_content'];
 		$new_post['post_title'] = $v['title'];
 		$new_post['post_name'] = $k;
 		$new_post['post_type'] = $pagelayer->builder['name'];
@@ -843,7 +858,7 @@ global $pagelayer, $pl_error, $sitepad;
 			}
 			
 			// Make an array
-			$new_post['post_content'] = file_get_contents($path);
+			$new_post['post_content'] = pagelayer_file_get_import_contents($path);
 			$new_post['post_excerpt'] = $v['post_excerpt'];
 			$new_post['post_title'] = $v['post_title'];
 			$new_post['post_name'] = $v['post_name'];

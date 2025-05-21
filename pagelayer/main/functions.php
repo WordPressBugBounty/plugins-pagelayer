@@ -1837,7 +1837,7 @@ function pagelayer_posts($params, $args = []){
 		}, 999 );
 	}
 		
-	add_filter('excerpt_more', 'pagelayer_remove_excerpt_more', 999);
+	// add_filter('excerpt_more', 'pagelayer_remove_excerpt_more', 999);
 	
 	// If args is empty
 	if(empty($args)){
@@ -2056,10 +2056,13 @@ function pagelayer_posts($params, $args = []){
 		
 		if(!empty($params['show_content'])){
 			$data .= '<div class="pagelayer-wposts-excerpt">';
-			if($params['show_content'] == 'excerpt'){	
-				$data .= pagelayer_the_content(get_the_excerpt());
-			}elseif($params['show_content'] == 'full'){
-				$data .= pagelayer_the_content(get_the_content());	
+			
+			if($params['show_content'] == 'excerpt'){
+				$post_excerpt = get_the_excerpt();
+				$trimmed_excerpt = !empty($params['exc_length']) ? wp_trim_words($post_excerpt, (int) $params['exc_length']) : $post_excerpt;
+				$data .= pagelayer_the_content($trimmed_excerpt);
+			} elseif ($params['show_content'] == 'full') {
+				$data .= pagelayer_the_content(get_the_content());
 			}
 			$data .= '</div>';
 		}

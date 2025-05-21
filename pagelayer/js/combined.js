@@ -510,24 +510,31 @@ function pagelayer_pl_accordion(jEle){
 		}
 	}
 	
-	holder.unbind('click');
-	holder.on('click', '.pagelayer-accordion-tabs', function(){
+	var not_tabs = accHolder.find('.pagelayer-accordion_item .pagelayer-accordion-tabs');
+	var tabs = accHolder.find('.pagelayer-accordion-tabs').not(not_tabs);
+	
+	tabs.off('click');
+	tabs.on('click', function(e) {
+
+		e.stopPropagation(); // Prevent bubbling up to parent accordions
 		
 		var currentTab = jQuery(this).closest('.pagelayer-accordion_item');
-		
-		if(currentTab.hasClass('active') && currentTab.children('.pagelayer-accordion-panel').is(':visible')){
+		var accHolder = currentTab.closest('.pagelayer-accordion-holder'); // Only the current group
+
+		if (currentTab.hasClass('active') && currentTab.children('.pagelayer-accordion-panel').is(':visible')) {
 			currentTab.removeClass('active').children('.pagelayer-accordion-panel').slideUp('slow');
-			currentTab.find('.pagelayer-accordion-tabs span i').attr('class', icon);
-			return true;
+			currentTab.find('.pagelayer-accordion-tabs').not(not_tabs).find('span i').attr('class', icon);
+			return;
 		}
-		
-		accHolder.find('.pagelayer-accordion-tabs span i').attr('class', icon);
-		accHolder.removeClass('active').filter(function(index){
-			return accHolder[index]!=currentTab[0];
-		}).children('.pagelayer-accordion-panel').slideUp('slow');							
-	
+
+		// Close only siblings inside the same accordion group
+		accHolder.find('.pagelayer-accordion_item').not(accHolder.find('.pagelayer-accordion_item .pagelayer-accordion_item')).not(currentTab).not(currentTab.find('.pagelayer-accordion_item')).removeClass('active')
+			.children('.pagelayer-accordion-panel').slideUp('slow')
+			.end().find('.pagelayer-accordion-tabs').not(not_tabs).find('span i').attr('class', icon);
+
+		// Open the clicked one
 		currentTab.addClass('active').children('.pagelayer-accordion-panel').slideDown('slow');
-		currentTab.find('.pagelayer-accordion-tabs span i').attr('class', active_icon);
+		currentTab.find('.pagelayer-accordion-tabs').not(not_tabs).find('span i').attr('class', active_icon);
 		
 	});
 	
@@ -576,23 +583,27 @@ function pagelayer_pl_collapse(jEle){
 	jQuery(activeTabs).addClass('active').children('.pagelayer-accordion-panel').slideDown('slow');
 	jQuery(activeTabs).find('.pagelayer-accordion-tabs span i').attr('class', active_icon);
 		
+	var not_tabs = tabs.find('.pagelayer-accordion_item .pagelayer-accordion-tabs');
+	var _tabs = tabs.find('.pagelayer-accordion-tabs').not(not_tabs);
+
 	// Already setup ?
 	if(setup && setup.length > 0){
-		tabs.find('.pagelayer-accordion-tabs').unbind('click');
+		_tabs.off('click');
 	}
-
-	tabs.find('.pagelayer-accordion-tabs').click(function(){
-		
+	
+	_tabs.on('click', function(e){
+		e.preventDefault();
+    
 		var currentTab = jQuery(this).closest('.pagelayer-accordion_item');
 		
 		if(currentTab.hasClass('active')){
 			currentTab.removeClass('active').children('.pagelayer-accordion-panel').slideUp('slow');
-			currentTab.find('.pagelayer-accordion-tabs span i').attr('class', icon);
+			currentTab.find('.pagelayer-accordion-tabs').not(not_tabs).find('span i').attr('class', icon);
 			return true;
 		}
 			
 		currentTab.addClass('active').children('.pagelayer-accordion-panel').slideDown('slow');
-		currentTab.find('.pagelayer-accordion-tabs span i').attr('class', active_icon);
+		currentTab.find('.pagelayer-accordion-tabs').not(not_tabs).find('span i').attr('class', active_icon);
 		
 	});
 	

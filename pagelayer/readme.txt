@@ -2,9 +2,9 @@
 Contributors: pagelayer, softaculous
 Tags: page builder, editor, drag and drop, gutenberg blocks, landing-page
 Requires at least: 4.7
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.5
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -130,6 +130,11 @@ Do you have questions related to Pagelayer? Use the following links :
 9. **Content Slides** can be designed without the effort of installing extra plugins.
 
 == Changelog ==
+
+= 2.0.1 (May 19, 2025) =
+* [Security-Fix] URLs were not sanitized in some places. This has been fixed!
+* [Bug-Fix] Font list not showing properly when setting global font to customized. This is fixed.
+* [Bug-Fix] Nested accordion and collapse widgets were not working properly. This is fixed.
 
 = 2.0.0 (March 10, 2025) =
 * [Security-Fix] The contributor level validations issue reported by security researcher Brian Sans-Souci (liardom) has been fixed. Please upgrade to this version as soon as possible!

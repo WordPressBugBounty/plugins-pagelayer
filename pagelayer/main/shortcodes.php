@@ -8554,6 +8554,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_testimonial', array(
 				'label' => __pl('testimonial_image_label'),
 				'default' => PAGELAYER_URL.'/images/default-image.png',
 				'desc' => __pl('testimonial_image_desc'),
+				'ai' => false,
 			),
 			'testimonial_image_size' => array(
 				'label' => __pl('testimonial_image_sizes'),
