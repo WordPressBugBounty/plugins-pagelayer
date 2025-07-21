@@ -2244,3 +2244,15 @@ function pagelayer_infinite_posts(){
 	$wp['posts'] = pagelayer_the_content($content);
 	pagelayer_json_output( $wp );
 }
+
+add_action('wp_ajax_pagelayer_pro_dismiss_expired_licenses', 'pagelayer_pro_dismiss_expired_licenses');
+function pagelayer_pro_dismiss_expired_licenses(){
+	check_admin_referer('pagelayer_expiry_notice', 'security');
+
+	if(!current_user_can('activate_plugins')){
+		wp_send_json_error(__('You do not have required access to do this action', 'pagelayer'));
+	}
+
+	update_option('softaculous_expired_licenses', time());
+	wp_send_json_success();
+}

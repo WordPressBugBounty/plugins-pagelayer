@@ -962,6 +962,12 @@ function pagelayer_image($id = 0){
 		$ret['url'] = PAGELAYER_URL.'/images/default-image.png';
 	}
 
+	// Extract filename without extension
+	$filename = pathinfo($ret['url'], PATHINFO_FILENAME);
+	
+	// Skip title if same as filename
+	$title = (!empty($title) && $title != $filename) ? $title : ''; 
+			
 	$ret['alt'] = @$alt;
 	$ret['title'] = @$title;
 	$ret['link'] = @$link;

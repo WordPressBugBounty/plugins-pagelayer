@@ -3,7 +3,7 @@
 Plugin Name: Pagelayer
 Plugin URI: http://wordpress.org/plugins/pagelayer/
 Description: Pagelayer is a WordPress page builder plugin. Its very easy to use and very light on the browser.
-Version: 2.0.1
+Version: 2.0.2
 Author: Pagelayer Team
 Author URI: https://pagelayer.com/
 License: LGPL v2.1

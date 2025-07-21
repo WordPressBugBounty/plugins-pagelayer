@@ -47,18 +47,19 @@ add_action('template_redirect', 'pagelayer_block_init');
 function pagelayer_block_init(){
 	global $pagelayer;
 	
-	if(!function_exists('register_block_type') || !pagelayer_has_blocks()){
+	// Not load for gutenberg
+	if(!function_exists('register_block_type') || !pagelayer_has_blocks() || pagelayer_is_gutenberg_editor()){
 		return;
 	}
 	
-	// Load shortcode
+	// Load shortcodes
 	pagelayer_load_shortcodes();
 	
 	$pl_blocks_styles = $pagelayer->styles;
-	$pl_attrs = [];
 
 	foreach ($pagelayer->shortcodes as $block => $pl_props) {
 		
+		// Skip blocks not meant for Gutenberg
 		if(!empty($pl_props['no_gt']) || $pl_props['group'] == 'woocommerce'){
 			continue;
 		}
@@ -68,7 +69,8 @@ function pagelayer_block_init(){
 		$pagelayer_tabs = ['settings', 'options'];
 
 		foreach($pagelayer_tabs as $tab){
-			$section_close = false; // First section always open
+
+			if (empty($pl_props[$tab]) || !is_array($pl_props[$tab])) continue;
 
 			foreach($pl_props[$tab] as $section => $props){
 				$props = array_key_exists($section, $pl_props) ? $pl_props[$section] : $pl_blocks_styles[$section];

@@ -503,6 +503,9 @@ global $pagelayer, $pl_error, $sitepad;
 	$data = @json_decode($data, true);
 	//r_print($data);die();
 	
+	// Prepare template data
+	$data = apply_filters('pagelayer_prepare_template_import_data', $data, $template_name );
+	
 	if(empty($data['page'])){
 		$pl_error[] = 'Pages list not found. This is not a proper template !';
 		return false;

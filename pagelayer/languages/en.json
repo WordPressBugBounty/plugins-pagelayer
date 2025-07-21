@@ -1834,6 +1834,7 @@
 	"no_active_ele_paste" : "Active element not found while pasting element !",
 	"no_copied" : "There is no copied element !",
 	"copied_msg" : "Widget copied successfully",
+	"invalid_copy_ele_msg" : "Please select a valid widget to copy",
 	"replace_img" : "Replace Image",
 	"paste_after" : "Paste After Widget",
 	"active" : "Active",

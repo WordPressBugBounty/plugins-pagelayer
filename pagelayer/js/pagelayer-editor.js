@@ -1984,8 +1984,8 @@ function pagelayer_right_click(){
 		'<ul>'+
 			'<li><a class="pagelayer-right-edit">Edit</a></li>'+
 			'<li><a class="pagelayer-right-duplicate"><i class="far fa-clone" ></i> '+pagelayer_l('Duplicate')+'</a></li>'+
-			'<li><a class="pagelayer-right-copy"><i class="far fa-copy" ></i> '+pagelayer_l('Copy')+'</a></li>'+
-			'<li><a class="pagelayer-right-paste"><i class="far fa-clipboard" ></i> '+pagelayer_l('Paste')+'</a></li>'+
+			'<li><a class="pagelayer-right-copy"><i class="far fa-copy" ></i> '+pagelayer_l('Copy')+' <span style="float:right">Ctrl+c</span></a></li>'+
+			'<li><a class="pagelayer-right-paste pagelayer-context-disable" title="If the paste is not done correctly then use Ctrl+V"><i class="far fa-clipboard" ></i> '+pagelayer_l('Paste')+' <span style="float:right">Ctrl+v</span></a></li>'+
 			'<li><a class="pagelayer-right-delete"><i class="far fa-trash-alt" ></i> '+pagelayer_l('Delete')+'</a></li>'+
 			'<li><a class="pagelayer-right-save-global-widget" pro="1"><i class="far fa-save" ></i> '+pagelayer_l('save_global')+'</a></li>'+
 			'<li><a class="pagelayer-right-save-section" pro="1"><i class="far fa-heart" ></i> '+pagelayer_l('save_as_section')+'</a></li>'+
@@ -2002,6 +2002,11 @@ function pagelayer_right_click(){
 		var tEle = jQuery(e.target);
 		var jEle = tEle.closest('.pagelayer-ele-wrap').children('.pagelayer-ele');
 		
+		// If copy_selected is empty then copy data from localStorage
+		if(pagelayer_empty(pagelayer.copy_selected)){
+			pagelayer_copy_from_clipboard();
+		}
+		
 		// Get the parent
 		var pId = pagelayer_get_parent(jEle);
 		
@@ -2017,7 +2022,6 @@ function pagelayer_right_click(){
 		$contextMenu.find('.pagelayer-right-edit').attr('onclick', 'pagelayer_edit_element("[pagelayer-id='+id+']")').html('<i class="far fa-edit" ></i> Edit '+pagelayer_shortcodes[tag]['name']);
 		$contextMenu.find('.pagelayer-right-duplicate').attr('onclick', 'pagelayer_copy_element("[pagelayer-id='+id+']")');
 		$contextMenu.find('.pagelayer-right-copy').attr('onclick', 'pagelayer_copy_select("[pagelayer-id='+id+']")');
-		$contextMenu.find('.pagelayer-right-paste').attr('onclick', 'pagelayer_paste_element("[pagelayer-id='+id+']")');
 		$contextMenu.find('.pagelayer-right-delete').attr('onclick', 'pagelayer_delete_element("[pagelayer-id='+id+']")');
 		
 		// If is pagelayer pro
@@ -2040,17 +2044,28 @@ function pagelayer_right_click(){
 			});
 		}
 		
-		// If copy_selected is empty then copy data from localStorage
-		if(pagelayer_empty(pagelayer.copy_selected)){
-			pagelayer_copy_from_localStorage();
+		var showPaste = function(){
+			if(!pagelayer_empty(pagelayer.copy_selected) && pagelayer_can_copy_to(jEle)){
+				$contextMenu.find('.pagelayer-right-paste').removeClass('pagelayer-context-disable');
+				$contextMenu.find('.pagelayer-right-paste').attr('onclick', 'pagelayer_paste_element("[pagelayer-id='+id+']")');
+			}
 		}
 		
 		// Are we to hide the paste ?
-		if(!pagelayer_empty(pagelayer.copy_selected) && pagelayer_can_copy_to(jEle)){
-			//console.log(pagelayer_can_copy_to(jEle));
-			$contextMenu.find('.pagelayer-right-paste').parent().show();
+		if(pagelayerClipboardLoading){
+			var clipboardLoading = {};
+			clipboardLoading = setInterval(function(){
+				
+				if(pagelayerClipboardLoading){
+					return;
+				}
+				
+				clearInterval(clipboardLoading);
+				showPaste();
+				
+			}, 100);
 		}else{
-			$contextMenu.find('.pagelayer-right-paste').parent().hide();
+			showPaste();
 		}
 		
 		var gId = pagelayer_get_global_id(jEle);
@@ -2686,16 +2701,27 @@ jQuery(document).on('copy', function(copyEvent){
 	}
 	
 	if(pagelayer_active.el && pagelayer_active.el.id){
-		
-		// Do empty clipbord data 
-		(copyEvent.originalEvent || copyEvent).clipboardData.setData('text/plain', '');
 		copyEvent.preventDefault();
 		
 		// Save the active element id
-		pagelayer_copy_select("[pagelayer-id='"+pagelayer_active.el.id+"']");
+		pagelayer_copy_select("[pagelayer-id='"+pagelayer_active.el.id+"']", copyEvent);
 		
 	}
 	
+});
+
+// This is for preload clipboard data
+// Content can be copied from outside
+var pagelayerIsParentBlured = true;
+jQuery(window).on('focus', function(e){
+	if(pagelayerIsParentBlured){
+		pagelayer_copy_from_clipboard();
+	}
+	pagelayerIsParentBlured = true;
+});
+
+jQuery(window.parent).on('focus', function(){
+	pagelayerIsParentBlured = false;
 });
 
 // Handle Paste in the editor
@@ -2835,15 +2861,31 @@ jQuery(document).on('paste', function(pasteEvent){
 	
 	var findImg = pagelayer_editable_paste_handler(pasteEvent, pagelayer_ajax_func);
 	
-	if(pagelayer_empty(findImg) && pagelayer_empty(contenteditable) || pasteWidget){
+	if(pagelayer_empty(findImg) || pasteWidget){
 		
 		// Check the active element
 		if(pagelayer_active.el && pagelayer_active.el.id && pagelayer_active.el.tag != 'pl_post_props'){
 			
-			var jEle = jQuery("[pagelayer-id='"+pagelayer_active.el.id+"']");
-									
-			// Check if the any element is copied
-			pagelayer_paste_element("[pagelayer-id='"+pagelayer_active.el.id+"']");
+			const text = clipboardData.getData('text');
+			var pEle = jQuery(text);
+			var getData = true;
+			
+			if(pEle.length > 0 && !pagelayer_empty(pagelayer_tag(pEle)) ){
+				
+				// Cache pEle to make contextmenu paste faster
+				pagelayer.copy_selected = pEle;
+				getData = false;
+				
+				// Is it to be pastable
+				if(pagelayer_can_copy_to('[pagelayer-id="'+pagelayer_active.el.id+'"]')){
+					pasteEvent.preventDefault();
+					var jEle = jQuery("[pagelayer-id='"+pagelayer_active.el.id+"']");
+											
+					// Check if the any element is copied
+					pagelayer_paste_element(jEle, false);
+				}
+				
+			}
 			
 		}else{
 			pagelayer_show_msg(pagelayer_l('no_active_ele_paste'));
@@ -2910,16 +2952,77 @@ function pagelayer_delete_element(selector){
 };
 
 // Select an element
-function pagelayer_copy_select(selector){
+function pagelayer_copy_select(selector, copyEvent = false){
 	
-	var eHtml = jQuery(selector)[0].outerHTML;
+	var sEle = jQuery(selector);
 	
-	// Copy data on localStorage
-	localStorage.setItem("pagelayer_ele", eHtml);
+	if(sEle.length < 1){
+		pagelayer_show_msg( pagelayer_l('invalid_copy_ele_msg'));
+		return;
+	}
 	
-	pagelayer.copy_selected = selector;
+	var tag = pagelayer_tag(sEle);
 	
-	pagelayer_show_msg( pagelayer_l('copied_msg'));
+	if(
+		pagelayer_empty(tag) || 
+		pagelayer_empty(pagelayer_shortcodes[tag]) || 
+		!pagelayer_empty(pagelayer_shortcodes[tag]['not_visible'])
+	){
+		pagelayer_show_msg( pagelayer_l('invalid_copy_ele_msg'));
+		return;
+	}
+	
+	var eHtml = sEle[0].outerHTML;
+	
+	pagelayer.copy_selected = eHtml;
+  
+	// To hide Cliboard warning while pasting
+	pagelayerClipboardReadable = true;
+  
+	if(copyEvent){
+		// set clipbord data
+		(copyEvent.originalEvent || copyEvent).clipboardData.setData('text/plain', eHtml);
+		pagelayer_show_msg(pagelayer_l('copied_msg'));
+		
+		return;
+	}
+	
+	// Copy element to clipboard
+	pagelayer_copy_ele_to_clipboard(eHtml);
+	
+}
+
+// Select an element
+function pagelayer_copy_ele_to_clipboard(eHtml){
+	
+	var fallbackCopy = function(text){
+		const textarea = document.createElement("textarea");
+		textarea.value = text;
+		textarea.style.position = "fixed";  // avoid scrolling
+		textarea.style.opacity = 0;
+		document.body.appendChild(textarea);
+		textarea.focus();
+		textarea.select();
+		try {
+			document.execCommand('copy');
+			pagelayer_show_msg( pagelayer_l('copied_msg'));
+		}catch(err){
+			//console.error("Copy failed", err);
+			pagelayer_show_msg( pagelayer_l('Copy failed'));
+		}
+		document.body.removeChild(textarea);
+	}
+	
+	// Modern clipboard API
+	if(navigator.clipboard && window.isSecureContext) {
+		navigator.clipboard.writeText(eHtml).then(() => {
+			pagelayer_show_msg( pagelayer_l('copied_msg'));
+		}).catch(() => {
+			fallbackCopy(eHtml);
+		});
+	}else{
+		fallbackCopy(eHtml);
+	}
 }
 
 function pagelayer_can_copy_to(to){
@@ -2929,6 +3032,12 @@ function pagelayer_can_copy_to(to){
 	var eTag = pagelayer_tag(jEle);
 	var tTag = pagelayer_tag(tEle);
 	//console.log(eTag+' - '+tTag);
+	
+	// Invalid HTML copied
+	if(pagelayer_empty(eTag)){
+		return false;
+	}
+	
 	// Final to
 	var fTo;
 	
@@ -2956,10 +3065,23 @@ function pagelayer_can_copy_to(to){
 }
 
 // Select an element
-function pagelayer_paste_element(to){
+function pagelayer_paste_element(to, syncClipboard = true){
 	
-	// Copy data from localStorage
-	pagelayer_copy_from_localStorage();
+	// Wait for clipboard sync
+	// This is for context paste
+	if(syncClipboard){
+		if(pagelayerClipboardLoading){
+			setTimeout(function(){
+				pagelayer_paste_element(to);
+			}, 200);
+			return false;
+		}
+		
+		// There may be some problems reading the clipboard
+		if(pagelayerClipboardReadable !== true){
+			pagelayer_show_msg('If the paste is not done correctly then use Ctrl+V', 'warning');
+		}
+	}
 	
 	var fTo = pagelayer_can_copy_to(to);
 	
@@ -2976,14 +3098,40 @@ function pagelayer_paste_element(to){
 	pagelayer_show_msg(pagelayer_l('no_copied'));
 	
 	return false;
-	
 }
 
+var pagelayerClipboardLoading = false;
+var pagelayerClipboardReadable = true;
 // If copy_selected is empty then copy data from localStorage
-function pagelayer_copy_from_localStorage(){
-	if(!pagelayer_empty(localStorage.getItem("pagelayer_ele"))){
-		// Set copy data from localStorage
-		pagelayer.copy_selected = localStorage.getItem("pagelayer_ele");
+async function pagelayer_copy_from_clipboard(){
+	
+	if(pagelayerClipboardLoading){
+		return;
+	}
+	
+	if (navigator.clipboard && window.isSecureContext) {
+		try {
+
+			pagelayerClipboardLoading = true;
+			
+			const text = await navigator.clipboard.readText();
+			var pEle = jQuery(text);
+			
+			if(pEle.length > 0 && !pagelayer_empty(pagelayer_tag(pEle)) ){
+				pagelayer.copy_selected = pEle;			
+			}
+			
+			pagelayerClipboardLoading = false;
+			pagelayerClipboardReadable = true;
+			
+		} catch (err) {
+			pagelayerClipboardLoading = false;
+			pagelayerClipboardReadable = 'Clipboard readText failed';
+			//console.warn("Clipboard readText failed", err);
+		}
+	} else {
+		pagelayerClipboardReadable = 'Clipboard API not available or insecure context.';
+		// console.warn("Clipboard API not available or insecure context.");
 	}
 }
 

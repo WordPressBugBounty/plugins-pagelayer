@@ -232,6 +232,11 @@ cursor:pointer;
 background:#EF4D4D;
 }
 
+.pagelayer-context-disable{
+opacity: 0.5;
+cursor: progress;	
+}
+
 /* Pagelayer add section area */
 
 .pagelayer-add-widget-area{
