@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.0.2');
+define('PAGELAYER_VERSION', '2.0.3');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -212,6 +212,26 @@ function pagelayer_load_plugin(){
 		die('DONE');
 	}
 	
+	// === Plugin Update Notice === //
+	if(is_admin() && current_user_can('manage_options')){
+		$plugin_update_notice = get_option('softaculous_plugin_update_notice', []);
+		$available_update_list = get_site_transient('update_plugins'); 
+		$plugin_path_slug = 'pagelayer/pagelayer.php';
+
+		if(
+			!empty($available_update_list) &&
+			is_object($available_update_list) && 
+			!empty($available_update_list->response) &&
+			!empty($available_update_list->response[$plugin_path_slug]) && 
+			(empty($plugin_update_notice) || empty($plugin_update_notice[$plugin_path_slug]) || (!empty($plugin_update_notice[$plugin_path_slug]) &&
+			version_compare($plugin_update_notice[$plugin_path_slug], $available_update_list->response[$plugin_path_slug]->new_version, '<')))
+		){
+			add_action('admin_notices', 'pagelayer_update_plugin_notice');
+			add_filter('softaculous_plugin_update_notice', 'pagelayer_update_plugin_notice_filter');
+		}
+	}
+	// === Plugin Update Notice End === //
+
 	// Show the getting started video option
 	$seen = get_option('pagelayer_getting_started');
 	if(empty($seen) && !empty($_GET['page']) && $_GET['page'] != 'pagelayer_getting_started'){
