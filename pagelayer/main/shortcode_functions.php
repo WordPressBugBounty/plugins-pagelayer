@@ -248,6 +248,10 @@ function pagelayer_render_shortcode($atts, $content = '', $tag = '', $inner_bloc
 				}
 				
 				// Load any attachment values - This should go on top in the newer version @TODO
+				if( pagelayer_is_comment_mode() && !empty($param['edit']) && !(isset($param['ai']) && $param['ai'] === false) && !empty($el['atts'][$prop])){
+					$el['atts'][$prop] = $el['oAtts'][$prop] = !empty($el['atts']['comment_atts'][$prop]) ? $el['atts']['comment_atts'][$prop] : $el['atts'][$prop];
+				}
+				
 				if(in_array($param['type'], ['image', 'video', 'audio', 'media'])){
 					
 					$attachment = ($param['type'] == 'image') ? pagelayer_image(@$el['atts'][$prop]) : pagelayer_attachment(@$el['atts'][$prop]);

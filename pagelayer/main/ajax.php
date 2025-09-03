@@ -60,7 +60,9 @@ function pagelayer_wp_widget_ajax(){
 	}
 	
 	// Include the widgets
-	include_once(ABSPATH . 'wp-admin/includes/widgets.php');
+	$widgets = ABSPATH . 'site-admin/includes/widgets.php';
+	$widgets = file_exists($widgets) ? $widgets : ABSPATH . 'wp-admin/includes/widgets.php';
+	require_once($widgets);
 	
 	$class = $pagelayer->shortcodes[$tag]['widget'];
 	
@@ -199,6 +201,12 @@ function pagelayer_save_content(){
 		if(!pagelayer_user_can_add_js_content() && strlen($is_xss) > 0){
 			$msg['error'][] =  __pl('xss_found').' - '.$is_xss;
 			pagelayer_json_output($msg);
+		}
+		
+		// Is comment mode?
+		if(pagelayer_is_comment_mode()){
+			global $pagelayer_comment_errors;
+			$content = pagelayer_extract_comment_atts($postID, $content);			
 		}
 		
 		// Add slash to save data in post
@@ -365,6 +373,11 @@ function pagelayer_save_content(){
 				if(!add_post_meta($postID, 'pagelayer-data', time(), true)){
 					update_post_meta($postID, 'pagelayer-data', time());
 				}
+			}
+			
+			if(!empty($pagelayer_comment_errors)){
+				$msg['error'][] = 'Comment Mode errrors found !';
+				$msg['comment_errors'] = $pagelayer_comment_errors;
 			}
 			
 			$msg['success'] = __pl('post_update_success');

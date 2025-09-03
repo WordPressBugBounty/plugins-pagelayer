@@ -4951,6 +4951,14 @@ function pagelayer_save(){
 			copyright: pagelayer_copyright
 		}
 		
+		// ON comment mode
+		const urlParams = new URLSearchParams(window.location.search);
+		const cmode = urlParams.get('cmode');
+		
+		if(!pagelayer_empty(cmode)){
+			post_data.cmode = cmode;
+		}
+		
 		post_data = Object.assign(pagelayer_ajax_post_data, post_data);
 		
 		jQuery.ajax({
@@ -4963,6 +4971,9 @@ function pagelayer_save(){
 				//alert(obj);
 				if(obj['error']){
 					pagelayer_show_msg(obj['error'], 'error', 10000);
+					if('comment_errors' in obj){
+						console.log(obj['comment_errors']);
+					}
 				}else{
 					pagelayer_show_msg(obj['success'], 'success', 10000);
 					pagelayer_get_revision();

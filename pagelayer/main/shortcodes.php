@@ -6591,6 +6591,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_service', array(
 				'type' => 'text',
 				'label' => __pl('service_button_text_label'),
 				'default' => 'Click Here!',
+				'edit' => '.pagelayer-service-btn',
 				'req' => array(
 					'service_button' => 'true'
 				),
@@ -7839,7 +7840,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_accordion', array(
 				'label' => __pl('Alignment'),
 				'default' => 'left',
 				'screen' => 1,
-				'css' => ['{{element}} .pagelayer-accordion-tabs span' => 'float:{{val}}'],
+				'css' => ['{{element}} .pagelayer-accordion-tabs .pagelayer-accordion-icon' => 'float:{{val}}'],
 				'list' => array(
 					'left' => __pl('left'),
 					'right' => __pl('right'),
@@ -7854,7 +7855,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_accordion', array(
 				'max' => 50,
 				'step' => 1,
 				'screen' => 1,
-				'css' => ['{{element}} .pagelayer-accordion-tabs span' => 'padding:0px {{val}}px; padding-{{icon_align}}:0px;'],
+				'css' => ['{{element}} .pagelayer-accordion-tabs .pagelayer-accordion-icon' => 'padding:0px {{val}}px; padding-{{icon_align}}:0px;'],
 			),	
 		],
 		'tabs_styles' => [
@@ -7975,7 +7976,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_accordion_item', array(
 			'prop' => 'elements'
 		],
 		'holder' => '.pagelayer-accordion-panel',
-		'html' => '<a if="{{title}}" class="pagelayer-accordion-tabs">{{title}}<span class="pagelayer-accordion-icon"><i></i></span></a>
+		'html' => '<a if="{{title}}" class="pagelayer-accordion-tabs"><label class="pagelayer-accordion-title">{{title}}</label><span class="pagelayer-accordion-icon"><i></i></span></a>
 		<div class="pagelayer-accordion-panel"></div>',
 		'params' => array(
 			'elements' => array(
@@ -8002,6 +8003,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_accordion_item', array(
 				'type' => 'text',
 				'label' => __pl('title'),
 				'default' => 'Lorem',
+				'edit' => '.pagelayer-accordion-title',
 			),
 		)
 	)
@@ -8057,7 +8059,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_collapse', array(
 				'label' => __pl('Alignment'),
 				'default' => 'left',
 				'screen' => 1,
-				'css' => ['{{element}} .pagelayer-accordion-tabs span' => 'float:{{val}}'],
+				'css' => ['{{element}} .pagelayer-accordion-tabs .pagelayer-accordion-icon' => 'float:{{val}}'],
 				'list' => array(
 					'left' => __pl('left'),
 					'right' => __pl('right'),
@@ -8072,7 +8074,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_collapse', array(
 				'max' => 50,
 				'step' => 1,
 				'screen' => 1,
-				'css' => ['{{element}} .pagelayer-accordion-tabs span' => 'padding:0px {{val}}px; padding-{{icon_align}}:0px;'],
+				'css' => ['{{element}} .pagelayer-accordion-tabs .pagelayer-accordion-icon' => 'padding:0px {{val}}px; padding-{{icon_align}}:0px;'],
 			),
 		],
 		'tabs_styles' => [
@@ -8616,6 +8618,7 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_testimonial', array(
 				'default' => 'John Smith',
 				'desc' => __pl('testimonial_cite_desc'),
 				'edit' => '.pagelayer-testimonial-author',
+				'ai' => false,
 			),
 			'cite_color' => array(
 				'type' => 'color',

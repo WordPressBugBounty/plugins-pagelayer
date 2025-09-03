@@ -3970,3 +3970,13 @@ function pagelayer_update_plugin_notice_filter($plugins = []){
 	$plugins['pagelayer/pagelayer.php'] = 'Pagelayer';
 	return $plugins;
 }
+
+function pagelayer_is_comment_mode(){
+	
+	if(file_exists(PAGELAYER_DIR.'/comment_mode.php') && !empty($_REQUEST['cmode'])){
+		include_once(PAGELAYER_DIR.'/comment_mode.php');
+		return true;
+	}
+	
+	return false;
+}
