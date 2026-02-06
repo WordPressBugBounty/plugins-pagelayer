@@ -1278,6 +1278,14 @@ function pagelayer_elp_image(row, prop){
 		if(isRetina){
 			div +=	'<div class="pagelayer-elp-image-retina"><i class="pli pli-eye" ></i></div>';
 		}
+		
+		if(!pagelayer_empty(pagelayer.cmode) && ! ('ai' in prop && prop['ai'] == false)){
+			var tmp_ai = pagelayer_get_att(prop.el.$, prop.c['name']+'_ai');
+			var checked = tmp_ai == false ? 'checked' : '';
+			
+			div +=	'<div class="pagelayer-elp-image-ai" data-tlite="If checked, replace by AI will be ignored"><input type="checkbox" '+checked+'/></div>';
+		}
+		
 
 	div +='</div>';
 
@@ -1534,6 +1542,23 @@ function pagelayer_elp_image(row, prop){
 		if(checkval == true){
 			row.find('.pagelayer-retina-checkbox').trigger("click");
 		}
+	});
+	
+	// Save temporarily 
+	row.find('.pagelayer-elp-image-ai input').on('change', function(){
+		var aiEle = jQuery(this);
+		
+		var checkval = aiEle.is(":checked");
+		var ref_data = pagelayer_el_data_ref(prop.el.$);
+		
+		// Save temporarily in atts for comment feature, it is not saved in original content
+		if(checkval == true){
+			ref_data['attr'][prop.c['name']+'_ai'] = false;
+		}else{
+			delete ref_data['attr'][prop.c['name']+'_ai'];
+		}
+		pagelayer_el_dump_data(prop.el.$);
+		
 	});
 	
 	row.find('.pagelayer-retina-checkbox').click(function(){

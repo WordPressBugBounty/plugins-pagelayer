@@ -289,10 +289,10 @@ function pagelayer_website_settings_T(){
 				<tr>
 					<th><?php echo __('Mobile Breakpoint') ?></th>
 					<td>
-						<input name="pagelayer_mobile_breakpoint" type="number" step="1" min="320" max="5000" placeholder="360" <?php if(get_option('pagelayer_mobile_breakpoint')){
+						<input name="pagelayer_mobile_breakpoint" type="number" step="1" min="320" max="5000" placeholder="480" <?php if(get_option('pagelayer_mobile_breakpoint')){
 							echo 'value="'.absint(get_option('pagelayer_mobile_breakpoint')).'"';
 						}?>>
-						<p><?php echo __('Set the breakpoint for mobile devices. The default breakpoint for mobile layout is 360px.') ?></p>
+						<p><?php echo __('Set the breakpoint for mobile devices. The default breakpoint for mobile layout is 480px.') ?></p>
 					</td>
 				</tr>
 				<tr>

@@ -2731,6 +2731,10 @@ function pagelayer_export_media_files($id, &$url = ''){
 // Insert a post which is a Pagelayer Post
 function pagelayer_sanitize_content($content){
 	
+	if(empty($content)){
+		return $content;
+	}
+	
 	// Replace Vars
 	$template_vars = pagelayer_template_vars();
 	

@@ -129,6 +129,8 @@ class PageLayer_LiveEditor{
 		$pagelayer_menus_items_list = array();
 		$menus = wp_get_nav_menus();
 		
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		
 		foreach($menus as $menu){
 			
 			if(!is_nav_menu($menu)){
@@ -185,7 +187,7 @@ pagelayer_menus_items_list = '.json_encode($pagelayer_menus_items_list).';
 pagelayer_customizer_values = '.json_encode(pagelayer_get_customizer_options()).';
 pagelayer_global_colors = '.json_encode($pagelayer->global_colors).';
 pagelayer_global_fonts = '.json_encode($pagelayer->global_fonts).';
-pagelayer_customizer_url = "'.admin_url("/customize.php?return=").urlencode($_SERVER['HTTP_REFERER']).'";
+pagelayer_customizer_url = "'.admin_url("/customize.php?return=").urlencode($referer).'";
 pagelayer_support_url = "'.$pagelayer->support .'";';
 
 if(defined('PAGELAYER_PREMIUM')){

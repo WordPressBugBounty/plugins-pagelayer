@@ -205,7 +205,7 @@ function pagelayer_save_content(){
 		
 		// Is comment mode?
 		if(pagelayer_is_comment_mode()){
-			global $pagelayer_comment_errors;
+			global $pagelayer_comment_errors, $pagelayer_comment_alerts;
 			$content = pagelayer_extract_comment_atts($postID, $content);			
 		}
 		
@@ -373,6 +373,10 @@ function pagelayer_save_content(){
 				if(!add_post_meta($postID, 'pagelayer-data', time(), true)){
 					update_post_meta($postID, 'pagelayer-data', time());
 				}
+			}
+			
+			if(!empty($pagelayer_comment_alerts)){
+				$msg['comment_alerts'] = $pagelayer_comment_alerts;
 			}
 			
 			if(!empty($pagelayer_comment_errors)){

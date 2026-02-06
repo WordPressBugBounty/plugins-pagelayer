@@ -204,7 +204,10 @@ function pagelayer_start(){
 	
 	// Hide the loader
 	pagelayer_loader_hide();
-	
+		
+	// ON comment mode
+	const urlParams = new URLSearchParams(window.location.search);
+	pagelayer.cmode = urlParams.get('cmode');
 }
 
 // Post props attribute
@@ -4951,12 +4954,8 @@ function pagelayer_save(){
 			copyright: pagelayer_copyright
 		}
 		
-		// ON comment mode
-		const urlParams = new URLSearchParams(window.location.search);
-		const cmode = urlParams.get('cmode');
-		
-		if(!pagelayer_empty(cmode)){
-			post_data.cmode = cmode;
+		if(!pagelayer_empty(pagelayer.cmode)){
+			post_data.cmode = pagelayer.cmode;
 		}
 		
 		post_data = Object.assign(pagelayer_ajax_post_data, post_data);
@@ -4969,10 +4968,15 @@ function pagelayer_save(){
 				//alert(data);
 				var obj = jQuery.parseJSON(response);
 				//alert(obj);
+				
+				if('comment_alerts' in obj){
+					console.log("Alerts:", obj['comment_alerts']);
+				}
+				
 				if(obj['error']){
 					pagelayer_show_msg(obj['error'], 'error', 10000);
 					if('comment_errors' in obj){
-						console.log(obj['comment_errors']);
+						console.log("Errors:", obj['comment_errors']);
 					}
 				}else{
 					pagelayer_show_msg(obj['success'], 'success', 10000);

@@ -70,6 +70,7 @@ class PageLayer{
 	var $l = array();
 	
 	// Runtime fonts
+	var $fonts = array();
 	var $runtime_fonts = array();
 	var $fonts_sent = array();
 	var $system_fonts = array();

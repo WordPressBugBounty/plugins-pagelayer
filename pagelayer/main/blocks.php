@@ -230,7 +230,9 @@ function pagelayer_block_global_js(){
 		
 	$pagelayer_recaptch_lang = get_option('pagelayer_google_captcha_lang');
 	$pagelayer_recaptch_version = get_option('pagelayer_recaptcha_version', '');
-
+	
+	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+	
 	// Get CAPTCHA site key
 	$pagelayer_recaptch_site_key = get_option('pagelayer_google_captcha');
 	$pro_url = defined('POPULARFX_PRO_URL') ? POPULARFX_PRO_URL : PAGELAYER_PRO_PRICE_URL;
@@ -261,7 +263,7 @@ pagelayer_recaptch_site_key = "'.(!empty($pagelayer_recaptch_site_key) ? $pagela
 pagelayer_global_colors = '.json_encode($pagelayer->global_colors).';
 pagelayer_global_fonts = '.json_encode($pagelayer->global_fonts).';
 pagelayer_loaded_icons =  '.json_encode(pagelayer_enabled_icons()).';
-pagelayer_customizer_url = "'.admin_url("/customize.php?return=").urlencode($_SERVER['HTTP_REFERER']).'";
+pagelayer_customizer_url = "'.admin_url("/customize.php?return=").urlencode($referer).'";
 pagelayerCacheBlockTags = {};
 </script>';
 

@@ -1106,6 +1106,17 @@ border-radius: 2px;
 right:50px;
 }
 
+.pagelayer-elp-image-ai{
+position: absolute;
+top: -5px;
+left: -5px;
+}
+
+.pagelayer-elp-image-ai input{
+width: 18px;
+height: 18px;
+}
+
 .pagelayer-elp-image-delete .pli,
 .pagelayer-elp-retina-delete .pli,
 .pagelayer-elp-retina-mobile-delete .pli,

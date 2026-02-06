@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.0.4');
+define('PAGELAYER_VERSION', '2.0.7');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -174,7 +174,7 @@ function pagelayer_load_plugin(){
 	$pagelayer->settings['enable_giver'] = get_option('pagelayer_enable_giver');
 	$pagelayer->settings['max_width'] = (int) (empty(get_option('pagelayer_content_width')) ? 1170 : get_option('pagelayer_content_width'));
 	$pagelayer->settings['tablet_breakpoint'] = (int) (empty($tablet_breakpoint) ? 780 : $tablet_breakpoint);
-	$pagelayer->settings['mobile_breakpoint'] = (int) (empty($mobile_breakpoint) ? 360 : $mobile_breakpoint);
+	$pagelayer->settings['mobile_breakpoint'] = (int) (empty($mobile_breakpoint) ? 480 : $mobile_breakpoint);
 	$pagelayer->settings['sidebar'] = get_option('pagelayer_sidebar');
 	$pagelayer->settings['body_font'] = get_option('pagelayer_body_font');
 	$pagelayer->settings['color'] = get_option('pagelayer_color');

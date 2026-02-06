@@ -46,6 +46,11 @@ function pagelayer_replace_page(){
 		wp_die(esc_html__('ID not found .', 'pagelayer'));
 	}
 	
+	// Authorization check
+	if(!current_user_can('edit_post', $post_id)){
+		wp_die(esc_html__('You do not have permission to edit this attachment.', 'pagelayer'));
+	}
+	
 	// Process the POST !
 	if(isset($_FILES['userfile'])){
 	
@@ -106,6 +111,10 @@ function pagelayer_media_replace_theme(){
 	
 	$id = (int) $_GET['id'];
 	
+	// Authorization check
+	if(!current_user_can('edit_post', $id)){
+		wp_die(esc_html__('You do not have permission to edit this attachment.', 'pagelayer'));
+	}
 ?>
 <div class="wrap">
 <h1><?php echo esc_html__("Replace Media File", 'pagelayer'); ?></h1>

@@ -1254,7 +1254,7 @@ function pagelayer_import_handle_replaces($content){
 	$content = preg_replace_callback('/<!--\s+(?P<closer>\/)?sp:pagelayer\/pl_social\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s', 'pagelayer_handle_social_urls_blocks', $content);
 	
 	// Remove comment_atts attribute
-	if(!PAGELAYER_DEV){
+	if(!PAGELAYER_DEV && stripos( $content, 'comment_atts') !== false){
 		$content = pagelayer_clear_comment_atts($content);
 	}
 	
@@ -1267,6 +1267,10 @@ function pagelayer_clear_comment_atts($content){
 	if(defined('PAGELAYER_BLOCK_PREFIX') && PAGELAYER_BLOCK_PREFIX == 'wp'){
 		$content = str_replace('<!-- sp:pagelayer', '<!-- wp:pagelayer', $content);
 		$content = str_replace('<!-- /sp:pagelayer', '<!-- /wp:pagelayer', $content);
+	}
+	
+	if( ! defined('DB_CHARSET') || strpos(DB_CHARSET, 'utf8mb4') === false ){
+		$content = pagelayer_remove_broken_utf16( $content );
 	}
 	
 	$blocks = parse_blocks( $content );
@@ -1303,6 +1307,11 @@ function pagelayer_clear_block_comment_atts($block){
 	}
 	
 	return $block;
+}
+
+function pagelayer_remove_broken_utf16($string) {
+	// Remove UTF-16 surrogate pairs (\uD800–\uDFFF)
+	return preg_replace('/\\\\u(d[89ab][0-9a-fA-F]{2})/i', '', $string);
 }
 
 // Update the header menu

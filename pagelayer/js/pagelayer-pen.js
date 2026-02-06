@@ -12,8 +12,8 @@ class PagelayerPen{
 		t.editor = jQuery(jEle);
 		t.options = options;
 		
-		// Get the document of the element. It use to makes the plugin
-        // compatible on iframes.
+		// Get the document of the element. It is used to make the plugin
+		// compatible with iframes.
 		t.doc = jEle.ownerDocument || document;
 		t.tagToButton = {};
 		t.optionsCounter = 0;
@@ -793,7 +793,12 @@ class PagelayerPen{
 			t.showPen(jEle);
 		};
 		
-		// Save rage
+		// Track selection changes continuously
+		editor.on('mouseup keyup', function(e){
+			t.saveRange();
+		});
+		
+		// Save range
 		editor.on('focusout', function(e){
 			
 			if(t.destroyEd){
@@ -903,9 +908,7 @@ class PagelayerPen{
 		var t = this,
 		selection = t.doc.getSelection();
 
-		t.range = null;
-
-		if (!selection || !selection.rangeCount) {
+		if (!selection || !selection.rangeCount || !t.hasFocus()) {
 			return;
 		}
 

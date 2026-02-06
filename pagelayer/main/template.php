@@ -432,10 +432,11 @@ function pagelayer_builder_posts_shortcode($atts){
 		return '';
 	}	
 	
+	$cached_editable = $pagelayer->dont_make_editable;
 	$pagelayer->dont_make_editable = true;
 	$content = $post->post_content;
 	$content = apply_filters( 'the_content', $content );
-	$pagelayer->dont_make_editable = false;
+	$pagelayer->dont_make_editable = $cached_editable;
 	
 	return $content;
 		
@@ -1435,10 +1436,11 @@ function pagelayer_get_post_content($id){
 	$content = $post->post_content;
 	pagelayer_load_shortcodes();
 	
+	$cached_editable = $pagelayer->dont_make_editable;
 	$pagelayer->dont_make_editable = true;
 	$content = apply_filters( 'the_content', $content );
 	$content = str_replace( ']]>', ']]&gt;', $content );
-	$pagelayer->dont_make_editable = false;
+	$pagelayer->dont_make_editable = $cached_editable;
 	
 	// Reset the id
 	$pagelayer->rendering_template_id = 0;
