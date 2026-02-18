@@ -227,8 +227,8 @@ function pagelayer_save_content(){
 		}
 		
 		// Restrict contributors from setting 'publish' or modifying unauthorized fields
-		$can_publish = current_user_can($post_type_obj->cap->publish_posts);
-		if(!$can_publish){
+		$current_user_can_publish = current_user_can($post_type_obj->cap->publish_posts);
+		if(!$current_user_can_publish){
 			if(!in_array($post['post_status'], ['draft', 'pending'])){
 				$post['post_status'] = 'pending'; // Force pending status
 			}
@@ -336,7 +336,7 @@ function pagelayer_save_content(){
 		}
 			
 		// Any contact templates ?
-		if(!empty($_REQUEST['contacts'])){
+		if(!empty($_REQUEST['contacts']) && $current_user_can_publish){
 			update_post_meta($postID, 'pagelayer_contact_templates', $_REQUEST['contacts']);
 		}else{
 			delete_post_meta($postID, 'pagelayer_contact_templates');
@@ -1270,8 +1270,8 @@ function pagelayer_contact_submit(){
 	
 	if(isset($formdata['cfa-custom-template']) && !empty($formdata['cfa-post-id'])){
 		$post_id = (int) $formdata['cfa-post-id'];
-		
-		if(!empty($post_id)){
+				
+		if(!empty($post_id) && ( get_post_status( $post_id ) === 'publish' || current_user_can('publish_posts') )){
 			$contact_array = get_post_meta($post_id, 'pagelayer_contact_templates', true);
 			
 			if(!empty($contact_array) && !empty($contact_array[$pagelayer_id])){
@@ -1327,15 +1327,6 @@ function pagelayer_contact_submit(){
 				continue;
 			}
 			
-			if(is_array($i)){
-				$i = pagelayer_flat_join($i);
-			}
-			
-			// Record a reply to if it is to be used
-			if(is_email(trim($i)) && empty($reply_to)){
-				$reply_to = trim($i);
-			}
-			
 			$body .= $k."\t : \t $".$k."\n";
 			
 		}
@@ -1343,38 +1334,52 @@ function pagelayer_contact_submit(){
 		$body .= "\n\n --\n This e-mail was sent from a contact form (".get_home_url().")";
 	
 	}
+		
+	// Add attachment
+	if(!empty($_FILES)){
+		add_action('phpmailer_init', 'pagelayer_cf_email_attachment', 10, 1);
+	}
+	
+	$sanitized_data = array();
+	
+	// If we are using HTML, then we should escape html as well
+	foreach($formdata as $k => $i){
+		
+		if(is_array($i)){
+			$i = pagelayer_flat_join($i);
+		}
+		
+		$i = pagelayer_esc_crlf($i);
+		
+		if(!empty($use_html)){
+			$i = esc_html($i);
+		}
+		
+		// Sanitize text field
+		$i = sanitize_text_field($i);
+		
+		// Record a reply to if it is to be used
+		if(is_email($i) && empty($reply_to)){
+			$reply_to = $i;
+		}
+		
+		$sanitized_data[$k] = $i;	
+	}
 	
 	// Dow we have a reply to in the headers ?
 	if(!preg_match('/reply\-to/is', $headers) && !empty($reply_to)){
 		$headers .= "Reply-To: $reply_to\n";
 	}
 	
-	// Add attachment
-	if(!empty($_FILES)){
-		add_action('phpmailer_init', 'pagelayer_cf_email_attachment', 10, 1);
-	}
-	
-	// If we are using HTML, then we should escape html as well
-	if(!empty($use_html)){
-		foreach($formdata as $k => $i){
-			
-			if(is_array($i)){
-				$i = pagelayer_flat_join($i);
-			}
-			
-			$formdata[$k] = esc_html($i);
-		}
-	}
-	
 	// Add Site Title as option in formdata
-	$formdata['site_title'] = get_bloginfo( 'name' );
+	$sanitized_data['site_title'] = get_bloginfo( 'name' );
 	
 	// Do parse a variables
-	$to_mail = pagelayer_replace_vars($to_mail, $formdata, '$');
-	$from_mail = pagelayer_replace_vars($from_mail, $formdata, '$');
-	$subject = pagelayer_replace_vars($subject, $formdata, '$');
-	$headers = pagelayer_replace_vars($headers, $formdata, '$');
-	$body = pagelayer_replace_vars($body, $formdata, '$');
+	$to_mail = pagelayer_replace_vars($to_mail, $sanitized_data, '$');
+	$from_mail = pagelayer_replace_vars($from_mail, $sanitized_data, '$');
+	$subject = pagelayer_replace_vars($subject, $sanitized_data, '$');
+	$headers = pagelayer_replace_vars($headers, $sanitized_data, '$');
+	$body = pagelayer_replace_vars($body, $sanitized_data, '$');
 	
 	if ( $use_html && ! preg_match( '%<html[>\s].*</html>%is', $body ) ) {
 		$header = '<!doctype html>
@@ -1387,7 +1392,7 @@ function pagelayer_contact_submit(){
 		$body = $header . wpautop( $body ) . $footer;
 	}
 	
-	$to_mail = apply_filters('pagelayer_contact_send', $to_mail, $formdata);
+	$to_mail = apply_filters('pagelayer_contact_send', $to_mail, $sanitized_data);
 	
 	// Send the email
 	if(!empty($to_mail)){

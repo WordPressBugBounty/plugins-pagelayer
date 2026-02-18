@@ -2600,6 +2600,11 @@ padding: 5px 0 3px;
 margin: 5px;
 }
 
+.pagelayer-widget-group h5:only-child,
+.pagelayer-leftbar-group h5:only-child{
+display: none;	
+}
+
 .pagelayer-global-widget-pro{
 text-align: center;
 margin-right: 10px;

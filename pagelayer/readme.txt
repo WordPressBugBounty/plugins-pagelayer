@@ -4,7 +4,7 @@ Tags: page builder, editor, drag and drop, gutenberg blocks, landing-page
 Requires at least: 4.7
 Tested up to: 6.9
 Requires PHP: 5.5
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -130,6 +130,11 @@ Do you have questions related to Pagelayer? Use the following links :
 9. **Content Slides** can be designed without the effort of installing extra plugins.
 
 == Changelog ==
+
+= 2.0.8 (FEB 16, 2026) =
+* [Bug Fix] Improved XSS security checks.
+* [Bug Fix] Sanitized the contact form "Reply-To" header to prevent CRLF injection.
+* [Bug Fix] Restricted low-level users from adding custom templates in the contact form.
 
 = 2.0.7 (DEC 02, 2025) =
 * [Task] Tested compatibility with WordPress 6.9.
