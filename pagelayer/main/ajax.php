@@ -630,7 +630,7 @@ function pagelayer_get_section_shortcodes(){
 	$data = '';
 	if(isset($_REQUEST['pagelayer_section_id'])){
 		
-		$get_url = PAGELAYER_API.'/library.php?give_id='.$_REQUEST['pagelayer_section_id'].(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '').'&url='.rawurlencode(site_url());
+		$get_url = PAGELAYER_API.'/library.php?give_id='.sanitize_text_field($_REQUEST['pagelayer_section_id']).(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '').'&url='.rawurlencode(site_url());
 		
 		// For SitePad users
 		if(function_exists('get_softaculous_file')){
@@ -717,7 +717,7 @@ function pagelayer_get_section_blocks(){
 	$data = '';
 	if(isset($_REQUEST['pagelayer_section_id'])){
 		
-		$get_url = PAGELAYER_API.'/library.php?give_id='.$_REQUEST['pagelayer_section_id'].(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '').'&url='.rawurlencode(site_url());
+		$get_url = PAGELAYER_API.'/library.php?give_id='.sanitize_text_field($_REQUEST['pagelayer_section_id']).(!empty($pagelayer->license['license']) ? '&license='.$pagelayer->license['license'] : '').'&url='.rawurlencode(site_url());
 		
 		// For SitePad users
 		if(function_exists('get_softaculous_file')){
@@ -1171,8 +1171,15 @@ function pagelayer_fetch_posts(){
 	
 	// Some AJAX security
 	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
-	// TODO : Allowed
-	echo pagelayer_widget_posts($_POST);
+	
+	// This ajax call is only used during post/page editing
+	if(!current_user_can('edit_posts')){
+		echo __pl('no_permission');
+		wp_die();
+	}
+	
+	$sanitized_post = pagelayer_sanitize_posts_data($_POST);
+	echo pagelayer_widget_posts($sanitized_post);
 	
 	wp_die();
 }
@@ -1184,10 +1191,17 @@ function pagelayer_posts_data(){
 	// Some AJAX security
 	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
 	
+	// This ajax call is only used during post/page editing
+	if(!current_user_can('edit_posts')){
+		echo __pl('no_permission');
+		wp_die();
+	}
+	
 	// Load shortcodes
 	pagelayer_load_shortcodes();
-	// TODO : Allowed
-	echo pagelayer_posts($_POST);
+	
+	$sanitized_post = pagelayer_sanitize_posts_data($_POST, false);
+	echo pagelayer_posts($sanitized_post);
 	wp_die();
 }
 
@@ -1221,7 +1235,6 @@ function pagelayer_archive_posts_data(){
 	
 	$sc = '[pl_archive_posts '.$string.'][/pl_archive_posts]';
 	
-	// TODO : Allowed
 	echo pagelayer_the_content($sc);
 	wp_die();
 }
@@ -1327,7 +1340,7 @@ function pagelayer_contact_submit(){
 				continue;
 			}
 			
-			$body .= $k."\t : \t $".$k."\n";
+			$body .= sanitize_text_field($k)."\t : \t $".$k."\n";
 			
 		}
 		
@@ -1431,7 +1444,7 @@ function pagelayer_login_submit(){
 	
 		// If After logout URL, then save
 		if(!empty($_REQUEST['logout_url'])){
-			update_user_option($user->ID, 'pagelayer_logout_url', $_REQUEST['logout_url']);
+			update_user_option($user->ID, 'pagelayer_logout_url', sanitize_url($_REQUEST['logout_url']));
 		}
 	
 		$data['redirect'] = (empty($_REQUEST['login_url']) ? '' : sanitize_url($_REQUEST['login_url']));
@@ -1449,12 +1462,17 @@ function pagelayer_get_pages_list(){
 	// Some AJAX security
 	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
 	
+	if(!current_user_can('edit_posts')){
+		echo __pl('no_permission');
+		wp_die();
+	}
+	
 	$args = array(
-		'post_type' => $_POST['type'],
-		'orderby' => $_POST['post_order'],
-		'order' => $_POST['order'],
-		'hierarchical' => (empty($_POST['hier']) || $_POST['hier'] == null ? '' : $_POST['hier']),
-		'number' => (empty($_POST['depth']) || $_POST['depth'] == null ? '' : $_POST['depth']),
+		'post_type' => sanitize_text_field($_POST['type']),
+		'orderby' => sanitize_text_field($_POST['post_order']),
+		'order' => sanitize_text_field($_POST['order']),
+		'hierarchical' => (empty($_POST['hier']) || $_POST['hier'] == null ? '' : sanitize_text_field($_POST['hier'])),
+		'number' => (empty($_POST['depth']) || $_POST['depth'] == null ? '' : sanitize_text_field($_POST['depth'])),
 		'posts_per_page' => -1,
 	);
 	
@@ -1777,6 +1795,11 @@ function pagelayer_get_taxonomy_list(){
 	
 	// Some AJAX security
 	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
+	
+	if(!current_user_can('edit_posts')){
+		echo __pl('no_permission');
+		wp_die();
+	}
 	
 	$args = array(
 		'title_li' => 0,

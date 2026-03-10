@@ -42,6 +42,7 @@ class PageLayer{
 	var $templates;
 	var $template_header;
 	var $template_post;
+	var $template_editor;
 	var $template_footer;
 	var $template_popup_ids;
 	var $load_live_errors;

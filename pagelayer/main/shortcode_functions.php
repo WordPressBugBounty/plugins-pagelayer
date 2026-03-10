@@ -1664,6 +1664,11 @@ function pagelayer_sc_iconbox(&$el){
 	
 }
 
+// Anchor Handler
+function pagelayer_sc_anchor(&$el){
+	$el['atts']['title'] = empty($el['atts']['title']) ? '' : esc_attr(sanitize_html_class( $el['atts']['title']));
+}
+
 function pagelayer_sc_google_maps(&$el){
 	
 	$el['atts']['show_v2'] = true;

@@ -1290,7 +1290,7 @@ function pagelayer_xss_content($data){
 	}
 	
 	// These events not start with on
-	$not_allowed = array('click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'load', 'unload', 'change', 'submit', 'reset', 'select', 'blur', 'focus', 'keydown', 'keypress', 'keyup', 'afterprint', 'beforeprint', 'beforeunload', 'error', 'hashchange', 'message', 'offline', 'online', 'pagehide', 'pageshow', 'popstate', 'resize', 'storage', 'contextmenu', 'input', 'invalid', 'search', 'mousewheel', 'wheel', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'scroll', 'copy', 'cut', 'paste', 'abort', 'canplay', 'canplaythrough', 'cuechange', 'durationchange', 'emptied', 'ended', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting', 'toggle', 'animationstart', 'animationcancel', 'animationend', 'animationiteration', 'auxclick', 'beforeinput', 'beforematch', 'beforexrselect', 'compositionend', 'compositionstart', 'compositionupdate', 'contentvisibilityautostatechange', 'focusout', 'focusin', 'fullscreenchange', 'fullscreenerror', 'gotpointercapture', 'lostpointercapture', 'mouseenter', 'mouseleave', 'pointercancel', 'pointerdown', 'pointerenter', 'pointerleave', 'pointermove', 'pointerout', 'pointerover', 'pointerrawupdate', 'pointerup', 'scrollend', 'securitypolicyviolation', 'touchcancel', 'touchend', 'touchmove', 'touchstart', 'transitioncancel', 'transitionend', 'transitionrun', 'transitionstart', 'MozMousePixelScroll', 'DOMActivate', 'afterscriptexecute', 'beforescriptexecute', 'DOMMouseScroll', 'willreveal', 'gesturechange', 'gestureend', 'gesturestart', 'mouseforcechanged', 'mouseforcedown', 'mouseforceup', 'mouseforceup', 'beforetoggle');
+	$not_allowed = array('click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'load', 'unload', 'change', 'submit', 'reset', 'select', 'blur', 'focus', 'keydown', 'keypress', 'keyup', 'afterprint', 'beforeprint', 'beforeunload', 'error', 'hashchange', 'message', 'offline', 'online', 'pagehide', 'pageshow', 'popstate', 'resize', 'storage', 'contextmenu', 'input', 'invalid', 'search', 'mousewheel', 'wheel', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'scroll', 'copy', 'cut', 'paste', 'abort', 'canplay', 'canplaythrough', 'cuechange', 'durationchange', 'emptied', 'ended', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting', 'toggle', 'animationstart', 'animationcancel', 'animationend', 'animationiteration', 'auxclick', 'beforeinput', 'beforematch', 'beforexrselect', 'compositionend', 'compositionstart', 'compositionupdate', 'contentvisibilityautostatechange', 'focusout', 'focusin', 'fullscreenchange', 'fullscreenerror', 'gotpointercapture', 'lostpointercapture', 'mouseenter', 'mouseleave', 'pointercancel', 'pointerdown', 'pointerenter', 'pointerleave', 'pointermove', 'pointerout', 'pointerover', 'pointerrawupdate', 'pointerup', 'scrollend', 'securitypolicyviolation', 'touchcancel', 'touchend', 'touchmove', 'touchstart', 'transitioncancel', 'transitionend', 'transitionrun', 'transitionstart', 'MozMousePixelScroll', 'DOMActivate', 'afterscriptexecute', 'beforescriptexecute', 'DOMMouseScroll', 'willreveal', 'gesturechange', 'gestureend', 'gesturestart', 'mouseforcechanged', 'mouseforcedown', 'mouseforceup', 'mouseforceup', 'beforetoggle', 'selectstart', 'selectionchange');
 	
 	$not_allowed = implode('|', $not_allowed);
 		
@@ -3452,6 +3452,84 @@ function pagelayer_sanitize_text_field($str) {
 	}
 	
 	return $str;
+}
+
+// Sanitize posts data for WP_Query
+function pagelayer_sanitize_posts_data($data, $only_allowed = true) {
+	
+	$allowed_keys = [
+		'post_type', 'posts_per_page', 'order', 'orderby', 'paged', 
+		'filter_by', 'term', 'exc_term', 'cat', 'category_name', 
+		'tag', 'author', 'author_name', 'post__in', 'post__not_in',
+		'include', 'exclude', 'search', 's', 'exact', 'sentence',
+		'post_status', 'post_parent', 'offset',
+		'posts_per_archive_page', 'page', 'ignore_sticky_posts'
+	];
+	
+	$sanitized = [];
+	
+	foreach($data as $key => $value){
+		if($only_allowed && !in_array($key, $allowed_keys)) {
+			continue;
+		}
+		
+		$sanitized[$key] = pagelayer_sanitize_text_field($value);
+	}
+
+	// Security: Restrict post_status to prevent information disclosure
+	// Only users who can read private posts or edit others' posts should be able to query non-public statuses
+	if(isset($sanitized['post_status'])){
+		$requested_status = $sanitized['post_status'];
+		
+		// If requesting something other than publish, verify permissions
+		if ($requested_status !== 'publish') {
+			// Check if the user has permission to read private posts or edit others' posts
+			// This prevents contributors from seeing titles of private posts they don't own.
+			if (!current_user_can('read_private_posts') && !current_user_can('edit_others_posts')) {
+				$sanitized['post_status'] = 'publish';
+			}
+		}
+	}else{
+		// Default to publish for safety if not specified
+		$sanitized['post_status'] = 'publish';
+	}
+	
+	if(isset($sanitized['posts_per_page'])){
+		$sanitized['posts_per_page'] = (int) $sanitized['posts_per_page'];
+		if ($sanitized['posts_per_page'] > 100) {
+			$sanitized['posts_per_page'] = 100;
+		}
+	}
+	
+	if(isset($sanitized['paged'])){
+		$sanitized['paged'] = (int) $sanitized['paged'];
+	}
+	
+	if(isset($sanitized['offset'])){
+		$sanitized['offset'] = (int) $sanitized['offset'];
+	}
+	
+	if(isset($sanitized['post__in']) && is_string($sanitized['post__in'])){
+		$sanitized['post__in'] = array_map('intval', explode(',', $sanitized['post__in']));
+	}
+	
+	if(isset($sanitized['post__not_in']) && is_string($sanitized['post__not_in'])){
+		$sanitized['post__not_in'] = array_map('intval', explode(',', $sanitized['post__not_in']));
+	}
+	
+	if(isset($sanitized['post_parent'])){
+		$sanitized['post_parent'] = (int) $sanitized['post_parent'];
+	}
+	
+	if(isset($sanitized['cat'])){
+		$sanitized['cat'] = (int) $sanitized['cat'];
+	}
+	
+	if(isset($sanitized['author'])){
+		$sanitized['author'] = (int) $sanitized['author'];
+	}
+	
+	return $sanitized;
 }
 
 // Update nav menu item
