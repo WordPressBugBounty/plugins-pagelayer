@@ -780,7 +780,9 @@ class PagelayerPen{
 		var t = this,
 		editor = t.editor,
 		ctrl = false,
-		debounceButtonStatus;
+		debounceButtonStatus,
+		debounceShowToolbar,
+		touchTimeout;
 		
 		var showToolBar = function(){
 			
@@ -793,12 +795,25 @@ class PagelayerPen{
 			t.showPen(jEle);
 		};
 		
-		// Track selection changes continuously
+		// Debounced toolbar show - Performance optimization
+		var debouncedShowToolBar = function(){
+			clearTimeout(debounceShowToolbar);
+			debounceShowToolbar = setTimeout(showToolBar, 50);
+		};
+		
+		// Track selection changes with debounce
 		editor.on('mouseup keyup', function(e){
 			t.saveRange();
 		});
 		
-		// Save range
+		// Save range with debounce
+		var debouncedSaveRange = function(){
+			clearTimeout(debounceButtonStatus);
+			debounceButtonStatus = setTimeout(function(){
+				t.saveRange();
+			}, 100);
+		};
+		
 		editor.on('focusout', function(e){
 			
 			if(t.destroyEd){
@@ -811,14 +826,40 @@ class PagelayerPen{
 
 		});
 		
-		// Prevent to hide toolbar
-		t.penHolder.on('mousedown', function(e){
-			// TODO: taget only require Element
+		// Prevent to hide toolbar - Fix focus issues
+		t.penHolder.on('mousedown click touchstart', function(e){
+			// Prevent focus from leaving toolbar
+			if(jQuery(e.target).closest('input').length < 1){
+				e.preventDefault();
+				e.stopPropagation();
+			}
+			
 			t.destroyEd = false;
+			
+			// Re-enable destroy after toolbar interaction
+			setTimeout(function(){
+				t.destroyEd = true;
+			}, 200);
 		});
 		
-		// On editor blur
-		editor.on('blur', function(){
+		// Prevent toolbar buttons from stealing focus, but allow inputs
+		t.penHolder.find('button, span').on('mousedown', function(e){
+			if (jQuery(e.target).is('input, select, textarea')) {
+				return;
+			}
+			e.preventDefault();
+			e.stopPropagation();
+		});
+		
+		// On editor blur - Improved focus management
+		editor.on('blur', function(e){
+			
+			// Check if focus moved to toolbar
+			var relatedTarget = e.relatedTarget;
+			if(relatedTarget && (jQuery(relatedTarget).closest(t.penHolder).length > 0 || 
+				jQuery(relatedTarget).closest('.pagelayer-pen-link-tooltip').length > 0)){
+				return;
+			}
 			
 			if(!t.destroyEd){
 				return;
@@ -827,14 +868,52 @@ class PagelayerPen{
 			t.destroy();
 		});
 		
-		editor.on('keydown', function(){
+		// Keydown improvements
+		editor.on('keydown', function(e){
 			t.penHolder.hide();
+			
+			// Keyboard shortcuts
+			if((e.ctrlKey || e.metaKey) && !e.altKey){
+				var key = String.fromCharCode(e.which).toLowerCase();
+				
+				switch(key){
+					case 'b':
+						e.preventDefault();
+						t.execCmd('bold');
+						break;
+					case 'i':
+						e.preventDefault();
+						t.execCmd('italic');
+						break;
+					case 'u':
+						e.preventDefault();
+						t.execCmd('underline');
+						break;
+				}
+			}
+			
+			// Escape key to close toolbar
+			if(e.keyCode === 27){
+				t.destroy();
+				editor.trigger('blur');
+			}
 		});
 		
 		editor.on('mousedown', function(){
 			if(t.editor.attr('contenteditable') == 'true'){
 				t.showPen();
 			}
+		});
+		
+		// Touch support for mobile
+		editor.on('touchstart', function(e){
+			touchTimeout = setTimeout(function(){
+				t.showPen();
+			}, 300);
+		});
+		
+		editor.on('touchmove touchend', function(){
+			clearTimeout(touchTimeout);
 		});
 		
 		editor.on('mouseup keyup keydown', function(e){
@@ -847,14 +926,16 @@ class PagelayerPen{
 			clearTimeout(debounceButtonStatus);
 			debounceButtonStatus = setTimeout(function () {
 				t.updateButtonStatus();
-			}, 50);
+			}, 100);
 			
 		});
 		
-		// Set focus on editor
+		// Set focus on editor - Improved
 		editor.on('click', function(e){
 			
 			if(t.editor.hasClass('pagelayer-pen-focused')){
+				// Just show toolbar, don't re-focus
+				t.showPen();
 				return;
 			}
 			
@@ -862,16 +943,16 @@ class PagelayerPen{
 			t.editor.focus();
 		});
 		
-		// Set focus on editor
+		// Set focus on editor - Improved with touch support
 		editor.on('focus', function(){
 			t.destroyEd = true;
 			t.addToolbar();
 			t.showPen();
 			t.editor.addClass('pagelayer-pen-focused');
 			jQuery(window).unbind('scroll.penToobar');
-			jQuery(window).on('scroll.penToobar', showToolBar);
+			jQuery(window).on('scroll.penToobar', debouncedShowToolBar);
 			jQuery(document).unbind('mousemove.penToobar');
-			jQuery(document).on('mousemove.penToobar', showToolBar);
+			jQuery(document).on('mousemove.penToobar', debouncedShowToolBar);
 		});
 		
 		t.semanticCode();
@@ -879,11 +960,16 @@ class PagelayerPen{
 	
 	destroy(){
 		var t = this;
-		//t.editor.attr('contenteditable', '');
+		// Hide toolbar properly
 		t.penHolder.hide();
+		
 		// Removing event listeners
 		jQuery(document).unbind('mousemove.penToobar');
 		jQuery(window).unbind('scroll.penToobar');
+		jQuery(document).unbind('click.pagelayerLinkTooltip');
+		
+		// Clear any pending timeouts
+		t.penHolder.find('input').unbind('keydown');
 	}
 	
 	hasFocus(){
@@ -1033,7 +1119,8 @@ class PagelayerPen{
 		var toolBarTop = editorTop - 10;
 		var bound = t.getBounds(range);
 		
-		if(bound.height == 0 && bound.top == 0 && bound.left == 0){
+		// Fallback: calculate bounds from range
+		if(!bound || bound.height == 0 && bound.top == 0 && bound.left == 0){
 			toolBar.hide();
 			return;
 		}
@@ -1428,7 +1515,7 @@ class PagelayerPen{
 		var tooltip = this.addContainer('pagelayer-pen-link-tooltip');
 		t.linkTooltip = tooltip;
 		
-		var html = '<input type="text" name="url" placeholder="https://example.com" value="'+url+'" autocomplete="off"><span class="pagelayer-pen-link-btn pagelayer-btn-success">'+linkBtn+'</span><span class="pagelayer-pen-unlink-btn pagelayer-btn-primary">'+unlinkBtn+'</span>';
+		var html = '<input type="text" name="url" placeholder="Enter URL ..." value="'+url+'" autocomplete="off"><span class="pagelayer-pen-link-btn pagelayer-btn-success">'+linkBtn+'</span><span class="pagelayer-pen-unlink-btn pagelayer-btn-primary">'+unlinkBtn+'</span>';
 		tooltip.html(html);
 		
 		var input = tooltip.find('input[name="url"]');
@@ -1441,6 +1528,25 @@ class PagelayerPen{
 			t.range = savedRange;
 			t.restoreRange();
 		}
+		
+		// Focus input immediately
+		setTimeout(function(){
+			input.focus();
+			input[0].setSelectionRange(0, input.val().length);
+		}, 50);
+		
+		// Enter key to submit
+		input.on('keydown', function(e){
+			if(e.keyCode === 13){
+				e.preventDefault();
+				t.linkTooltip.find('.pagelayer-pen-link-btn').trigger('click');
+			}
+			
+			// Escape to close
+			if(e.keyCode === 27){
+				t.linkTooltip.find('.pagelayer-pen-unlink-btn').trigger('click');
+			}
+		});
 		
 		t.linkTooltip.find('.pagelayer-pen-link-btn').on('click', function(){
 			var url = input.val();
@@ -1457,6 +1563,14 @@ class PagelayerPen{
 				t.execCmd('unlink', undefined, undefined, true);
 			}
 			t.showPen();
+		});
+		
+		// Click outside to close
+		jQuery(document).on('click.pagelayerLinkTooltip', function(e){
+			if(!jQuery(e.target).closest(t.linkTooltip).length && !jQuery(e.target).closest(t.editor).length){
+				t.showPen();
+				jQuery(document).off('click.pagelayerLinkTooltip');
+			}
 		});
 	
 		t.showPen(t.linkTooltip);

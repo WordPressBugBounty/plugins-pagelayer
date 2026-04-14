@@ -2,6 +2,11 @@
 .pagelayer-pen{
 -webkit-user-select: text;
 user-select: text;
+outline: none;
+}
+
+.pagelayer-pen:focus{
+outline: none;
 }
 
 .pagelayer-pen-holder{
@@ -13,11 +18,12 @@ top: 50px;
 left: 0;
 transform: translateY(-100%);
 box-shadow: 0 4px 5px 0 rgb(0 0 0 / 14%), 0 1px 10px 0 rgb(0 0 0 / 12%), 0 2px 4px -1px rgb(0 0 0 / 20%);
-border-radius: 2px;
+border-radius: 8px;
 line-height: 1;
 padding: 8px 2px;
 font-size: 15px !important;
 display: none;
+transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .pagelayer-pen-toolbar{
@@ -195,17 +201,28 @@ margin:0 2px;
 }
 
 .pagelayer-pen-link-tooltip input{
-min-width: 300px;
+min-width: 200px;
+max-width: 300px;
 font-size: 13px;
-padding: 5px;
+padding: 8px 12px;
+border: 1px solid #ddd;
+border-radius: 4px;
+outline: none;
+transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pagelayer-pen-link-tooltip input:focus{
+border-color: #06c;
+box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
 }
 
 .pagelayer-pen-unlink-btn,
 .pagelayer-pen-link-btn{
-padding: 7px;
+padding: 8px 16px;
 cursor: pointer;
 border-radius: 4px;
 font-size: 13px;
+transition: background-color 0.2s, color 0.2s;
 }
 
 /* End Dropdown picker*/

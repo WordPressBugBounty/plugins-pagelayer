@@ -336,7 +336,7 @@ function pagelayer_save_content(){
 		}
 			
 		// Any contact templates ?
-		if(!empty($_REQUEST['contacts']) && $current_user_can_publish){
+		if(!empty($_REQUEST['contacts']) && current_user_can('activate_plugins')){
 			update_post_meta($postID, 'pagelayer_contact_templates', $_REQUEST['contacts']);
 		}else{
 			delete_post_meta($postID, 'pagelayer_contact_templates');
@@ -1253,7 +1253,7 @@ function pagelayer_contact_submit(){
 		return false;
 	}
 	
-	$formdata = $_POST;
+	$formdata = wp_unslash($_POST);
 	// NOTE : NEVER add anything to $formdata except $_POST vars
 	
 	if(isset($_POST['g-recaptcha-response']) ){

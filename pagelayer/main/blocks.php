@@ -325,7 +325,7 @@ function pagelayer_register_metadata() {
 				),
 			),
 			'auth_callback' => function() {
-				return current_user_can('edit_posts');
+				return current_user_can('activate_plugins');
 			}
 		)
 	);
