@@ -1505,59 +1505,67 @@ function pagelayer_show_promo(){
 	$opts = $pagelayer_promo_opts;
 	
 	echo '<style>
-.pagelayer_promo_button {
-background-color: #4CAF50; /* Green */
-border: none;
-color: white;
-padding: 6px 10px;
-text-align: center;
-text-decoration: none;
-display: inline-block;
-font-size: 13px;
-margin: 4px 2px;
--webkit-transition-duration: 0.4s; /* Safari */
+#pagelayer_promo a.pagelayer_promo_button {
+background-color: #4CAF50 !important;
+border: none !important;
+color: white !important;
+padding: 6px 10px !important;
+text-align: center !important;
+text-decoration: none !important;
+display: inline-block !important;
+font-size: 13px !important;
+margin: 4px 2px !important;
+-webkit-transition-duration: 0.4s;
 transition-duration: 0.4s;
-cursor: pointer;
+cursor: pointer !important;
 }
-.pagelayer_promo_button:focus,
-.pagelayer_promo_button:hover{
-border: none;
-color: white;
-box-shadow: 0 6px 8px 0 rgba(0,0,0,0.24), 0 9px 25px 0 rgba(0,0,0,0.19);
-color: white;
+#pagelayer_promo a.pagelayer_promo_button:focus,
+#pagelayer_promo a.pagelayer_promo_button:hover{
+border: none !important;
+color: white !important;
+box-shadow: 0 6px 8px 0 rgba(0,0,0,0.24), 0 9px 25px 0 rgba(0,0,0,0.19) !important;
 }
-.pagelayer_promo_buy {
-color: white;
-padding: 8px 12px;
-font-size: 14px;
+#pagelayer_promo a.pagelayer_promo_buy {
+color: white !important;
+padding: 8px 12px !important;
+font-size: 14px !important;
+background-color: #4CAF50 !important;
 }
-.pagelayer_promo_button1 {
-color: white;
-background-color: #4CAF50;
-border:3px solid #4CAF50;
+#pagelayer_promo a.pagelayer_promo_button1 {
+color: white !important;
+background-color: #4CAF50 !important;
+border:3px solid #4CAF50 !important;
 }
-.pagelayer_promo_button1:hover {
-border:3px solid #4CAF50;
+#pagelayer_promo a.pagelayer_promo_button1:hover {
+border:3px solid #4CAF50 !important;
 }
-.pagelayer_promo_button2 {
-color: white;
-background-color: #0085ba;
+#pagelayer_promo a.pagelayer_promo_button2 {
+color: white !important;
+background-color: #0085ba !important;
 }
-.pagelayer_promo_button3 {
-color: white;
-background-color: #365899;
+#pagelayer_promo a.pagelayer_promo_button3 {
+color: white !important;
+background-color: #365899 !important;
 }
-.pagelayer_promo_button4 {
-color: white;
-background-color: rgb(66, 184, 221);
+#pagelayer_promo a.pagelayer_promo_button4 {
+color: white !important;
+background-color: rgb(66, 184, 221) !important;
 }
-.pagelayer_promo-close{
-float:right;
-text-decoration:none;
-margin: 5px 10px 0px 0px;
+#pagelayer_promo a.pagelayer_promo-close{
+float:right !important;
+text-decoration:none !important;
+margin: 5px 10px 0px 0px !important;
+color: #666 !important;
 }
-.pagelayer_promo-close:hover{
-color: red;
+#pagelayer_promo a.pagelayer_promo-close:hover{
+color: red !important;
+}
+#pagelayer_promo a:not(.pagelayer_promo_button):not(.pagelayer_promo-close) {
+color: #4CAF50 !important;
+text-decoration: underline !important;
+}
+#pagelayer_promo a:not(.pagelayer_promo_button):not(.pagelayer_promo-close):hover {
+color: #3e8e41 !important;
 }
 </style>
 <script type="application/javascript">
@@ -1690,7 +1698,7 @@ function pagelayer_show_pro_div($head = '', $message = '', $admin_css = 1){
 	}
 	
 	echo '</div>
-	<center><a class="button button-pagelayer" href="'.$pro_url.'" target="_blank">Get '.$pro_txt.'</a></center>
+	<center><a class="button-pagelayer" href="'.$pro_url.'" target="_blank" style="text-decoration: none;">'.sprintf(__('Upgrade to %s', 'pagelayer'), $pro_txt).'</a></center>
 	</div>';
 	
 }

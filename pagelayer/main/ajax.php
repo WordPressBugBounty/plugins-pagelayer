@@ -24,6 +24,115 @@ if(!defined('PAGELAYER_VERSION')) {
 	exit('Hacking Attempt !');
 }
 
+// Recommended Plugins Installation and Activation Action Handlers
+// NOTE: These must be registered BEFORE the pagelayer_nonce gate below,
+// because install/activate requests do NOT send pagelayer_nonce.
+add_action('wp_ajax_pagelayer_install_plugin', 'pagelayer_install_recommended_plugin');
+function pagelayer_install_recommended_plugin(){
+	check_ajax_referer('pagelayer_recommended_plugins', 'security');
+
+	if(!current_user_can('install_plugins')){
+		wp_send_json_error(array('message' => __('You do not have permission to install plugins.', 'pagelayer')));
+	}
+	
+	$slug = !empty($_REQUEST['plugin']) ? sanitize_text_field(wp_unslash($_REQUEST['plugin'])) : '';
+	if(empty($slug)){
+		wp_send_json_error(array('message' => __('Plugin slug is required.', 'pagelayer')));
+	}
+	
+	require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	
+	// Initialize WP_Filesystem - required before Plugin_Upgrader can write files
+	$creds = request_filesystem_credentials(site_url() . '/wp-admin/', '', false, false, null);
+	if(!WP_Filesystem($creds)){
+		wp_send_json_error(array('message' => __('Could not initialize filesystem. Please check file permissions.', 'pagelayer')));
+	}
+	
+	$api = plugins_api('plugin_information', array('slug' => $slug, 'fields' => array('sections' => false)));
+	
+	if(is_wp_error($api)){
+		wp_send_json_error(array('message' => $api->get_error_message()));
+	}
+	
+	// Use Automatic_Upgrader_Skin (silent); buffer any stray output to keep response clean JSON
+	$skin = new \Automatic_Upgrader_Skin();
+	$upgrader = new \Plugin_Upgrader($skin);
+	
+	ob_start();
+	$result = $upgrader->install($api->download_link);
+	ob_end_clean();
+	
+	if(is_wp_error($result)){
+		wp_send_json_error(array('message' => $result->get_error_message()));
+	}
+	if($result === false || $result === null){
+		$error_msgs = $skin->get_upgrade_messages();
+		$msg = !empty($error_msgs) ? implode(' ', $error_msgs) : __('Plugin installation failed. Please check file permissions.', 'pagelayer');
+		wp_send_json_error(array('message' => $msg));
+	}
+	
+	$all_plugins = get_plugins();
+	$installed_plugin = '';
+	foreach($all_plugins as $path => $data){
+		if(strpos($path, $slug . '/') === 0){
+			$installed_plugin = $path;
+			break;
+		}
+	}
+	
+	if(empty($installed_plugin)){
+		wp_send_json_error(array('message' => __('Plugin installed but could not be located for activation.', 'pagelayer')));
+	}
+	
+	$result = activate_plugin($installed_plugin);
+	if(is_wp_error($result)){
+		wp_send_json_error(array('message' => $result->get_error_message()));
+	}
+	
+	wp_send_json_success(array('message' => __('Plugin installed and activated successfully.', 'pagelayer')));
+}
+
+add_action('wp_ajax_pagelayer_activate_plugin', 'pagelayer_activate_recommended_plugin');
+function pagelayer_activate_recommended_plugin(){
+	check_ajax_referer('pagelayer_recommended_plugins', 'security');
+	
+	if(!current_user_can('activate_plugins')){
+		wp_send_json_error(array('message' => __('You do not have permission to activate plugins.', 'pagelayer')));
+	}
+	
+	$slug = !empty($_REQUEST['plugin']) ? sanitize_text_field(wp_unslash($_REQUEST['plugin'])) : '';
+	if(empty($slug)){
+		wp_send_json_error(array('message' => __('Plugin slug is required.', 'pagelayer')));
+	}
+	
+	if(!function_exists('get_plugins')){
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	
+	$all_plugins = get_plugins();
+	$plugin_path = '';
+	foreach($all_plugins as $path => $data){
+		if(strpos($path, $slug . '/') === 0){
+			$plugin_path = $path;
+			break;
+		}
+	}
+	
+	if(empty($plugin_path)){
+		wp_send_json_error(array('message' => __('Plugin not found.', 'pagelayer')));
+	}
+	
+	$result = activate_plugin($plugin_path);
+	if(is_wp_error($result)){
+		wp_send_json_error(array('message' => $result->get_error_message()));
+	}
+	
+	wp_send_json_success(array('message' => __('Plugin activated successfully.', 'pagelayer')));
+}
+
 // Is the nonce there ?
 if(empty($_REQUEST['pagelayer_nonce'])){
 	return;

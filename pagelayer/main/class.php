@@ -25,6 +25,7 @@ if(!defined('PAGELAYER_VERSION')) {
 }
 
 // Pagelayer Class
+#[AllowDynamicProperties]
 class PageLayer{
 	
 	var $BRAND_TEXT;
@@ -122,6 +123,31 @@ class PageLayer{
 	// Global colors and typographies
 	var $global_colors = array();
 	var $global_fonts = array();
+
+	// Explicit property declarations to prevent PHP 8.2 dynamic property deprecation warnings
+	var $font_style;
+	var $text_transform;
+	var $font_weight;
+	var $text_decoration_line;
+	var $text_decoration_style;
+	var $customizer_styles_options;
+	var $e;
+	var $export_menus;
+	var $export_mode;
+	var $font_settings;
+	var $from_header_to_footer;
+	var $import_links;
+	var $import_map;
+	var $import_media;
+	var $imported;
+	var $imported_ids;
+	var $imported_menus;
+	var $imported_menus_preg;
+	var $imported_menus_slug;
+	var $ip_method;
+	var $localScript;
+	var $template_conf;
+	var $template_sidebar;
 
 	function __construct() {
 

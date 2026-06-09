@@ -25,11 +25,14 @@ if(!defined('PAGELAYER_VERSION')) {
 }
 
 $app = (!defined('SITEPAD') ? 'Pagelayer' : BRAND_SM);
+
+include_once(PAGELAYER_DIR.'/main/settings.php');
+pagelayer_page_header('Getting Started', 1);
 ?>
 
 <link rel="stylesheet" href="<?php echo PAGELAYER_CSS.'/font-awesome5.min.css';?>">
 
-<div class="pagelayer-getting-started">
+<div class="pagelayer-getting-started" style="padding-top:10px;">
 	<div class="pagelayer-getting-started-container">
 		<div class="pagelayer-getting-started-block">
 			<div class="pagelayer-getting-started-logo">
@@ -137,6 +140,7 @@ $app = (!defined('SITEPAD') ? 'Pagelayer' : BRAND_SM);
 							<p><?php echo (!defined('SITEPAD')) ? __pl('easy_customize_desc') : __pl('whmcs_desc');?></p>
 						</div>
 					</div>
+				</div>
 				<div class="pagelayer-getting-started-btn">
 					<a href=" <?php echo (!defined('SITEPAD')) ? PAGELAYER_WWW_URL : "http://sitepad.com/"?>" class="button button-secondary btn-sc" target="_blank" style="margin-top:20px;"><?php echo __pl('why').' '.$app.'?';?></a>
 				</div>
@@ -146,9 +150,8 @@ $app = (!defined('SITEPAD') ? 'Pagelayer' : BRAND_SM);
 </div>
 
 <style>
-
 .pagelayer-getting-started{
-	padding-top: 50px;
+	padding: 20px 0;
 }
 
 .pagelayer-getting-started-container{
@@ -160,98 +163,185 @@ $app = (!defined('SITEPAD') ? 'Pagelayer' : BRAND_SM);
 
 .pagelayer-getting-started-block{
 	background-color: #fff;
-	border: 2px solid #e1e1e1;
-	border-radius: 2px;
-	margin-bottom: 30px;
-	position: relative;
-	padding-top: 40px;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	margin-bottom: 40px;
+	padding: 48px 32px;
+	box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03), 0 2px 8px -1px rgba(0,0,0,0.02);
+}
+
+.pagelayer-getting-started-logo {
+	margin-bottom: 24px;
 }
 
 .pagelayer-getting-started-logo img{
-	width: 10%;
+	max-width: 120px;
 	height: auto;
+	display: inline-block;
 }
 
 .pagelayer-getting-started-desc{
-	padding: 40px;
+	padding: 0;
+	margin-bottom: 28px;
 }
 
 .pagelayer-getting-started-desc h1{
-	color: #222;
-	font-size: 24px;
-	margin: 0 0 24px 0;
+	color: #0f172a;
+	font-size: 28px;
+	font-weight: 700;
+	margin: 0 0 12px 0;
+	letter-spacing: -0.5px;
 }
 
 .pagelayer-getting-started-desc h6{
-	font-size: 16px;
+	font-size: 15px;
 	font-weight: 400;
 	line-height: 1.6;
-	margin: 0 85px 0 85px;
+	color: #475569;
+	margin: 0 auto;
+	max-width: 720px;
+}
+
+/* Responsive Video Wrapper */
+.pagelayer-getting-started-video {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 ratio */
+	height: 0;
+	overflow: hidden;
+	max-width: 760px;
+	margin: 32px auto;
+	border-radius: 12px;
+	box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+	border: 1px solid #e2e8f0;
+}
+
+.pagelayer-getting-started-video iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
 }
 
 .pagelayer-getting-started-btn{
-	max-width: 600px;
-	margin: 0 auto 0 auto;
-	margin-top: 36px !important;
+	margin: 32px auto 0;
+	display: flex;
+	gap: 16px;
+	justify-content: center;
+	flex-wrap: wrap;
 }
 
-.btn-sc{
+/* Buttons styling */
+.pagelayer-getting-started-btn .btn-sc {
 	font-size: 14px !important;
-	min-height: 46px !important;
-	line-height: 3.14285714 ! important;
-	padding: 0px 36px !important;
+	font-weight: 600 !important;
+	padding: 12px 32px !important;
+	border-radius: 8px !important;
+	height: auto !important;
+	line-height: 1.4 !important;
+	cursor: pointer;
+	text-decoration: none;
+	transition: all 0.2s ease-in-out;
+	display: inline-block;
 }
 
-.button-primary{
-	margin-right: 20px !important;
-	border-radius: 3px !important;
+.pagelayer-getting-started-btn .button-primary {
+	background: #4f46e5 !important;
+	color: #fff !important;
+	border: none !important;
+	box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 2px 4px -1px rgba(79, 70, 229, 0.1) !important;
 }
 
+.pagelayer-getting-started-btn .button-primary:hover {
+	background: #4338ca !important;
+	box-shadow: 0 6px 12px -2px rgba(79, 70, 229, 0.25) !important;
+	transform: translateY(-1px);
+}
+
+.pagelayer-getting-started-btn .button-secondary {
+	background: #fff !important;
+	color: #344054 !important;
+	border: 1.5px solid #d0d5dd !important;
+}
+
+.pagelayer-getting-started-btn .button-secondary:hover {
+	background: #f9fafb !important;
+	border-color: #cbd5e1 !important;
+	color: #1e293b !important;
+	transform: translateY(-1px);
+}
+
+/* Features section */
 .pagelayer-features{
 	background-color: #fff;
-	border: 2px solid #e1e1e1;
-	border-radius: 2px 2px 0 0;
-	position: relative;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 48px 32px;
+	box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03);
+}
+
+.pagelayer-features-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 24px;
+	margin-top: 40px;
 }
 
 .feature-block-card{
-	width: 25%;
-	display: inline-block;
-	margin: 60px 10px 0 10px;
-	vertical-align: top;
-	box-shadow: 0px 0px 20px 0px rgba(0,0,0,.1);
-	padding: 20px;
-	height: 220px;
+	background: #fff;
+	border: 1px solid #f1f5f9;
+	border-radius: 12px;
+	padding: 28px 20px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+	transition: all 0.25s ease-in-out;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.feature-block-card:hover {
+	border-color: #e2e8f0;
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+	transform: translateY(-2px);
 }
 
 .feature-block{
-	background: linear-gradient(to right, rgb(116, 116, 191), rgb(52, 138, 199));
+	background: #eef2ff !important;
 	border-radius: 50%;
-	width: 54px;
-	height: 54px;
-	position: relative;
-	display: inline-block;
+	width: 56px;
+	height: 56px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 20px;
+	transition: background-color 0.2s;
+}
+
+.feature-block-card:hover .feature-block {
+	background: #e0e7ff !important;
 }
 
 .feature-block i{
-	font-size: 30px;
-	color: #fff;
-	position: absolute;
-	top: 13px;
-	left: 0;
-	right: 0;
+	font-size: 22px;
+	color: #4f46e5;
 }
 
 .feature-block-content h5{
-	color: #222;
-	font-size: 20px;
-	margin: 10px 0 0 0;
+	color: #0f172a;
+	font-size: 17px;
+	font-weight: 600;
+	margin: 0 0 10px 0;
+	letter-spacing: -0.2px;
 }
 
 .feature-block-content p{
-	color: #222;
-	font-size: 16px;
-	margin-top: 10px;
+	color: #475569;
+	font-size: 13.5px;
+	line-height: 1.5;
+	margin: 0;
 }
 
 .fa-spin{

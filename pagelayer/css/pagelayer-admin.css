@@ -1,20 +1,560 @@
-.pagelayer-tab-panel{
-padding:20px;
-display:none;
+/* ---- Layout Wrapper ---- */
+#pagelayer-admin-wrap {
+display: flex;
+min-height: 100vh;
+background: #f8fafc;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+margin-left: -20px;
+margin-top: -10px;
 }
 
-.pagelayer-setting-form th, .pagelayer-setting-form td{
+/* ---- Left Sidebar ---- */
+#pagelayer-sidebar {
+width: 280px;
+background: #fff;
+color: #1e293b;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+position: relative;
+z-index: 10;
+border-right: 1px solid #f1f5f9;
+box-shadow: 2px 0 8px rgba(0, 0, 0, 0.015);
+}
+
+@media (min-width: 721px) {
+#pagelayer-sidebar {
+position: sticky;
+top: 0;
+height: 100vh;
+}
+
+.admin-bar #pagelayer-sidebar {
+top: 32px;
+height: calc(100vh - 32px);
+}
+
+@media screen and (max-width: 782px) {
+.admin-bar #pagelayer-sidebar {
+	top: 46px;
+	height: calc(100vh - 46px);
+}
+}
+}
+
+#pagelayer-sidebar-logo {
+padding: 24px 24px 12px;
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+justify-content: flex-start;
+gap: 12px;
+}
+
+body.post-type-pagelayer-template #pagelayer-sidebar-logo,
+body.post-type-pagelayer-fonts #pagelayer-sidebar-logo,
+body.pagelayer_page_pagelayer_template_wizard #pagelayer-sidebar-logo,
+body.pagelayer_page_pagelayer_import #pagelayer-sidebar-logo,
+body.pagelayer_page_pagelayer_tools #pagelayer-sidebar-logo,
+body.pagelayer_page_pagelayer_license #pagelayer-sidebar-logo {
+padding-top: 34px;
+}
+
+#pagelayer-sidebar-logo img {
+display: block;
+height: 38px;
+width: 38px;
+border-radius: 8px;
+margin: 0;
+}
+
+#pagelayer-sidebar-logo .pl-logo-details {
+display: flex;
+flex-direction: column;
+gap: 2px;
+align-items: flex-start;
+}
+
+#pagelayer-sidebar-logo .pl-logo-text {
+font-size: 17px;
+font-weight: 700;
+color: #1e293b;
+letter-spacing: -0.2px;
+line-height: 1.2;
+display: block;
+}
+
+#pagelayer-sidebar-logo .pl-version {
+font-size: 10px;
+font-weight: 500;
+color: #64748b;
+background: transparent;
+padding: 0;
+border: none;
+line-height: 1;
+margin: 0;
+flex-shrink: 0;
+}
+
+/* Nav Menu */
+#pagelayer-sidebar-nav {
+flex: 1;
+padding: 12px 14px;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+
+#pagelayer-sidebar-nav a {
+display: flex;
+align-items: center;
+gap: 12px;
+color: #4b5563;
+padding: 11px 16px;
+text-decoration: none;
+font-size: 13.5px;
+font-weight: 500;
+border-radius: 8px;
+cursor: pointer;
+border: 1px solid transparent;
+transition: all 0.2s ease-in-out;
+}
+
+#pagelayer-sidebar-nav a:hover {
+background: #f8fafc;
+color: #1e293b;
+border-color: #f1f5f9;
+}
+
+#pagelayer-sidebar-nav a:hover .pl-nav-icon {
+color: #4f46e5;
+opacity: 1;
+}
+
+#pagelayer-sidebar-nav a.pagelayer-nav-active {
+background: #eef2ff;
+color: #4f46e5;
+border-color: #c7d2fe;
+font-weight: 600;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05);
+}
+
+#pagelayer-sidebar-nav a .pl-nav-icon {
+width: 20px;
+height: 20px;
+opacity: 0.6;
+flex-shrink: 0;
+font-size: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #4b5563;
+transition: all 0.2s ease-in-out;
+}
+
+#pagelayer-sidebar-nav a.pagelayer-nav-active .pl-nav-icon {
+opacity: 1;
+color: #4f46e5;
+}
+
+/* Bottom sidebar items */
+#pagelayer-sidebar-bottom {
+padding: 14px 12px;
+border-top: 1px solid #e2e4e9;
+}
+
+#pagelayer-sidebar-bottom .pl-go-premium {
+display: block;
+background: #0284c7;
+color: #fff;
+text-align: center;
+padding: 10px 14px;
+border-radius: 6px;
+font-size: 13px;
+font-weight: 600;
+text-decoration: none;
+transition: background 0.2s;
+margin-bottom: 10px;
+}
+
+#pagelayer-sidebar-bottom .pl-go-premium:hover {
+background: #0369a1;
+}
+
+#pagelayer-sidebar-bottom .pl-sidebar-links {
+display: flex;
+gap: 14px;
+justify-content: center;
+padding-top: 6px;
+}
+
+#pagelayer-sidebar-bottom .pl-sidebar-links a {
+color: #64748b;
+font-size: 12px;
+text-decoration: none;
+display: flex;
+align-items: center;
+gap: 4px;
+transition: color 0.15s;
+}
+
+#pagelayer-sidebar-bottom .pl-sidebar-links a:hover {
+color: #0284c7;
+}
+
+/* ---- Main Content Area ---- */
+#pagelayer-main-content {
+flex: 1;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+}
+
+/* ---- Top Header ---- */
+#pagelayer-top-header {
+background: #fff;
+border-bottom: 1px solid #f1f5f9;
+padding: 5px 28px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+height: 60px;
+position: sticky;
+top: 0;
+z-index: 99;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.admin-bar #pagelayer-top-header {
+top: 32px;
+}
+
+@media screen and (max-width: 782px) {
+.admin-bar #pagelayer-top-header {
+	top: 46px;
+}
+}
+
+#pagelayer-top-header h1 {
+font-size: 18px;
+font-weight: 700;
+color: #1e293b;
+margin: 0;
+padding: 0;
+line-height: 1;
+}
+
+.pagelayer-header-actions {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.pagelayer-header-actions .pl-help-btn {
+display: flex;
+align-items: center;
+gap: 6px;
+color: #555;
+font-size: 13px;
+text-decoration: none;
+padding: 7px 14px;
+border: 1px solid #d0d5dd;
+border-radius: 6px;
+background: #fff;
+cursor: pointer;
+transition: background 0.15s;
+}
+
+.pagelayer-header-actions .pl-help-btn:hover {
+background: #f5f5f5;
+}
+
+.pagelayer-header-actions .pl-save-btn,
+.pagelayer-header-actions input[type="submit"].pl-save-btn {
+background: #4f46e5 !important;
+color: #fff !important;
+border: none !important;
+border-radius: 6px !important;
+padding: 9px 20px !important;
+font-size: 13px !important;
+font-weight: 600 !important;
+cursor: pointer;
+text-decoration: none;
+transition: background 0.2s;
+height: auto !important;
+line-height: 1.4 !important;
+box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+}
+
+.pagelayer-header-actions .pl-save-btn:hover,
+.pagelayer-header-actions input[type="submit"].pl-save-btn:hover {
+background: #4338ca !important;
+}
+
+/* ---- Body Row (content + right bar) ---- */
+#pagelayer-body-row {
+display: flex;
+flex: 1;
+align-items: flex-start;
+}
+
+/* ---- Settings Content ---- */
+#pagelayer-settings-content {
+flex: 1;
+padding: 55px 28px 20px 28px;
+overflow-y: auto;
+}
+
+/* ---- Right Sidebar Promo ---- */
+#pagelayer-right-bar {
+padding: 50px 16px 20px 16px;
+}
+
+/* ---- Tab Panels ---- */
+.pagelayer-tab-panel {
+display: none;
+}
+
+.pagelayer-tab-panel.pagelayer-tab-active {
+display: block;
+}
+
+/* ---- Settings Card ---- */
+.pagelayer-settings-card {
+background: #fff;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
+margin-bottom: 24px;
+overflow: hidden;
+box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+}
+
+.pagelayer-settings-card-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 24px;
+border-bottom: 1px solid #e2e8f0;
+background: #fff;
+}
+
+.pagelayer-settings-card-header h3 {
+font-size: 14.5px;
+font-weight: 600;
+color: #0f172a;
+margin: 0;
+letter-spacing: -0.1px;
+}
+
+.pl-badge {
+background: #e0f2fe;
+color: #0369a1;
+font-size: 10px;
+font-weight: 600;
+padding: 3px 10px;
+border-radius: 20px;
+text-transform: uppercase;
+letter-spacing: 0.4px;
+border: 1px solid #bae6fd;
+}
+
+.pl-badge.pl-badge-pro {
+background: #fef3c7;
+color: #92400e;
+border-color: #fde68a;
+}
+
+/* ---- Setting Row ---- */
+.pagelayer-setting-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 20px 24px;
+border-bottom: 1px solid #f1f5f9;
+gap: 20px;
+transition: background-color 0.15s ease-in-out;
+}
+
+.pagelayer-setting-row:hover {
+background-color: #fafafa;
+}
+
+.pagelayer-setting-row:last-child {
+border-bottom: none;
+}
+
+.pagelayer-setting-row-left {
+flex: 1;
+min-width: 0;
+}
+
+.pagelayer-setting-row-label {
+font-size: 13.5px;
+font-weight: 600;
+color: #0f172a;
+display: block;
+margin-bottom: 3px;
+letter-spacing: -0.05px;
+}
+
+.pagelayer-setting-row-desc {
+font-size: 12px;
+color: #4b5563;
+line-height: 1.5;
+margin: 0;
+}
+
+.pagelayer-setting-row-desc a {
+color: #4f46e5;
+}
+
+.pagelayer-setting-row-desc strong {
+color: #ef4444;
+font-weight: 600;
+}
+
+.pagelayer-setting-row-control {
+flex-shrink: 0;
+}
+
+/* ---- Toggle Switch ---- */
+.pl-toggle {
+position: relative;
+display: inline-block;
+width: 44px;
+height: 24px;
+}
+
+.pl-toggle input {
+opacity: 0;
+width: 0;
+height: 0;
+position: absolute;
+}
+
+.pl-toggle-slider {
+position: absolute;
+cursor: pointer;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: #cbd5e1;
+border-radius: 24px;
+transition: all 0.2s ease-in-out;
+}
+
+.pl-toggle-slider:before {
+position: absolute;
+content: "";
+height: 18px;
+width: 18px;
+left: 3px;
+bottom: 3px;
+background: #fff;
+border-radius: 50%;
+transition: all 0.2s ease-in-out;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.pl-toggle:hover .pl-toggle-slider {
+background: #b8c2cc;
+}
+
+.pl-toggle input:checked+.pl-toggle-slider {
+background: #4f46e5;
+}
+
+.pl-toggle input:checked:hover+.pl-toggle-slider {
+background: #4338ca;
+}
+
+.pl-toggle input:checked+.pl-toggle-slider:before {
+transform: translateX(20px);
+}
+
+/* Post type checkboxes row */
+.pl-posttype-toggles {
+display: flex;
+gap: 20px;
+align-items: center;
+flex-wrap: wrap;
+}
+
+.pl-posttype-toggle {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.pl-posttype-toggle span {
+font-size: 11.5px;
+font-weight: 500;
+color: #374151;
+}
+
+/* ---- JS Permission checkboxes ---- */
+.pl-checkbox-group {
+display: flex;
+gap: 12px;
+flex-wrap: wrap;
+}
+
+.pl-checkbox-item {
+display: flex;
+align-items: center;
+gap: 6px;
+border: 1px solid #e2e8f0;
+border-radius: 8px;
+padding: 8px 16px;
+cursor: pointer;
+transition: all 0.2s ease-in-out;
+background: #fff;
+}
+
+.pl-checkbox-item:hover {
+border-color: #cbd5e1;
+background: #f8fafc;
+}
+
+.pl-checkbox-item:has(input:checked) {
+border-color: #4f46e5;
+background: #eef2ff;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05);
+}
+
+.pl-checkbox-item input[type="checkbox"] {
+margin: 0;
+accent-color: #4f46e5;
+width: 15px;
+height: 15px;
+}
+
+.pl-checkbox-item label {
+font-size: 12.5px;
+font-weight: 500;
+color: #374151;
+cursor: pointer;
+margin: 0;
+}
+
+/* ---- Form Table Compat ---- */
+.pagelayer-setting-form th,
+.pagelayer-setting-form td {
 padding:10px 20px 10px 0px;
 text-align:left;
 }
 
-.pagelayer-internal-table th, .pagelayer-internal-table td{
+.pagelayer-internal-table th,
+.pagelayer-internal-table td {
 padding:3px;
 text-align:left;
 }
 
+/* ---- Tab Sections with subtabs ---- */
 .pagelayer-acc-wrapper{
-width:90%;
+width: 100%;
 }
 
 .pagelayer-acc-wrapper .pagelayer-acc-tab{
@@ -29,6 +569,44 @@ padding:0px 20px;
 display:none;
 }
 
+/* ---- Input Styles inside cards ---- */
+.pagelayer-settings-card input[type="text"],
+.pagelayer-settings-card input[type="email"],
+.pagelayer-settings-card input[type="tel"],
+.pagelayer-settings-card input[type="number"],
+.pagelayer-settings-card select,
+.pagelayer-settings-card textarea {
+border: 1.5px solid #d0d5dd;
+border-radius: 6px;
+padding: 8px 12px;
+font-size: 13px;
+color: #1a1a2e;
+background: #fff;
+transition: border-color 0.15s;
+width: 100%;
+max-width: 420px;
+box-sizing: border-box;
+}
+
+.pagelayer-settings-card input[type="text"]:focus,
+.pagelayer-settings-card input[type="email"]:focus,
+.pagelayer-settings-card input[type="tel"]:focus,
+.pagelayer-settings-card input[type="number"]:focus,
+.pagelayer-settings-card select:focus,
+.pagelayer-settings-card textarea:focus {
+border-color: #4f46e5;
+outline: none;
+box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.pagelayer-settings-card table input[type="text"],
+.pagelayer-settings-card table input[type="email"],
+.pagelayer-settings-card table input[type="tel"],
+.pagelayer-settings-card table select,
+.pagelayer-settings-card table textarea {
+width: 100%;
+}
+
 .pagelayer-setting-form td .pagelayer-app-id{
 width:350px;
 }
@@ -36,14 +614,27 @@ width:350px;
 .pagelayer-cf table{
 width: 80%;
 }
+
 .pagelayer-cf table label,
 .pagelayer-cf table input:not([type="checkbox"]):not([type="radio"]),
 .pagelayer-cf table textarea{
 width: 100%;
 }
 
-.pagelayer-show-vanilla{
-border: 1px solid #0495ce;
+/* ---- Notice ---- */
+.pagelayer-notice {
+padding: 10px;
+background-color: #fff;
+border: 1px solid #ccc;
+}
+
+.pagelayer-notice-info {
+border-left: 5px solid #4f46e5 !important;
+}
+
+/* ---- Color Picker Compat ---- */
+.pagelayer-show-vanilla {
+border: 1px solid #d0d5dd;
 display: block;
 padding: 4px;
 text-decoration: none;
@@ -79,74 +670,1505 @@ background-size: cover !important;
 display:none;
 }
 
-.pagelayer-styles-screens > li{
-	display: inline-block;
+/* ---- Horizontal Sub-navigation (Screen Tabs) ---- */
+.pagelayer-styles-screens {
+border-bottom: 1px solid #f1f5f9 !important;
+padding: 0 0 8px 0 !important;
+display: flex;
+gap: 8px;
+list-style: none;
+margin: 0 0 18px 0 !important;
 }
 
-.pagelayer-heading-tab{
-background: #fff !important;    
-border: 1px solid #ccc;
-border-bottom: 0px;
-border-radius:0px;
+.pagelayer-styles-screens>li{
+display: block;
+margin: 0;
 }
 
+.pagelayer-styles-screen-tab {
+display: inline-flex !important;
+align-items: center;
+color: #4b5563 !important;
+padding: 8px 16px !important;
+text-decoration: none;
+font-size: 13px !important;
+font-weight: 500 !important;
+border-radius: 6px !important;
+cursor: pointer;
+border: 1px solid transparent !important;
+background: transparent !important;
+transition: all 0.2s ease-in-out;
+line-height: 1.2 !important;
+margin: 0 !important;
+}
+
+.pagelayer-styles-screen-tab:hover {
+background: #f8fafc !important;
+color: #1e293b !important;
+border-color: #f1f5f9 !important;
+}
+
+.pagelayer-styles-screen-tab.nav-tab-active {
+background: #eef2ff !important;
+color: #4f46e5 !important;
+border-color: #c7d2fe !important;
+font-weight: 600 !important;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05) !important;
+}
+
+/* ---- Vertical Sub-navigation (Heading Tabs) ---- */
 .pagelayer-heading-wrapper{
 margin-right: 20px;
-border-bottom: unset;
+border-bottom: none !important;
+padding: 0 !important;
+display: flex;
+flex-direction: column;
+gap: 6px;
+list-style: none;
 }
 
-.pagelayer-heading-wrapper .nav-tab{
-display:block;
-width: 100%;
-box-sizing: border-box;
-}
-
-.pagelayer-website-padding{
-width:65px;
-}
-
-.pagelayer-notice{
-padding: 10px;
-background-color: #fff;
-border: 1px solid #ccc;
-}
-
-.pagelayer-notice-info{
-border-left: 5px solid #00a0d2 !important;
-}
-
-.button-pagelayer{
-padding: 12px 25px !important;
-font-size: 15px !important;
-font-weight: bold;
-background: #7444fd !important;
-color: #fff !important;
-border: 1px solid #7444fd !important;
-transition: all .3s linear;
-pointer: cursor;
-}
-
-.button-pagelayer:hover{
-background: #fff !important;
-color: #7444fd !important;
-}
-
-.pagelayer-pro-div{
-margin: 50px auto;
+.pagelayer-heading-wrapper>li {
 display: block;
-max-width: 700px;
-padding: 20px;
-background-color: #fff;
+margin: 0;
 }
 
-.pagelayer-pro-head{
-text-align: center;
+.pagelayer-heading-wrapper .nav-tab,
+.pagelayer-heading-tab {
+display: flex !important;
+align-items: center;
+gap: 10px;
+color: #4b5563 !important;
+padding: 10px 14px !important;
+text-decoration: none;
+font-size: 13.5px !important;
+font-weight: 500 !important;
+border-radius: 6px !important;
+cursor: pointer;
+border: 1px solid transparent !important;
+background: transparent !important;
+transition: all 0.2s ease-in-out;
+line-height: 1.2 !important;
+margin: 0 !important;
 }
 
-.pagelayer-pro-message{
-margin: 25px auto;
-font-size: 15px;
-padding: 2px 25px;
+.pagelayer-heading-wrapper .nav-tab:hover,
+.pagelayer-heading-tab:hover {
+background: #f8fafc !important;
+color: #1e293b !important;
+border-color: #f1f5f9 !important;
+}
+
+.pagelayer-heading-wrapper .nav-tab.nav-tab-active,
+.pagelayer-heading-tab.nav-tab-active {
+background: #eef2ff !important;
+color: #4f46e5 !important;
+border-color: #c7d2fe !important;
+font-weight: 600 !important;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05) !important;
+}
+
+.pagelayer-settings-card input.pagelayer-website-padding {
+width: 55px !important;
+padding: 8px 6px !important;
 text-align: center;
-line-height: 1.8;
+display: inline-block;
+}
+
+.button-pagelayer {
+padding: 9px 20px !important;
+font-size: 13px !important;
+font-weight: 600 !important;
+background: #4f46e5 !important;
+color: #fff !important;
+border: 1px solid #4f46e5 !important;
+transition: all 0.2s ease-in-out !important;
+cursor: pointer;
+border-radius: 6px !important;
+display: inline-block !important;
+box-shadow: 0 1px 3px rgba(79, 70, 229, 0.2) !important;
+}
+
+.button-pagelayer:hover {
+background: #4338ca !important;
+border-color: #4338ca !important;
+color: #fff !important;
+box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3) !important;
+}
+
+.pagelayer-pro-div {
+margin: 40px auto !important;
+display: block !important;
+max-width: 600px !important;
+padding: 40px 24px !important;
+background-color: #fff !important;
+border-radius: 12px !important;
+box-shadow: 0 8px 30px rgba(0,0,0,0.05) !important;
+border: 1px solid #f0f0f0 !important;
+box-sizing: border-box !important;
+}
+
+.pagelayer-pro-head {
+font-size: 24px !important;
+margin-top: 0 !important;
+color: #333 !important;
+font-weight: 600 !important;
+text-align: center !important;
+}
+
+.pagelayer-pro-message {
+color: #666 !important;
+font-size: 15px !important;
+line-height: 1.6 !important;
+margin: 20px auto 24px auto !important;
+max-width: 480px !important;
+text-align: center !important;
+}
+
+/* ---- Support / FAQ card compat ---- */
+.pagelayer-tab-panel h2 {
+font-size: 16px;
+font-weight: 600;
+color: #1a1a2e;
+margin-bottom: 10px;
+}
+
+.pagelayer-tab-panel h3 {
+font-size: 14px;
+color: #000;
+font-weight: 700;
+line-height: 1.6;
+}
+
+/* ---- Admin Footer ---- */
+#pagelayer-admin-footer {
+background: #fff;
+border-top: 1px solid #e2e4e9;
+padding: 14px 28px;
+font-size: 12.5px;
+color: #6b7280;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+#pagelayer-admin-footer a {
+color: #4f46e5;
+text-decoration: none;
+}
+
+#pagelayer-admin-footer a:hover {
+text-decoration: underline;
+}
+
+.pagelayer-footer-links {
+display: flex;
+gap: 18px;
+}
+
+/* ---- Nav Tab wrapper override ---- */
+#pagelayer-admin-wrap .nav-tab-wrapper {
+border-bottom: none;
+margin-top: 0;
+margin-bottom: 0;
+padding-top: 0;
+}
+
+/* ---- Scrollbar ---- */
+#pagelayer-sidebar-nav::-webkit-scrollbar {
+width: 4px;
+}
+
+#pagelayer-sidebar-nav::-webkit-scrollbar-track {
+background: transparent;
+}
+
+#pagelayer-sidebar-nav::-webkit-scrollbar-thumb {
+background: rgba(255, 255, 255, 0.2);
+border-radius: 4px;
+}
+
+/* ---- Success notice ---- */
+.pagelayer-settings-content .notice {
+border-radius: 8px;
+margin-bottom: 16px;
+}
+
+/* ---- Security note ---- */
+.pl-security-note {
+background: #fef9e7;
+border: 1px solid #fde68a;
+border-radius: 6px;
+padding: 10px 14px;
+font-size: 12.5px;
+color: #78350f;
+margin-top: 10px;
+line-height: 1.5;
+}
+
+.pl-security-note b {
+color: #dc2626;
+}
+
+/* ---- Highly recommended note ---- */
+.pl-recommend-note {
+color: #4f46e5;
+font-size: 12px;
+font-weight: 600;
+margin-top: 4px;
+display: block;
+}
+
+/* ---- Textarea in settings ---- */
+.pagelayer-settings-card textarea {
+min-height: 80px;
+resize: vertical;
+}
+
+/* ---- Table inside settings panel ---- */
+.pagelayer-tab-panel>table,
+.pagelayer-settings-card table {
+width: 100%;
+border-collapse: collapse;
+}
+
+.pagelayer-tab-panel>table th,
+.pagelayer-settings-card table th {
+text-align: left;
+font-weight: 600;
+font-size: 13px;
+color: #374151;
+padding: 10px 20px 10px 0;
+width: 180px;
+vertical-align: top;
+}
+
+.pagelayer-tab-panel>table td,
+.pagelayer-settings-card table td {
+padding: 10px 0;
+font-size: 13px;
+color: #1a1a2e;
+}
+
+#pagelayer-settings-content h2.nav-tab-wrapper.pagelayer-wrapper {
+display: none !important;
+}
+
+/* Hide duplicate bottom save button on website settings */
+.pagelayer-setting-form .button-submit {
+display: none !important;
+}
+
+/* ============================================================
+WordPress Core List Screen Styling (Templates & Fonts)
+============================================================ */
+.post-type-pagelayer-template #wpbody-content,
+.post-type-pagelayer-fonts #wpbody-content {
+background: #f0f0f1;
+padding: 24px 28px;
+}
+
+.post-type-pagelayer-template .wrap,
+.post-type-pagelayer-fonts .wrap {
+margin: 0;
+background: #fff;
+border: 1px solid #e2e4e9;
+border-radius: 10px;
+padding: 22px 28px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+max-width: 1200px;
+}
+
+.post-type-pagelayer-template .wp-heading-inline,
+.post-type-pagelayer-fonts .wp-heading-inline {
+font-size: 20px;
+font-weight: 700;
+color: #1a1a2e;
+margin: 0 12px 0 0;
+}
+
+.post-type-pagelayer-template .page-title-action,
+.post-type-pagelayer-fonts .page-title-action {
+background: #eef2ff !important;
+color: #4f46e5 !important;
+border: 1px solid #c7d2fe !important;
+border-radius: 8px !important;
+padding: 7px 16px !important;
+font-size: 13px !important;
+font-weight: 600 !important;
+transition: all 0.2s ease-in-out !important;
+display: inline-block;
+text-decoration: none;
+line-height: 1.2;
+height: auto;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05) !important;
+}
+
+.post-type-pagelayer-template .page-title-action:hover,
+.post-type-pagelayer-fonts .page-title-action:hover {
+background: #4f46e5 !important;
+color: #fff !important;
+border-color: #4f46e5 !important;
+box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1), 0 2px 4px -1px rgba(79, 70, 229, 0.06) !important;
+}
+
+/* Modern Tab style for Filters */
+.post-type-pagelayer-template .subsubsub,
+.post-type-pagelayer-fonts .subsubsub {
+margin: 20px 0 16px 0;
+font-size: 13px;
+color: #64748b;
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+border-bottom: none;
+padding: 0;
+list-style: none;
+}
+
+.post-type-pagelayer-template .subsubsub li,
+.post-type-pagelayer-fonts .subsubsub li {
+display: inline-block;
+margin: 0;
+padding: 0;
+font-size: 13px;
+color: #94a3b8;
+}
+
+/* Hide the vertical separators (|) in WordPress subsubsub */
+.post-type-pagelayer-template .subsubsub li::after,
+.post-type-pagelayer-fonts .subsubsub li::after {
+content: "";
+margin: 0;
+display: none;
+}
+
+.post-type-pagelayer-template .subsubsub a,
+.post-type-pagelayer-fonts .subsubsub a {
+display: inline-flex !important;
+align-items: center;
+color: #4b5563 !important;
+padding: 8px 16px !important;
+text-decoration: none;
+font-size: 13px !important;
+font-weight: 500 !important;
+border-radius: 6px !important;
+cursor: pointer;
+border: 1px solid #e2e8f0 !important;
+background: #fff !important;
+transition: all 0.2s ease-in-out;
+line-height: 1.2 !important;
+margin: 0 !important;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.post-type-pagelayer-template .subsubsub a:hover,
+.post-type-pagelayer-fonts .subsubsub a:hover {
+background: #f8fafc !important;
+color: #1e293b !important;
+border-color: #cbd5e1 !important;
+}
+
+.post-type-pagelayer-template .subsubsub a.current,
+.post-type-pagelayer-fonts .subsubsub a.current {
+background: #eef2ff !important;
+color: #4f46e5 !important;
+border-color: #c7d2fe !important;
+font-weight: 600 !important;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05) !important;
+}
+
+/* Tablenav & Bulk Actions */
+.post-type-pagelayer-template .tablenav,
+.post-type-pagelayer-fonts .tablenav {
+height: auto;
+padding: 8px 0;
+}
+
+.post-type-pagelayer-template .tablenav select,
+.post-type-pagelayer-fonts .tablenav select {
+border: 1.5px solid #d0d5dd;
+border-radius: 6px;
+padding: 5px 10px;
+font-size: 12.5px;
+color: #1a1a2e;
+height: auto;
+line-height: 1.2;
+}
+
+.post-type-pagelayer-template .tablenav input[type="submit"],
+.post-type-pagelayer-fonts .tablenav input[type="submit"],
+body.post-type-pagelayer-template.edit-php .search-box input[type="submit"],
+body.post-type-pagelayer-fonts.edit-php .search-box input[type="submit"] {
+background: #fff !important;
+color: #344054 !important;
+border: 1.5px solid #d0d5dd !important;
+border-radius: 6px !important;
+padding: 6px 14px !important;
+font-size: 12.5px !important;
+font-weight: 600 !important;
+cursor: pointer !important;
+height: auto !important;
+line-height: 1.4 !important;
+transition: all 0.2s ease-in-out !important;
+box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05) !important;
+vertical-align: middle !important;
+margin-left: 6px !important;
+}
+
+.post-type-pagelayer-template .tablenav input[type="submit"]:hover,
+.post-type-pagelayer-fonts .tablenav input[type="submit"]:hover,
+body.post-type-pagelayer-template.edit-php .search-box input[type="submit"]:hover,
+body.post-type-pagelayer-fonts.edit-php .search-box input[type="submit"]:hover {
+background: #f9fafb !important;
+border-color: #cbd5e1 !important;
+color: #0f172a !important;
+box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1) !important;
+}
+
+/* Modern clean List Table styling */
+.post-type-pagelayer-template .wp-list-table,
+.post-type-pagelayer-fonts .wp-list-table {
+border: 1px solid #e2e4e9 !important;
+border-radius: 8px !important;
+box-shadow: none !important;
+overflow: hidden;
+}
+
+.post-type-pagelayer-template .wp-list-table thead th,
+.post-type-pagelayer-fonts .wp-list-table thead th {
+background: #f8fafc;
+border-bottom: 1px solid #e2e4e9 !important;
+font-weight: 600;
+font-size: 13px;
+color: #374151;
+padding: 12px 10px;
+}
+
+.post-type-pagelayer-template .wp-list-table tbody td,
+.post-type-pagelayer-fonts .wp-list-table tbody td {
+padding: 12px 10px;
+vertical-align: middle;
+font-size: 13px;
+color: #1a1a2e;
+}
+
+.post-type-pagelayer-template .wp-list-table tbody tr:hover,
+.post-type-pagelayer-fonts .wp-list-table tbody tr:hover {
+background: #f9fafb;
+}
+
+/* Custom enqueued notice alerts */
+.post-type-pagelayer-template .notice,
+.post-type-pagelayer-fonts .notice {
+border-radius: 8px !important;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+margin-bottom: 18px !important;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+#pagelayer-sidebar {
+width: 160px;
+}
+
+#pagelayer-right-bar {
+display: none;
+}
+}
+
+@media (max-width: 720px) {
+#pagelayer-admin-wrap {
+flex-direction: column;
+}
+
+#pagelayer-sidebar {
+width: 100%;
+min-height: auto;
+}
+
+#pagelayer-sidebar-nav {
+display: flex;
+flex-wrap: wrap;
+padding: 6px;
+}
+
+#pagelayer-sidebar-nav a {
+flex: 1;
+min-width: 120px;
+border-left: none;
+border-bottom: 3px solid transparent;
+justify-content: center;
+}
+
+#pagelayer-sidebar-nav a.pagelayer-nav-active {
+border-left: none;
+border-bottom-color: #4f46e5;
+background: #eef2ff;
+color: #4f46e5;
+}
+}
+
+/* ============================================================
+Website Settings Modern Redesign
+============================================================ */
+#headings.pagelayer-tab-panel.pagelayer-tab-active {
+display: flex !important;
+gap: 28px;
+align-items: flex-start;
+}
+
+#headings.pagelayer-tab-panel>div:first-child {
+width: 240px;
+flex-shrink: 0;
+background: #fff;
+border: 1px solid #e2e8f0;
+padding: 16px;
+border-radius: 12px;
+margin-top: 10px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+#headings.pagelayer-tab-panel>div:last-child {
+flex: 1;
+margin-top: 10px;
+}
+
+.pagelayer-heading-tab-panel h2 {
+text-align: left !important;
+font-size: 15.5px !important;
+font-weight: 600 !important;
+color: #0f172a !important;
+margin: 0 0 20px 0 !important;
+letter-spacing: -0.1px;
+border-bottom: 1px solid #f1f5f9;
+padding-bottom: 12px;
+}
+
+
+/* Table Form Styling on Website Settings */
+.pagelayer-tab-panel table {
+width: 100%;
+border-collapse: collapse;
+}
+
+.pagelayer-tab-panel table th {
+text-align: left;
+font-weight: 500;
+font-size: 13px;
+color: #344054;
+padding: 12px 20px 12px 0;
+width: 180px;
+vertical-align: middle;
+border-bottom: 1px solid #f8fafc;
+}
+
+.pagelayer-tab-panel table td {
+padding: 12px 0;
+font-size: 13px;
+color: #0f172a;
+vertical-align: middle;
+border-bottom: 1px solid #f8fafc;
+}
+
+.pagelayer-tab-panel table tr:last-child th,
+.pagelayer-tab-panel table tr:last-child td {
+border-bottom: none;
+}
+
+/* Beautiful custom input controls */
+.pagelayer-tab-panel select,
+.pagelayer-tab-panel input[type="number"],
+.pagelayer-tab-panel input[type="text"],
+.pagelayer-tab-panel input[type="email"],
+.pagelayer-tab-panel input[type="tel"],
+.pagelayer-tab-panel textarea {
+border: 1.5px solid #d0d5dd !important;
+border-radius: 6px !important;
+padding: 6px 12px !important;
+font-size: 13px !important;
+color: #0f172a !important;
+background: #fff !important;
+transition: all 0.2s ease-in-out !important;
+outline: none !important;
+box-sizing: border-box !important;
+}
+
+.pagelayer-tab-panel select:focus,
+.pagelayer-tab-panel input[type="number"]:focus,
+.pagelayer-tab-panel input[type="text"]:focus,
+.pagelayer-tab-panel textarea:focus {
+border-color: #4f46e5 !important;
+box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+
+.pagelayer-tab-panel select {
+cursor: pointer;
+height: auto !important;
+line-height: 1.4 !important;
+}
+
+.pagelayer-tab-panel input.pagelayer-website-padding {
+width: 60px !important;
+text-align: center;
+margin-right: 4px;
+padding: 6px 8px !important;
+}
+
+.pagelayer-tab-panel select.pagelayer-show-custom {
+margin-right: 12px;
+}
+
+.pagelayer-tab-panel table p {
+font-size: 12px;
+color: #64748b;
+margin: 4px 0 0 0;
+line-height: 1.4;
+}
+
+/* ============================================================
+Redesigned Templates and Fonts CPT Layout Overrides
+============================================================ */
+body.post-type-pagelayer-template.edit-php #wpbody-content,
+body.post-type-pagelayer-fonts.edit-php #wpbody-content {
+background: #f8fafc;
+padding: 0 !important;
+}
+
+body.post-type-pagelayer-template.edit-php #wpbody-content>.wrap,
+body.post-type-pagelayer-fonts.edit-php #wpbody-content>.wrap {
+opacity: 0;
+position: absolute;
+z-index: -100;
+}
+
+body.post-type-pagelayer-template.edit-php #pagelayer-settings-content .wrap,
+body.post-type-pagelayer-fonts.edit-php #pagelayer-settings-content .wrap {
+opacity: 1 !important;
+position: relative !important;
+z-index: 1 !important;
+display: block !important;
+margin: 0 !important;
+background: #fff !important;
+border: 1px solid #e2e8f0 !important;
+border-radius: 12px !important;
+padding: 24px !important;
+box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+max-width: 1200px !important;
+}
+
+body.post-type-pagelayer-template.edit-php #pagelayer-settings-content,
+body.post-type-pagelayer-fonts.edit-php #pagelayer-settings-content {
+padding: 55px 28px 20px 28px;
+overflow-y: auto;
+}
+
+/* Sidebar Navigation section title */
+#pagelayer-admin-wrap .pl-nav-section-title {
+font-size: 11px;
+font-weight: 600;
+text-transform: uppercase;
+color: #94a3b8;
+padding: 16px 16px 8px;
+letter-spacing: 0.5px;
+}
+
+/* Hide duplicate/original buttons inside the wrap card completely */
+body.post-type-pagelayer-template.edit-php .wrap .page-title-action,
+body.post-type-pagelayer-template.edit-php .wrap .pagelayer-temp-export-but,
+body.post-type-pagelayer-fonts.edit-php .wrap .page-title-action {
+display: none !important;
+}
+
+/* Redesigned filter link overrides */
+body.post-type-pagelayer-template.edit-php .subsubsub,
+body.post-type-pagelayer-fonts.edit-php .subsubsub {
+margin: 0 0 12px 0 !important;
+}
+
+/* Hide empty top tablenav completely when empty to save space */
+body.post-type-pagelayer-template.edit-php .tablenav,
+body.post-type-pagelayer-fonts.edit-php .tablenav {
+margin: 0 !important;
+height: auto !important;
+padding: 0 !important;
+clear: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .tablenav.top,
+body.post-type-pagelayer-fonts.edit-php .tablenav.top {
+display: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .tablenav.top:has(select),
+body.post-type-pagelayer-template.edit-php .tablenav.top:has(input),
+body.post-type-pagelayer-fonts.edit-php .tablenav.top:has(select),
+body.post-type-pagelayer-fonts.edit-php .tablenav.top:has(input) {
+display: flex !important;
+margin-bottom: 12px !important;
+}
+
+/* Keep action buttons aligned and premium */
+body.post-type-pagelayer-template.edit-php .pagelayer-header-actions a.page-title-action,
+body.post-type-pagelayer-fonts.edit-php .pagelayer-header-actions a.page-title-action {
+background: #4f46e5 !important;
+color: #fff !important;
+border: none !important;
+border-radius: 6px !important;
+padding: 9px 20px !important;
+font-size: 13px !important;
+font-weight: 600 !important;
+cursor: pointer;
+text-decoration: none;
+transition: background 0.2s;
+height: auto !important;
+line-height: 1.4 !important;
+box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3) !important;
+display: inline-block;
+}
+
+body.post-type-pagelayer-template.edit-php .pagelayer-header-actions a.page-title-action:hover,
+body.post-type-pagelayer-fonts.edit-php .pagelayer-header-actions a.page-title-action:hover {
+background: #4338ca !important;
+}
+
+body.post-type-pagelayer-template.edit-php .pagelayer-header-actions a.pagelayer-temp-export-but,
+body.post-type-pagelayer-fonts.edit-php .pagelayer-header-actions a.pagelayer-temp-export-but {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+color: #4b5563 !important;
+font-size: 13px !important;
+text-decoration: none;
+padding: 9px 18px !important;
+border: 1px solid #d0d5dd !important;
+border-radius: 6px !important;
+background: #fff !important;
+cursor: pointer;
+transition: background 0.15s;
+font-weight: 600 !important;
+height: auto !important;
+line-height: 1.4 !important;
+}
+
+body.post-type-pagelayer-template.edit-php .pagelayer-header-actions a.pagelayer-temp-export-but:hover,
+body.post-type-pagelayer-fonts.edit-php .pagelayer-header-actions a.pagelayer-temp-export-but:hover {
+background: #f8fafc !important;
+}
+
+/* ============================================================
+Premium Redesigned Table Styling
+============================================================ */
+body.post-type-pagelayer-template.edit-php .wp-list-table,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table {
+border: none !important;
+box-shadow: none !important;
+border-collapse: separate !important;
+border-spacing: 0 !important;
+width: 100% !important;
+overflow: hidden !important;
+margin-top: 0 !important;
+background: transparent !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table thead th,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table thead th {
+background: #f8fafc !important;
+border-bottom: 1.5px solid #e2e8f0 !important;
+font-weight: 600 !important;
+font-size: 11.5px !important;
+color: #475569 !important;
+padding: 16px 14px !important;
+text-transform: uppercase !important;
+letter-spacing: 0.5px !important;
+}
+
+/* Ensure sorting links inside header match the premium color */
+body.post-type-pagelayer-template.edit-php .wp-list-table thead th a,
+body.post-type-pagelayer-template.edit-php .wp-list-table thead th span,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table thead th a,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table thead th span {
+color: #475569 !important;
+font-weight: 600 !important;
+text-decoration: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table thead th.sortable a:hover,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table thead th.sortable a:hover {
+color: #4f46e5 !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr td,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr td {
+padding: 16px 14px !important;
+vertical-align: middle !important;
+font-size: 13px !important;
+color: #334155 !important;
+border-bottom: 1px solid #f1f5f9 !important;
+background: #fff !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr:last-child td,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr:last-child td {
+border-bottom: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr:hover td,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr:hover td {
+background: #fafbfd !important;
+}
+
+/* Checkbox alignment & premium style */
+body.post-type-pagelayer-template.edit-php .wp-list-table input[type="checkbox"],
+body.post-type-pagelayer-fonts.edit-php .wp-list-table input[type="checkbox"] {
+border: 1.5px solid #cbd5e1 !important;
+border-radius: 4px !important;
+width: 16px !important;
+height: 16px !important;
+accent-color: #4f46e5 !important;
+cursor: pointer !important;
+transition: all 0.15s !important;
+margin: 0 !important;
+}
+
+/* Empty State / Modern Redesign for no items in table */
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr.no-items td,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr.no-items td {
+padding: 60px 24px !important;
+text-align: center !important;
+color: #64748b !important;
+font-size: 15px !important;
+font-weight: 500 !important;
+background: #fafbfd !important;
+border: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr.no-items td::before,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr.no-items td::before {
+content: "\f115" !important;
+/* dashicons-welcome-widgets-menus */
+font-family: dashicons !important;
+display: block !important;
+font-size: 44px !important;
+color: #cbd5e1 !important;
+margin-bottom: 16px !important;
+line-height: 1 !important;
+}
+
+/* Row Title Styling */
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr td.column-title strong a,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr td.column-title strong a {
+color: #0f172a !important;
+font-weight: 600 !important;
+font-size: 13.5px !important;
+text-decoration: none !important;
+transition: color 0.15s ease !important;
+}
+
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr td.column-title strong a:hover,
+body.post-type-pagelayer-fonts.edit-php .wp-list-table tbody tr td.column-title strong a:hover {
+color: #4f46e5 !important;
+}
+
+/* Template Type Badge */
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr td.column-pagelayer_template_type span {
+background: #f1f5f9 !important;
+color: #475569 !important;
+padding: 4px 10px !important;
+border-radius: 9999px !important;
+font-size: 11px !important;
+font-weight: 600 !important;
+text-transform: uppercase !important;
+letter-spacing: 0.3px !important;
+display: inline-block !important;
+border: 1px solid #e2e8f0 !important;
+}
+
+/* Template Conditions (Display On) Sleek Tags */
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr td.column-pagelayer_template_conditions span {
+background: #eef2ff !important;
+color: #4f46e5 !important;
+border: 1px solid #e0e7ff !important;
+padding: 3px 8px !important;
+border-radius: 6px !important;
+font-size: 11.5px !important;
+font-weight: 500 !important;
+display: inline-block !important;
+margin-bottom: 4px !important;
+}
+
+/* Template Shortcode Monospace Copyable block */
+body.post-type-pagelayer-template.edit-php .wp-list-table tbody tr td.column-pagelayer_template_shortcode {
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+font-size: 12px !important;
+color: #0f172a !important;
+background: #f8fafc !important;
+padding: 6px 12px !important;
+border-radius: 8px !important;
+border: 1px solid #e2e8f0 !important;
+display: inline-block !important;
+user-select: all !important;
+}
+
+/* Styling native WP pagination & search input */
+body.post-type-pagelayer-template.edit-php .tablenav-pages,
+body.post-type-pagelayer-fonts.edit-php .tablenav-pages {
+color: #475569 !important;
+font-size: 13px !important;
+}
+
+body.post-type-pagelayer-template.edit-php .tablenav-pages a,
+body.post-type-pagelayer-fonts.edit-php .tablenav-pages a {
+background: #fff !important;
+border: 1px solid #d0d5dd !important;
+border-radius: 6px !important;
+padding: 5px 10px !important;
+color: #344054 !important;
+text-decoration: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .tablenav-pages a:hover,
+body.post-type-pagelayer-fonts.edit-php .tablenav-pages a:hover {
+background: #f8fafc !important;
+border-color: #cbd5e1 !important;
+}
+
+body.post-type-pagelayer-template.edit-php .tablenav-pages .current-page,
+body.post-type-pagelayer-fonts.edit-php .tablenav-pages .current-page {
+border: 1.5px solid #d0d5dd !important;
+border-radius: 6px !important;
+padding: 4px 8px !important;
+font-size: 13px !important;
+color: #0f172a !important;
+}
+
+body.post-type-pagelayer-template.edit-php .search-box input[type="search"],
+body.post-type-pagelayer-fonts.edit-php .search-box input[type="search"] {
+border: 1.5px solid #d0d5dd !important;
+border-radius: 6px !important;
+padding: 6px 12px !important;
+font-size: 13px !important;
+outline: none !important;
+}
+
+body.post-type-pagelayer-template.edit-php .search-box input[type="search"]:focus,
+body.post-type-pagelayer-fonts.edit-php .search-box input[type="search"]:focus {
+border-color: #4f46e5 !important;
+box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+
+/* ============================================================
+Export Theme Page Modern Redesign Styles
+============================================================ */
+.pagelayer-export-grid {
+display: flex !important;
+flex-direction: column !important;
+gap: 28px !important;
+width: 100% !important;
+margin-top: 10px !important;
+margin-bottom: 30px !important;
+}
+
+.pagelayer-export-col {
+width: 100% !important;
+}
+
+.pagelayer-export-table-wrap {
+max-height: 400px;
+overflow-y: auto;
+}
+
+.pagelayer-export-table-wrap::-webkit-scrollbar {
+width: 6px;
+}
+
+.pagelayer-export-table-wrap::-webkit-scrollbar-track {
+background: #f8fafc;
+}
+
+.pagelayer-export-table-wrap::-webkit-scrollbar-thumb {
+background: #cbd5e1;
+border-radius: 3px;
+}
+
+.pagelayer-export-table-wrap::-webkit-scrollbar-thumb:hover {
+background: #94a3b8;
+}
+
+.pagelayer-export-table {
+width: 100% !important;
+border-collapse: separate !important;
+border-spacing: 0 !important;
+border: none !important;
+}
+
+.pagelayer-export-table thead th {
+background: #f8fafc !important;
+border-bottom: 1.5px solid #e2e8f0 !important;
+font-weight: 600 !important;
+font-size: 11.5px !important;
+color: #475569 !important;
+padding: 14px 16px !important;
+text-transform: uppercase !important;
+letter-spacing: 0.5px !important;
+text-align: left !important;
+position: sticky;
+top: 0;
+z-index: 1;
+}
+
+/* Ensure centering for checkbox column */
+.pagelayer-export-table thead th:first-child,
+.pagelayer-export-table tbody td:first-child {
+text-align: center !important;
+width: 45px !important;
+}
+
+.pagelayer-export-table tbody td {
+padding: 12px 16px !important;
+vertical-align: middle !important;
+font-size: 13px !important;
+color: #334155 !important;
+border-bottom: 1px solid #f1f5f9 !important;
+background: #fff !important;
+text-align: left !important;
+}
+
+.pagelayer-export-table tbody tr:last-child td {
+border-bottom: none !important;
+}
+
+.pagelayer-export-table tbody tr:hover td {
+background: #fafbfd !important;
+}
+
+/* Checkbox style inside export cards */
+.pagelayer-export-table input[type="checkbox"] {
+border: 1.5px solid #cbd5e1 !important;
+border-radius: 4px !important;
+width: 16px !important;
+height: 16px !important;
+accent-color: #4f46e5 !important;
+cursor: pointer !important;
+transition: all 0.15s !important;
+margin: 0 !important;
+vertical-align: middle;
+}
+
+/* Display On Condition Tag Pill Badges */
+.pagelayer-export-table tbody tr td span {
+background: #eef2ff !important;
+color: #4f46e5 !important;
+border: 1px solid #e0e7ff !important;
+padding: 3px 8px !important;
+border-radius: 6px !important;
+font-size: 11px !important;
+font-weight: 500 !important;
+display: inline-block !important;
+margin-bottom: 4px !important;
+line-height: 1.2;
+}
+
+/* Submit Action Button redesign */
+.pagelayer-temp-submit {
+margin-top: 15px;
+text-align: center;
+width: 100%;
+}
+
+.pagelayer-temp-submit-btn {
+background: #4f46e5 !important;
+color: #fff !important;
+border: none !important;
+border-radius: 8px !important;
+padding: 12px 32px !important;
+font-size: 13.5px !important;
+font-weight: 600 !important;
+cursor: pointer !important;
+transition: all 0.2s ease-in-out !important;
+box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 2px 4px -1px rgba(79, 70, 229, 0.1) !important;
+height: auto !important;
+line-height: 1.4 !important;
+display: inline-block;
+}
+
+.pagelayer-temp-submit-btn:hover {
+background: #4338ca !important;
+box-shadow: 0 6px 12px -2px rgba(79, 70, 229, 0.25), 0 3px 6px -3px rgba(79, 70, 229, 0.15) !important;
+transform: translateY(-1px);
+}
+
+.pagelayer-temp-submit-btn:active {
+transform: translateY(0);
+}
+
+/* Premium Table Styling for System Information */
+#pagelayer-settings-content .postbox {
+background: #fff !important;
+border: 1px solid #e2e8f0 !important;
+border-radius: 12px !important;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+overflow: hidden !important;
+margin-top: 10px !important;
+}
+
+#pagelayer-settings-content .postbox table.users {
+width: 100% !important;
+margin: 0 !important;
+border-collapse: collapse !important;
+border: none !important;
+}
+
+#pagelayer-settings-content .postbox table.users tr {
+border-bottom: 1px solid #f1f5f9 !important;
+}
+
+#pagelayer-settings-content .postbox table.users tr:last-child {
+border-bottom: none !important;
+}
+
+#pagelayer-settings-content .postbox table.users th {
+text-align: left !important;
+padding: 16px 24px !important;
+font-weight: 500 !important;
+color: #344054 !important;
+font-size: 13px !important;
+background: #f8fafc !important;
+width: 250px !important;
+vertical-align: middle !important;
+border-right: 1px solid #f1f5f9 !important;
+}
+
+#pagelayer-settings-content .postbox table.users td {
+padding: 16px 24px !important;
+color: #0f172a !important;
+font-size: 13px !important;
+background: #fff !important;
+vertical-align: middle !important;
+}
+
+/* License input & update button styling */
+#pagelayer-settings-content .postbox table.users input[type="text"] {
+border: 1.5px solid #d0d5dd !important;
+border-radius: 6px !important;
+padding: 8px 12px !important;
+font-size: 13px !important;
+color: #0f172a !important;
+background: #fff !important;
+transition: all 0.2s ease-in-out !important;
+outline: none !important;
+box-sizing: border-box !important;
+box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05) !important;
+vertical-align: middle !important;
+}
+
+#pagelayer-settings-content .postbox table.users input[type="text"]:focus {
+border-color: #4f46e5 !important;
+box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+
+#pagelayer-settings-content .postbox table.users input[type="submit"] {
+background: #4f46e5 !important;
+color: #fff !important;
+border: none !important;
+border-radius: 6px !important;
+padding: 9px 18px !important;
+font-size: 13px !important;
+font-weight: 600 !important;
+cursor: pointer !important;
+transition: all 0.2s ease-in-out !important;
+box-shadow: 0 1px 3px rgba(79, 70, 229, 0.2) !important;
+height: auto !important;
+line-height: 1.4 !important;
+vertical-align: middle !important;
+margin-left: 8px !important;
+}
+
+#pagelayer-settings-content .postbox table.users input[type="submit"]:hover {
+background: #4338ca !important;
+box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3) !important;
+}
+
+/* Premium Alert Notices */
+.pagelayer-premium-alert {
+display: flex !important;
+align-items: flex-start !important;
+gap: 12px !important;
+background: #eef2ff !important;
+border: 1px solid #e0e7ff !important;
+border-left: 4px solid #4f46e5 !important;
+border-radius: 10px !important;
+padding: 16px 20px !important;
+margin-bottom: 24px !important;
+box-shadow: 0 1px 3px rgba(79, 70, 229, 0.03) !important;
+box-sizing: border-box !important;
+width: 100% !important;
+}
+
+.pagelayer-premium-alert.pagelayer-alert-warning {
+background: #fffbeb !important;
+border-color: #fef3c7 !important;
+border-left-color: #f59e0b !important;
+}
+
+.pagelayer-premium-alert .pagelayer-alert-icon {
+font-size: 20px !important;
+width: 20px !important;
+height: 20px !important;
+color: #4f46e5 !important;
+flex-shrink: 0 !important;
+margin-top: 2px !important;
+display: inline-block !important;
+}
+
+.pagelayer-premium-alert.pagelayer-alert-warning .pagelayer-alert-icon {
+color: #d97706 !important;
+}
+
+.pagelayer-premium-alert .pagelayer-alert-content {
+font-size: 13px !important;
+line-height: 1.5 !important;
+color: #374151 !important;
+}
+
+.pagelayer-premium-alert .pagelayer-alert-content b,
+.pagelayer-premium-alert .pagelayer-alert-content strong {
+color: #111827 !important;
+font-weight: 600 !important;
+}
+
+.pagelayer-premium-alert .pagelayer-alert-content a {
+color: #4f46e5 !important;
+text-decoration: underline !important;
+font-weight: 600 !important;
+transition: color 0.15s !important;
+}
+
+.pagelayer-premium-alert .pagelayer-alert-content a:hover {
+color: #4338ca !important;
+}
+
+/* ============================================================
+Redesigned Recommended Plugins Section
+============================================================ */
+.pagelayer-recommended-plugins {
+margin-top: 0;
+margin-bottom: 24px;
+}
+
+.pagelayer-recommended-plugins-body {
+padding: 16px;
+background: #fff;
+}
+
+.pagelayer-recommended-plugin {
+padding: 14px;
+border-radius: 10px;
+background: #f8fafc;
+border: 1px solid #e2e8f0;
+margin-bottom: 14px;
+transition: all 0.2s ease;
+}
+
+.pagelayer-recommended-plugin:hover {
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+border-color: #cbd5e1;
+}
+
+.pagelayer-recommended-plugin:last-child {
+margin-bottom: 0;
+}
+
+.pagelayer-recommended-plugin-info {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+margin-bottom: 12px;
+}
+
+.pagelayer-recommended-plugin-icon {
+width: 36px;
+height: 36px;
+border-radius: 8px;
+background: #eef2ff;
+color: #4f46e5;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
+
+.pagelayer-recommended-plugin-icon .dashicons {
+font-size: 20px;
+width: 20px;
+height: 20px;
+}
+
+.pagelayer-recommended-plugin-details {
+flex: 1;
+}
+
+.pagelayer-recommended-plugin-name {
+font-size: 13px;
+font-weight: 600;
+color: #0f172a;
+line-height: 1.3;
+}
+
+.pagelayer-recommended-plugin-desc {
+font-size: 11px;
+color: #64748b;
+line-height: 1.4;
+margin-top: 3px;
+}
+
+.pagelayer-recommended-plugin-action {
+display: flex;
+margin-top: 8px;
+justify-content: space-between;
+align-items: center;
+border-top: 1px dashed #e2e8f0;
+padding-top: 10px;
+}
+
+.pagelayer-recommended-plugin-link {
+font-size: 11px;
+color: #64748b;
+text-decoration: none;
+font-weight: 500;
+transition: color 0.15s ease;
+}
+
+.pagelayer-recommended-plugin-link:hover {
+color: #4f46e5;
+text-decoration: underline;
+}
+
+/* Recommended plugin custom buttons */
+.pl-plugin-btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border-radius: 6px;
+padding: 5px 12px;
+font-size: 11px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.15s ease;
+border: 1px solid transparent;
+font-family: inherit;
+line-height: 1.2;
+}
+
+.pl-plugin-btn-primary {
+background: #0f172a !important;
+color: #fff !important;
+border: 1px solid #0f172a !important;
+box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+transition: all 0.2s ease-in-out !important;
+}
+
+.pl-plugin-btn-primary:hover {
+background: #1e293b !important;
+border-color: #1e293b !important;
+box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12) !important;
+transform: translateY(-1px);
+}
+
+.pl-plugin-btn-primary:disabled {
+background: #94a3b8 !important;
+border-color: #94a3b8 !important;
+cursor: not-allowed;
+box-shadow: none !important;
+}
+
+.pl-plugin-btn-secondary {
+background: #f8fafc !important;
+color: #334155 !important;
+border: 1px solid #cbd5e1 !important;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+transition: all 0.2s ease-in-out !important;
+}
+
+.pl-plugin-btn-secondary:hover {
+background: #f1f5f9 !important;
+color: #0f172a !important;
+border-color: #94a3b8 !important;
+transform: translateY(-1px);
+}
+
+.pl-plugin-btn-secondary:disabled {
+background: #f1f5f9 !important;
+color: #94a3b8 !important;
+border-color: #cbd5e1 !important;
+cursor: not-allowed;
+box-shadow: none !important;
+}
+
+/* Badges */
+.pl-plugin-badge {
+display: inline-flex;
+align-items: center;
+padding: 4px 10px;
+font-size: 10.5px;
+font-weight: 600;
+border-radius: 99px;
+line-height: 1;
+}
+
+.pl-plugin-success {
+color: #15803d !important;
+border: 1px solid #bbf7d0 !important;
+background: #dcfce7 !important;
+}
+
+/* ---- User Flow: Back to List Button ---- */
+.pl-back-to-list-btn {
+display: inline-flex !important;
+align-items: center !important;
+gap: 6px !important;
+color: #4f46e5 !important;
+background: #eef2ff !important;
+border: 1.5px solid #c7d2fe !important;
+border-radius: 8px !important;
+padding: 8px 16px !important;
+font-size: 13px !important;
+font-weight: 600 !important;
+text-decoration: none !important;
+transition: all 0.2s ease-in-out !important;
+margin-bottom: 0 !important;
+box-shadow: 0 1px 2px rgba(79, 70, 229, 0.05) !important;
+vertical-align: middle !important;
+height: auto !important;
+line-height: 1.4 !important;
+width: auto !important;
+float: right !important;
+margin-top: 4px !important;
+}
+
+.pl-back-to-list-btn:hover {
+background: #4f46e5 !important;
+color: #fff !important;
+border-color: #4f46e5 !important;
+box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1), 0 2px 4px -1px rgba(79, 70, 229, 0.06) !important;
+}
+
+.pl-back-to-list-btn .dashicons {
+font-size: 16px !important;
+width: 16px !important;
+height: 16px !important;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+}
+
+/* Pagelayer License Page Redesign Layout */
+body.pagelayer_page_pagelayer_license #pagelayer-settings-content {
+max-width: 800px !important;
+margin: 0 auto !important;
+width: 100% !important;
+}
+
+/* Hide sidebar when pl-no-sidebar class is applied */
+.pl-no-sidebar #pagelayer-sidebar {
+display: none !important;
 }

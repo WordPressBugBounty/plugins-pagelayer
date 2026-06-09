@@ -181,7 +181,7 @@ function pagelayer_website_settings_T(){
 	
 	global $pagelayer, $pl_error;
 
-	pagelayer_page_header('Pagelayer Website Settings');
+	pagelayer_page_header('Website Settings');
 
 	// Saved ?
 	if(!empty($GLOBALS['pl_saved'])){
@@ -207,18 +207,27 @@ function pagelayer_website_settings_T(){
 	
 	?>
 	
-<form class="pagelayer-setting-form" method="post" action="">
-	<?php wp_nonce_field('pagelayer-options'); ?>
-	<script src="https://unpkg.com/vanilla-picker@2.10.1/dist/vanilla-picker.min.js"></script>
+<form class="pagelayer-setting-form" method="post" action="" id="pagelayer-website-settings-form" onsubmit="return pagelayer_handle_website_submit(this)">
+	<?php wp_nonce_field('pagelayer-options'); 
+	// vanilla-picker is already bundled in combined.js / editor - no remote script needed
+	
+	// Inject Save Changes button into header via inline script to keep UI consistent
+	echo '<script>
+	jQuery(function($){
+		var btn = \'<input type="submit" name="submit" form="pagelayer-website-settings-form" class="pl-save-btn" value="' . esc_attr__('Save Changes') . '">\';
+		$(".pagelayer-header-actions").append(btn);
+	});
+	</script>';
+	?>
 	<div class="tabs-wrapper">
 		<h2 class="nav-tab-wrapper pagelayer-wrapper">
-			<a href="#headings" class="nav-tab "><?php echo __pl('elem_styles');?></a>
-			<a href="#website_container" class="nav-tab"><?php echo __pl('container');?></a>
+			<a href="#headings" class="nav-tab "><?php echo esc_html(__pl('elem_styles'));?></a>
+			<a href="#website_container" class="nav-tab"><?php echo esc_html(__pl('container'));?></a>
 			<!--<a href="#pagelayer-sidebar" class="nav-tab">Sidebar</a>-->
-			<a href="#hf" class="nav-tab "><?php echo __pl('hf');?></a>
+			<a href="#hf" class="nav-tab "><?php echo esc_html(__pl('hf'));?></a>
 		</h2>
 		
-		<div class="pagelayer-tab-panel" id="headings">
+		<div id="headings" class="pagelayer-tab-panel pagelayer-tab-active">
 			
 			<?php
 			
@@ -226,7 +235,7 @@ function pagelayer_website_settings_T(){
 			<ul class="nav-tab-wrapper pagelayer-wrapper pagelayer-heading-wrapper">';
 				
 			foreach($pagelayer->css_settings as $k => $v){
-				echo '<li><a href="#tab_'.$k.'" class="nav-tab pagelayer-heading-tab" tab-class="pagelayer-heading-tab-panel">'.$v['name'].' Style</a></li>';				
+				echo '<li><a href="#tab_'.esc_attr($k).'" class="nav-tab pagelayer-heading-tab" tab-class="pagelayer-heading-tab-panel">'.esc_html($v['name']).' Style</a></li>';				
 			}
 			
 			echo '</ul>
@@ -236,26 +245,30 @@ function pagelayer_website_settings_T(){
 			
 			foreach($pagelayer->css_settings as $k => $v){
 				
-				echo '<div class="pagelayer-heading-tab-panel" id="tab_'.$k.'">
-				<center><h2>'.$v['name'].' Style</h2></center>
+				echo '<div class="pagelayer-heading-tab-panel" id="tab_'.esc_attr($k).'">
+				<div class="pagelayer-settings-card">
+					<div class="pagelayer-settings-card-header">
+						<h3>'.esc_html($v['name']).' Style</h3>
+						<span class="pl-badge pl-badge-pro">'.esc_html__('Element Styles').'</span>
+					</div>';
 				
-				<div style="vertical-align: top;">
-				<ul class="nav-tab-wrapper pagelayer-wrapper pagelayer-styles-screens">';
+				echo '<div style="padding: 16px 24px; border-bottom: 1px solid #f1f5f9;">
+				<ul class="nav-tab-wrapper pagelayer-wrapper pagelayer-styles-screens" style="margin: 0 !important; border-bottom: none !important;">';
 				
 				foreach($pagelayer->screens as $sk => $sv){
-					echo '<li><a href="#tab_'.$k.'_'.$sk.'" class="nav-tab pagelayer-styles-screen-tab" tab-class="pagelayer-styles-screen-panel">'.ucfirst($sk).'</a></li>';					
+					echo '<li><a href="#tab_'.esc_attr($k).'_'.esc_attr($sk).'" class="nav-tab pagelayer-styles-screen-tab" tab-class="pagelayer-styles-screen-panel">'.esc_html(ucfirst($sk)).'</a></li>';					
 				}
 				
 				echo '</ul>
 				</div>';
 				
 				foreach($pagelayer->screens as $sk => $sv){
-					echo '<div class="pagelayer-styles-screen-panel" id="tab_'.$k.'_'.$sk.'">';
+					echo '<div class="pagelayer-styles-screen-panel" id="tab_'.esc_attr($k).'_'.esc_attr($sk).'">';
 					pagelayer_website_font_settings($k.(!empty($sv) ? '_'.$sv : ''));
 					echo '</div>';
 				}
 				
-				echo '</div>';
+				echo '</div></div>';
 			}
 			
 			echo '</div>';
@@ -265,134 +278,192 @@ function pagelayer_website_settings_T(){
 		</div>
 	
 		<div class="pagelayer-tab-panel" id="website_container">
-		
-			<table>	
-			
-				<tr>
-					<th><?php echo __('Content Width') ?></th>
-					<td>
+			<div class="pagelayer-settings-card">
+				<div class="pagelayer-settings-card-header">
+					<h3><?php echo esc_html(__('Container Settings')); ?></h3>
+					<span class="pl-badge"><?php echo esc_html(__('Layout')); ?></span>
+				</div>
+				
+				<!-- Content Width -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Content Width')); ?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Set the custom width of the content area. The default width set is 1170px.')); ?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="width: 200px;">
 						<input name="pagelayer_content_width" type="number" step="1" min="320" max="5000" placeholder="1170" <?php if(get_option('pagelayer_content_width')){
-							echo 'value="'.absint(get_option('pagelayer_content_width')).'"';
+							echo 'value="'.esc_attr(absint(get_option('pagelayer_content_width'))).'"';
 						}?>>
-						<p><?php echo __('Set the custom width of the content area. The default width set is 1170px.') ?></p>
-					</td>
-				<tr>
-				<tr>
-					<th><?php echo __('Tablet Breakpoint') ?></th>
-					<td>
+					</div>
+				</div>
+
+				<!-- Tablet Breakpoint -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Tablet Breakpoint')); ?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Set the breakpoint for tablet devices. The default breakpoint for tablet layout is 768px.')); ?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="width: 200px;">
 						<input name="pagelayer_tablet_breakpoint" type="number" step="1" min="320" max="5000" placeholder="780" <?php if(get_option('pagelayer_tablet_breakpoint')){
-							echo 'value="'.absint(get_option('pagelayer_tablet_breakpoint')).'"';
+							echo 'value="'.esc_attr(absint(get_option('pagelayer_tablet_breakpoint'))).'"';
 						}?>>
-						<p><?php echo __('Set the breakpoint for tablet devices. The default breakpoint for tablet layout is 768px.') ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th><?php echo __('Mobile Breakpoint') ?></th>
-					<td>
+					</div>
+				</div>
+
+				<!-- Mobile Breakpoint -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Mobile Breakpoint')); ?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Set the breakpoint for mobile devices. The default breakpoint for mobile layout is 480px.')); ?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="width: 200px;">
 						<input name="pagelayer_mobile_breakpoint" type="number" step="1" min="320" max="5000" placeholder="480" <?php if(get_option('pagelayer_mobile_breakpoint')){
-							echo 'value="'.absint(get_option('pagelayer_mobile_breakpoint')).'"';
+							echo 'value="'.esc_attr(absint(get_option('pagelayer_mobile_breakpoint'))).'"';
 						}?>>
-						<p><?php echo __('Set the breakpoint for mobile devices. The default breakpoint for mobile layout is 480px.') ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th><?php echo __('Space Between Widgets') ?></th>
-					<td>
+					</div>
+				</div>
+
+				<!-- Space Between Widgets -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Space Between Widgets')); ?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Set the Space Between Widgets. The default Space set is 15px.')); ?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="width: 200px;">
 						<input name="pagelayer_between_widgets" type="number" step="1" min="0" max="500" placeholder="15" <?php if(get_option('pagelayer_between_widgets')){
-							echo 'value="'.absint(get_option('pagelayer_between_widgets')).'"';
+							echo 'value="'.esc_attr(absint(get_option('pagelayer_between_widgets'))).'"';
 						}?>>
-						<p><?php echo __('Set the Space Between Widgets. The default Space set is 15px.') ?></p>
-					</td>
-				<tr>
-		
-			</table>
-		
+					</div>
+				</div>
+			</div>
 		</div>
 	
-		<div class="pagelayer-tab-panel" id="pagelayer-sidebar">
-		
-			<table width="100%">
-				<tr>
-					<td colspan="2">
-						<b><?php echo __('Sidebar Preferences');?> :</b>
-						<p><?php echo __('By default, the themes sidebar will be shown. But you can customize the settings here as per your preference. Note : This will work only if your theme uses the get_sidebar() function. Also the main content element and sidebar element should be siblings. If they are not siblings, then only the <b>No Sidebar</b> option will be usable.');?></p>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('Default');?> : </th>
-					<td>
+		<div class="pagelayer-tab-panel" id="sidebar">
+			<div class="pagelayer-settings-card">
+				<div class="pagelayer-settings-card-header">
+					<h3><?php echo esc_html(__('Sidebar Preferences')); ?></h3>
+					<span class="pl-badge"><?php echo esc_html(__('Sidebar')); ?></span>
+				</div>
+				<div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; background: #fafafa;">
+					<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('By default, the themes sidebar will be shown. But you can customize the settings here as per your preference. Note : This will work only if your theme uses the get_sidebar() function. Also the main content element and sidebar element should be siblings. If they are not siblings, then only the <b>No Sidebar</b> option will be usable.'));?></p>
+				</div>
+				
+				<!-- Default -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Default Sidebar Layout'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Default layout for the Sidebar throughout the site.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control">
 						<?php pagelayer_sidebar_select('default');?>
-						<p> <?php echo __('Default layout for the Sidebar throughout the site', 'pagelayer') ?> </p>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('For Pages');?> : </th>
-					<td>
+					</div>
+				</div>
+
+				<!-- For Pages -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('For Pages'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Sidebar layout specifically for static pages.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control">
 						<?php pagelayer_sidebar_select('page');?>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('For Posts');?> : </th>
-					<td>
+					</div>
+				</div>
+
+				<!-- For Posts -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('For Posts'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Sidebar layout specifically for blog posts.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control">
 						<?php pagelayer_sidebar_select('post');?>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('For Archives');?> : </th>
-					<td>
+					</div>
+				</div>
+
+				<!-- For Archives -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('For Archives'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Sidebar layout specifically for archives.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control">
 						<?php pagelayer_sidebar_select('archives');?>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('Width');?> : </th>
-					<td>
-						<input type="number" name="sidebar[width]" min="1" step="1" value="<?php echo (!empty($_POST) ? esc_html($_POST['sidebar']['width']) : (!empty($pagelayer->css['sidebar']['width']) ? esc_html($pagelayer->css['sidebar']['width']) : '20') );?>" /><span>%</span>
-					</td>
-				</tr>
-			</table>
-			
+					</div>
+				</div>
+
+				<!-- Width -->
+				<div class="pagelayer-setting-row">
+					<div class="pagelayer-setting-row-left">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Width'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('Set the width of the sidebar (in percentage).'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="display:flex; align-items:center; gap:8px;">
+						<?php
+						$sidebar_width = '20';
+						if (!empty($_POST['sidebar']) && is_array($_POST['sidebar']) && isset($_POST['sidebar']['width'])) {
+							$sidebar_width = $_POST['sidebar']['width'];
+						} elseif (!empty($pagelayer->css) && is_array($pagelayer->css) && isset($pagelayer->css['sidebar']['width'])) {
+							$sidebar_width = $pagelayer->css['sidebar']['width'];
+						}
+						?>
+						<input type="number" name="sidebar[width]" min="1" step="1" value="<?php echo esc_attr($sidebar_width); ?>" style="width: 100px;" /><span>%</span>
+					</div>
+				</div>
+			</div>
 		</div>
 		
 		<div class="pagelayer-tab-panel" id="hf">
 			<?php pagelayer_show_pro_notice();?>
-			<table width="100%">
-				<tr>
-					<td colspan="2">
-						<b><?php echo __('Header, Body and Footer code');?> :</b>
-						<p><?php echo __('You can add custom code like HTML, JavaScript, CSS etc. which will be inserted throughout your site.');?></p>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('Header Code');?> : </th>
-					<td>
-						<textarea name="pagelayer_header_code" style="width:80%;" rows="6"><?php echo get_option( 'pagelayer_header_code' ); ?></textarea>
-						<p> <?php echo __('This code will be printed in <code>&lt;head&gt;</code> Section.') ?> </p>
-					</td>
-				</tr>
-				<tr>
-					<th valign="top"><?php echo __('Body Open Code');?> : </th>
-					<td>
-						<textarea name="pagelayer_body_open_code" style="width:80%;" rows="10"><?php echo  get_option( 'pagelayer_body_open_code' ); ?></textarea>
-						<p> <?php echo __('This code will be printed from begning of the <code>&lt;body&gt;</code> Section.') ?> </p>
-					</td>
-				</tr>
-				<tr>
-				<tr>
-					<th valign="top"><?php echo __('Footer Code');?> : </th>
-					<td>
-						<textarea name="pagelayer_footer_code" style="width:80%;" rows="6"><?php echo  get_option( 'pagelayer_footer_code' ); ?></textarea>
-						<p> <?php echo __('This code will be printed before closing the <code>&lt;/body&gt;</code> Section.') ?> </p>
-					</td>
-				</tr>
-			</table>
+			<div class="pagelayer-settings-card">
+				<div class="pagelayer-settings-card-header">
+					<h3><?php echo esc_html(__('Header, Body and Footer Custom Code')); ?></h3>
+					<span class="pl-badge pl-badge-pro"><?php echo esc_html(__('Pro Feature')); ?></span>
+				</div>
+				<div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; background: #fafafa;">
+					<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('You can add custom code like HTML, JavaScript, CSS etc. which will be inserted throughout your site.'));?></p>
+				</div>
+				
+				<!-- Header Code -->
+				<div class="pagelayer-setting-row" style="align-items: flex-start;">
+					<div class="pagelayer-setting-row-left" style="max-width: 320px;">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Header Code'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('This code will be inserted inside the <code>&lt;head&gt;</code> section.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="flex: 1; max-width: 600px;">
+						<textarea name="pagelayer_header_code" rows="6" style="width: 100%; max-width: 100%; font-family: monospace; font-size: 12px;"><?php echo esc_textarea(get_option( 'pagelayer_header_code' )); ?></textarea>
+					</div>
+				</div>
+
+				<!-- Body Open Code -->
+				<div class="pagelayer-setting-row" style="align-items: flex-start;">
+					<div class="pagelayer-setting-row-left" style="max-width: 320px;">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Body Open Code'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('This code will be printed at the beginning of the <code>&lt;body&gt;</code> section.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="flex: 1; max-width: 600px;">
+						<textarea name="pagelayer_body_open_code" rows="8" style="width: 100%; max-width: 100%; font-family: monospace; font-size: 12px;"><?php echo esc_textarea(get_option( 'pagelayer_body_open_code' )); ?></textarea>
+					</div>
+				</div>
+
+				<!-- Footer Code -->
+				<div class="pagelayer-setting-row" style="align-items: flex-start;">
+					<div class="pagelayer-setting-row-left" style="max-width: 320px;">
+						<span class="pagelayer-setting-row-label"><?php echo esc_html(__('Footer Code'));?></span>
+						<p class="pagelayer-setting-row-desc"><?php echo esc_html(__('This code will be printed before the closing <code>&lt;/body&gt;</code> section.'));?></p>
+					</div>
+					<div class="pagelayer-setting-row-control" style="flex: 1; max-width: 600px;">
+						<textarea name="pagelayer_footer_code" rows="6" style="width: 100%; max-width: 100%; font-family: monospace; font-size: 12px;"><?php echo esc_textarea(get_option( 'pagelayer_footer_code' )); ?></textarea>
+					</div>
+				</div>
+			</div>
 		</div>
 		
 	</div>
 			
-	<?php echo __pl('color_notice');?>
-	<br><br>
-	<center><input type="submit" name="submit" class="button button-primary button-submit" value="Save Changes" onclick="pagelayer_handle_website_submit(this)"></center>
-	<br /><br />
+	<div class="pl-security-note" style="margin-top:20px; margin-bottom: 20px;">
+		<b><?php echo esc_html__('Note:'); ?></b> <?php echo esc_html(__pl('color_notice')); ?>
+	</div>
 </form>
 
 <script>
@@ -400,9 +471,13 @@ function pagelayer_website_settings_T(){
 function pagelayer_handle_website_submit(ele){
 	
 	var jEle = jQuery(ele);
-	jEle.closest('form').find('input, select, textarea').each(function(){
+	var $form = jEle.is('form') ? jEle : jEle.closest('form');
+	if (!$form.length && jEle.attr('form')) {
+		$form = jQuery('#' + jEle.attr('form'));
+	}
+	$form.find('input, select, textarea').each(function(){
 		var j = jQuery(this);
-		if(jEle.is(j)){
+		if(j.attr('type') === 'submit'){
 			return;
 		}
 		
@@ -416,6 +491,9 @@ function pagelayer_handle_website_submit(ele){
 	
 // Show the vanilla selector
 function pagelayer_show_vanilla(){
+	if (typeof Picker === 'undefined') {
+		return;
+	}
 	jQuery('.pagelayer-show-vanilla').each(function(){
 		var jEle = jQuery(this);
 		var par = jEle.parent();
@@ -450,8 +528,9 @@ function pagelayer_show_vanilla(){
 }
 
 function pagelayer_handle_custom(ele){
-	jEle = jQuery(ele);
-	if(jEle.val().length > 1){
+	var jEle = jQuery(ele);
+	var val = jEle.val();
+	if(val && val.length > 1){
 		jEle.siblings().show();
 	}else{
 		jEle.siblings().hide();
@@ -471,8 +550,9 @@ function pagelayer_handle_font_family(ele){
 }
 
 function pagelayer_handle_textdecor(ele){
-	jEle = jQuery(ele);
-	if(jEle.val().length > 1 && jEle.val() !== 'none'){
+	var jEle = jQuery(ele);
+	var val = jEle.val();
+	if(val && val.length > 1 && val !== 'none'){
 		jEle.siblings().show();
 	}else{
 		jEle.siblings().hide();
@@ -497,10 +577,10 @@ jQuery(document).ready(function(){
 
 function pagelayer_website_padding_field($name, $val){
 ?>
-	<input type="number" name="<?php echo $name;?>[0]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[0]) ? 'value="'.esc_html($val[0]).'"' : '');?> />
-	<input type="number" name="<?php echo $name;?>[1]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[1]) ? 'value="'.esc_html($val[1]).'"' : '');?> />
-	<input type="number" name="<?php echo $name;?>[2]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[2]) ? 'value="'.esc_html($val[2]).'"' : '');?> />
-	<input type="number" name="<?php echo $name;?>[3]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[3]) ? 'value="'.esc_html($val[3]).'"' : '');?> /><span>px</span>
+	<input type="number" name="<?php echo esc_attr($name);?>[0]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[0]) ? 'value="'.esc_attr($val[0]).'"' : '');?> />
+	<input type="number" name="<?php echo esc_attr($name);?>[1]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[1]) ? 'value="'.esc_attr($val[1]).'"' : '');?> />
+	<input type="number" name="<?php echo esc_attr($name);?>[2]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[2]) ? 'value="'.esc_attr($val[2]).'"' : '');?> />
+	<input type="number" name="<?php echo esc_attr($name);?>[3]" step="1" class="pagelayer-website-padding" <?php echo (!empty($val[3]) ? 'value="'.esc_attr($val[3]).'"' : '');?> /><span>px</span>
 <?php	
 }
 
@@ -520,168 +600,190 @@ function pagelayer_website_font_settings($prefix){
 	
 	?>
 	
-	<table>
+	<div class="pagelayer-font-settings-rows">
 		
-		<tr>
-			<th scope="row"><?php echo __pl('padding');?></th>
-			<td>
-				<label>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('padding'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<label style="display:flex; align-items:center; gap:8px;">
 					<select class="pagelayer-show-custom" onchange="pagelayer_handle_custom(this)">
-						<option value="" <?php echo (empty($vals[$prefix]['padding']) ? 'selected="seleted"' : '');?>>Default</option>
-						<option value="custom" <?php echo (!empty($vals[$prefix]['padding']) ? 'selected="seleted"' : '');?>>Custom</option>
+						<option value="" <?php echo (empty($vals[$prefix]['padding']) ? 'selected="selected"' : '');?>>Default</option>
+						<option value="custom" <?php echo (!empty($vals[$prefix]['padding']) ? 'selected="selected"' : '');?>>Custom</option>
 					</select>
-					<span>
+					<span style="display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
 					<?php pagelayer_website_padding_field($prefix.'[padding]', @$vals[$prefix]['padding']);?>
 					</span>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('margin');?></th>
-			<td>
-				<label>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('margin'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<label style="display:flex; align-items:center; gap:8px;">
 					<select class="pagelayer-show-custom" onchange="pagelayer_handle_custom(this)">
-						<option value="" <?php echo (empty($vals[$prefix]['margin']) ? 'selected="seleted"' : '');?>>Default</option>
-						<option value="custom" <?php echo (!empty($vals[$prefix]['margin']) ? 'selected="seleted"' : '');?>>Custom</option>
+						<option value="" <?php echo (empty($vals[$prefix]['margin']) ? 'selected="selected"' : '');?>>Default</option>
+						<option value="custom" <?php echo (!empty($vals[$prefix]['margin']) ? 'selected="selected"' : '');?>>Custom</option>
 					</select>
-					<span>
+					<span style="display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">
 					<?php pagelayer_website_padding_field($prefix.'[margin]', @$vals[$prefix]['margin']);?>
 					</span>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('font_family'); ?></th>
-			<td>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('font_family')); ?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
 				<label>
-					<select name="<?php echo $prefix;?>[font-family]" onclick="pagelayer_handle_font_family(this)">
+					<select name="<?php echo esc_attr($prefix);?>[font-family]" onclick="pagelayer_handle_font_family(this)">
 					<?php
-						echo '<option value="'.esc_html(empty($vals[$prefix]['font-family']) ? 'Default': @$vals[$prefix]['font-family']).'">'.esc_html(empty($vals[$prefix]['font-family']) ? 'Default': @$vals[$prefix]['font-family']).'</option>';
+						echo '<option value="'.esc_attr(empty($vals[$prefix]['font-family']) ? 'Default': $vals[$prefix]['font-family']).'">'.esc_html(empty($vals[$prefix]['font-family']) ? 'Default': $vals[$prefix]['font-family']).'</option>';
 					?>
 					</select>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('font_size'); ?></th>
-			<td>
-				<label>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('font_size')); ?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<label style="display:flex; align-items:center; gap:8px;">
 					<select class="pagelayer-show-custom" onchange="pagelayer_handle_custom(this)">
-						<option value="" <?php echo (empty($vals[$prefix]['font-size']) ? 'selected="seleted"' : '');?>>Default</option>
-						<option value="custom" <?php echo (!empty($vals[$prefix]['font-size']) ? 'selected="seleted"' : '');?>>Custom</option>
+						<option value="" <?php echo (empty($vals[$prefix]['font-size']) ? 'selected="selected"' : '');?>>Default</option>
+						<option value="custom" <?php echo (!empty($vals[$prefix]['font-size']) ? 'selected="selected"' : '');?>>Custom</option>
 					</select>
-					<input type="number" name="<?php echo $prefix;?>[font-size]" <?php echo (!empty($vals[$prefix]['font-size']) ? 'value="'.esc_html($vals[$prefix]['font-size']).'"' : '');?> /><span>px</span>
+					<input type="number" name="<?php echo esc_attr($prefix);?>[font-size]" <?php echo (!empty($vals[$prefix]['font-size']) ? 'value="'.esc_attr($vals[$prefix]['font-size']).'"' : '');?> style="width:100px;" /><span>px</span>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('font_style'); ?></th>
-			<td>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('font_style')); ?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
 				<label>
-					<select name="<?php echo $prefix;?>[font-style]">
+					<select name="<?php echo esc_attr($prefix);?>[font-style]">
 					<?php
 						foreach($pagelayer->font_style as $k => $var){							
-							echo '<option value="'.esc_html($k).'" '.(@$vals[$prefix]['font-style'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
+							echo '<option value="'.esc_attr($k).'" '.(@$vals[$prefix]['font-style'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
 						}
 					?>
 					</select>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('font_weight');?></th>
-			<td>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('font_weight'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
 				<label>
-					<select name="<?php echo $prefix;?>[font-weight]">
+					<select name="<?php echo esc_attr($prefix);?>[font-weight]">
 					<?php
 						foreach($pagelayer->font_weight as $k => $var){							
-							echo '<option value="'.esc_html($k).'" '.(@$vals[$prefix]['font-weight'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
+							echo '<option value="'.esc_attr($k).'" '.(@$vals[$prefix]['font-weight'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
 						}
 					?>
 					</select>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('text_transform');?></th>
-			<td>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('text_transform'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
 				<label>
-					<select name="<?php echo $prefix;?>[text-transform]">
+					<select name="<?php echo esc_attr($prefix);?>[text-transform]">
 					<?php
 						foreach($pagelayer->text_transform as $k => $var){							
-							echo '<option value="'.esc_html($k).'" '.(@$vals[$prefix]['text-transform'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
+							echo '<option value="'.esc_attr($k).'" '.(@$vals[$prefix]['text-transform'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
 						}
 					?>
 					</select>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('line_height');?></th>
-			<td>
-				<label>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('line_height'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<label style="display:flex; align-items:center; gap:8px;">
 					<select class="pagelayer-show-custom" onchange="pagelayer_handle_custom(this)">
-						<option value="" <?php echo (empty($vals[$prefix]['line-height']) ? 'selected="seleted"' : '');?>>Default</option>
-						<option value="custom" <?php echo (!empty($vals[$prefix]['line-height']) ? 'selected="seleted"' : '');?>>Custom</option>
+						<option value="" <?php echo (empty($vals[$prefix]['line-height']) ? 'selected="selected"' : '');?>>Default</option>
+						<option value="custom" <?php echo (!empty($vals[$prefix]['line-height']) ? 'selected="selected"' : '');?>>Custom</option>
 					</select>
-					<input type="number" name="<?php echo $prefix;?>[line-height]" min="0.1" step="0.1" <?php echo (!empty($vals[$prefix]['line-height']) ? 'value="'.esc_html($vals[$prefix]['line-height']).'"' : '');?> />
+					<input type="number" name="<?php echo esc_attr($prefix);?>[line-height]" min="0.1" step="0.1" <?php echo (!empty($vals[$prefix]['line-height']) ? 'value="'.esc_attr($vals[$prefix]['line-height']).'"' : '');?> style="width:100px;" />
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('text_spacing');?></th>
-			<td>
-				<label>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('text_spacing'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<label style="display:flex; align-items:center; gap:8px;">
 					<select class="pagelayer-show-custom" onchange="pagelayer_handle_custom(this)">
-						<option value="" <?php echo (empty($vals[$prefix]['letter-spacing']) ? 'selected="seleted"' : '');?>>Default</option>
-						<option value="custom" <?php echo (!empty($vals[$prefix]['letter-spacing']) ? 'selected="seleted"' : '');?>>Custom</option>
+						<option value="" <?php echo (empty($vals[$prefix]['letter-spacing']) ? 'selected="selected"' : '');?>>Default</option>
+						<option value="custom" <?php echo (!empty($vals[$prefix]['letter-spacing']) ? 'selected="selected"' : '');?>>Custom</option>
 					</select>
-					<input type="number" name="<?php echo $prefix;?>[letter-spacing]" min="1" step="1" <?php echo (!empty($vals[$prefix]['letter-spacing']) ? 'value="'.esc_html($vals[$prefix]['letter-spacing']).'"' : '');?> /><span>px</span>
+					<input type="number" name="<?php echo esc_attr($prefix);?>[letter-spacing]" min="1" step="1" <?php echo (!empty($vals[$prefix]['letter-spacing']) ? 'value="'.esc_attr($vals[$prefix]['letter-spacing']).'"' : '');?> style="width:100px;" /><span>px</span>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('word_spacing');?></th>
-			<td>
-				<label>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('word_spacing'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<label style="display:flex; align-items:center; gap:8px;">
 					<select class="pagelayer-show-custom" onchange="pagelayer_handle_custom(this)">
-						<option value="" <?php echo (empty($vals[$prefix]['word-spacing']) ? 'selected="seleted"' : '');?>>Default</option>
-						<option value="custom" <?php echo (!empty($vals[$prefix]['word-spacing']) ? 'selected="seleted"' : '');?>>Custom</option>
+						<option value="" <?php echo (empty($vals[$prefix]['word-spacing']) ? 'selected="selected"' : '');?>>Default</option>
+						<option value="custom" <?php echo (!empty($vals[$prefix]['word-spacing']) ? 'selected="selected"' : '');?>>Custom</option>
 					</select>
-					<input type="number" name="<?php echo $prefix;?>[word-spacing]" min="1" step="1" <?php echo (!empty($vals[$prefix]['word-spacing']) ? 'value="'.esc_html($vals[$prefix]['word-spacing']).'"' : '');?> /><span>px</span>
+					<input type="number" name="<?php echo esc_attr($prefix);?>[word-spacing]" min="1" step="1" <?php echo (!empty($vals[$prefix]['word-spacing']) ? 'value="'.esc_attr($vals[$prefix]['word-spacing']).'"' : '');?> style="width:100px;" /><span>px</span>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row"><?php echo __pl('text_decoration');?></th>
-			<td>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label"><?php echo esc_html(__pl('text_decoration'));?></span>
+			</div>
+			<div class="pagelayer-setting-row-control">
 				<label>
 					<table class="pagelayer-internal-table">
 						<tr>
 						<td>
-							<select name="<?php echo $prefix;?>[text-decoration-line]" onchange="pagelayer_handle_textdecor(this)">
+							<select name="<?php echo esc_attr($prefix);?>[text-decoration-line]" onchange="pagelayer_handle_textdecor(this)">
 							<?php
 								foreach($pagelayer->text_decoration_line as $k => $var){							
-									echo '<option value="'.esc_html($k).'" '.(@$vals[$prefix]['text-decoration-line'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
+									echo '<option value="'.esc_attr($k).'" '.(@$vals[$prefix]['text-decoration-line'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
 								}
 							?>
 							</select>
 						</td>
 						<td>
-							<select name="<?php echo $prefix;?>[text-decoration-style]">
+							<select name="<?php echo esc_attr($prefix);?>[text-decoration-style]">
 							<?php
 								foreach($pagelayer->text_decoration_style as $k => $var){							
-									echo '<option value="'.esc_html($k).'" '.(@$vals[$prefix]['text-decoration-style'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
+									echo '<option value="'.esc_attr($k).'" '.(@$vals[$prefix]['text-decoration-style'] == $k ? 'selected' : '').'>'.esc_html($var).'</option>';
 								}
 							?>
 							</select>
@@ -693,23 +795,27 @@ function pagelayer_website_font_settings($prefix){
 						</tr>
 					</table>
 				</label>
-			</td>
-		</tr>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row">Background Color</th>
-			<td>
-				<a href="#" class="pagelayer-show-vanilla"><div class="pagelayer-color-div pagelayer-color-none"></div><span class="dashicons dashicons-no"></span></a><input type="hidden" name="<?php echo $prefix;?>[background-color]" <?php echo (!empty($vals[$prefix]['background-color']) ? 'value="'.esc_html($vals[$prefix]['background-color']).'"' : '');?>>
-			</td>
-		</tr>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label">Background Color</span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<a href="#" class="pagelayer-show-vanilla"><div class="pagelayer-color-div pagelayer-color-none"></div><span class="dashicons dashicons-no"></span></a><input type="hidden" name="<?php echo esc_attr($prefix);?>[background-color]" <?php echo (!empty($vals[$prefix]['background-color']) ? 'value="'.esc_attr($vals[$prefix]['background-color']).'"' : '');?>>
+			</div>
+		</div>
 		
-		<tr>
-			<th scope="row">Text Color</th>
-			<td>
-				<a href="#" class="pagelayer-show-vanilla"><div class="pagelayer-color-div pagelayer-color-none"></div><span class="dashicons dashicons-no"></span></a><input type="hidden" name="<?php echo $prefix;?>[color]" <?php echo (!empty($vals[$prefix]['color']) ? 'value="'.esc_html($vals[$prefix]['color']).'"' : '');?>>
-			</td>
-		</tr>
-	</table>
+		<div class="pagelayer-setting-row">
+			<div class="pagelayer-setting-row-left">
+				<span class="pagelayer-setting-row-label">Text Color</span>
+			</div>
+			<div class="pagelayer-setting-row-control">
+				<a href="#" class="pagelayer-show-vanilla"><div class="pagelayer-color-div pagelayer-color-none"></div><span class="dashicons dashicons-no"></span></a><input type="hidden" name="<?php echo esc_attr($prefix);?>[color]" <?php echo (!empty($vals[$prefix]['color']) ? 'value="'.esc_attr($vals[$prefix]['color']).'"' : '');?>>
+			</div>
+		</div>
+	</div>
 	
 <?php
 	

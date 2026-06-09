@@ -349,7 +349,7 @@ jQuery(document).ready(function(){
 	var export_but = jQuery(but[0].outerHTML);
 	export_but.html("'.__pl('export_template').'");
 	export_but.addClass("pagelayer-temp-export-but");
-	export_but.attr("href", "'.esc_url(admin_url('admin.php?page=pagelayer_template_export')).'");
+	export_but.attr("href", "'.(defined('SITEPAD') ? esc_url(admin_url('admin.php?page=pagelayer_tools#export_theme_tab')) : esc_url(admin_url('admin.php?page=pagelayer_template_export'))).'");
 	//console.log(export_but[0].outerHTML);
 	
 	but.after(export_but);
@@ -379,7 +379,7 @@ function pagelayer_builder_post_type() {
 	
 	// Add Template Post lables
 	$labels = array(
-		'name' => _x('Pagelayer Templates', 'plural'),
+		'name' => _x('Templates', 'plural'),
 		'singular_name' => _x('Pagelayer Template', 'singular'),
 		'menu_name' => _x('Pagelayer Templates', 'admin menu'),
 		'name_admin_bar' => _x('Pagelayer Templates', 'admin bar'),

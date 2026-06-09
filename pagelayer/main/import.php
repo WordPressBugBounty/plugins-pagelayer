@@ -76,7 +76,13 @@ function pagelayer_import_T(){
 	
 	// Is it a pagelayer theme ?
 	if(!file_exists($pagelayer_theme_path.'/pagelayer.conf')){
-		echo 'This utility is for importing content of the current active theme if its a Pagelayer Theme. Your current theme is <b>not</b> a Pagelayer exported theme ! If you want to export your content and make it into a distributable theme, please refer to the guide <a href="">here</a>.';
+		echo'<div class="pagelayer-premium-alert pagelayer-alert-warning">
+			<span class="pagelayer-alert-icon dashicons dashicons-warning"></span>
+			<div class="pagelayer-alert-content">
+				' . __('This utility is for importing content of the current active theme if its a Pagelayer Theme. Your current theme is <strong>not</strong> a Pagelayer exported theme ! If you want to export your content and make it into a distributable theme, please refer to the guide <a href="">here</a>.', 'pagelayer') . '
+			</div>
+		</div>';
+		//return;
 		die();
 	}
 	
