@@ -1742,6 +1742,437 @@ function pagelayer_render_pl_post_title(el){
 	el['atts']['open_html_tag'] = !pagelayer_empty(el['atts']['html_tag']) ? '<'+el['atts']['html_tag']+'>' : '';
 	el['atts']['close_html_tag'] = !pagelayer_empty(el['atts']['html_tag']) ? '</'+el['atts']['html_tag']+'>' : '';
 }
+
+// Render Markdown
+function pagelayer_inject_md_button(wrapper){
+	if(wrapper.find('.pagelayer-float-edit-btn').length === 0){
+		wrapper.prepend('<button class="pagelayer-float-edit-btn" type="button" onclick="pagelayer_open_md_modal(event)">Open Markdown Editor <span class="dashicons dashicons-edit"></span></button>');
+	}
+}
+
+pagelayer_add_action('pagelayer_element_setup', function(e, j_ele){
+  // Check if the element being set up is our Markdown widget
+  var tag = j_ele.attr('pagelayer-tag') || '';
+  if(tag === 'pl_markdown'){
+    var wrapper = j_ele.find('.pagelayer-markdown-wrapper');
+    pagelayer_inject_md_button(wrapper);
+  }
+});
+
+function pagelayer_render_end_pl_markdown(el){
+	
+	if(typeof pagelayer_render_end_pl_markdown.vault === 'undefined'){
+		pagelayer_render_end_pl_markdown.vault = {};
+	}
+
+	var memory_vault = pagelayer_render_end_pl_markdown.vault;
+	var widget_id = el.id || el.ele_id || el.$.attr('id') || 'md_fallback_id';
+	var default_placeholder = 'Select a Markdown file or enter a URL to load content.';
+	
+	var wrapper = el.$.find('.pagelayer-markdown-wrapper');
+	var output_div = wrapper.find('.pagelayer-markdown-output');
+
+	// Ensure button is there on setting changes
+	pagelayer_inject_md_button(wrapper);
+
+	var src_type = el.atts['src_type'] || 'upload';
+	var current_file = el.atts['markdown_file'] || '';
+	var current_url = el.atts['markdown_url'] || '';
+	var current_text_file = el.atts['markdown_text_file'] || '';
+	var current_text_url = el.atts['markdown_text_url'] || '';
+	var loader_html = '<div class="pagelayer-markdown-spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw" aria-hidden="true"></i></div>';
+
+	var active_text = src_type === 'upload' ? current_text_file : current_text_url;
+	var active_source = src_type === 'upload' ? current_file : current_url;
+
+	wrapper.find('.pagelayer-markdown-hidden-raw').val(active_text);
+	var has_source = active_source !== '' || (active_text !== '' && active_text !== default_placeholder);
+
+	if(typeof memory_vault[widget_id] === 'undefined'){
+		var initial_html = (el.atts['markdown_rendered'] !== default_placeholder) ? el.atts['markdown_rendered'] : '';
+		memory_vault[widget_id] = {
+			el: el,
+			source: active_source, 
+			src_type: src_type,
+			text: active_text,
+			html: initial_html, 
+			timer: null, 
+			force_fetch: false
+		};
+	}
+
+	var cache = memory_vault[widget_id];
+	cache.el = el; // Always update the el reference
+	cache.src_type = src_type; // Update src_type too
+
+	// Sync Buttons for Sidebar (Event Delegation)
+	if(typeof pagelayer !== 'undefined' && pagelayer.$$){
+		var sidebar_body = pagelayer.$$('body');
+
+		sidebar_body.off('click', '.pagelayer-md-sync-file').on('click', '.pagelayer-md-sync-file', function(e){
+			e.preventDefault();
+			cache.force_fetch = true; 
+			el.atts['markdown_rendered'] = loader_html;
+			el.atts['markdown_text_file'] = '';
+			var text_input = pagelayer.$$('[pagelayer-elp-name="markdown_text_file"] .pagelayer-elp-textarea');
+			if(text_input.length) text_input.val('').trigger('input'); 
+		});
+
+		sidebar_body.off('click', '.pagelayer-md-sync-url').on('click', '.pagelayer-md-sync-url', function(e){
+			e.preventDefault();
+			cache.force_fetch = true; 
+			el.atts['markdown_rendered'] = loader_html;
+			el.atts['markdown_text_url'] = ''; 
+			var text_input_url = pagelayer.$$('[pagelayer-elp-name="markdown_text_url"] .pagelayer-elp-textarea');
+			if(text_input_url.length) text_input_url.val('').trigger('input'); 
+		});
+	}
+
+	if(!has_source){
+		output_div.html('<div class="pagelayer-markdown-placeholder">' + default_placeholder + '</div>');
+		return;
+	}
+
+	var is_empty = (active_text === '' || active_text === default_placeholder);
+	var source_changed = cache.source !== active_source;
+	var text_changed = cache.text !== active_text;
+
+	cache.source = active_source;
+	cache.text = active_text;
+
+	var should_compile = false;
+
+	if(cache.force_fetch){
+		should_compile = true;
+		cache.force_fetch = false;
+	} else if(is_empty && source_changed){
+		should_compile = true;
+	} else if(text_changed){
+		should_compile = true;
+	}
+
+	if(!should_compile){
+		var saved_html = cache.html || el.atts['markdown_rendered'];
+		if(saved_html && saved_html !== default_placeholder && saved_html !== ''){
+			output_div.html(saved_html);
+			el.atts['markdown_rendered'] = saved_html;
+		}
+		return;
+	}
+
+	if(is_empty || source_changed){
+		output_div.html(loader_html);
+		el.atts['markdown_rendered'] = loader_html;
+	}
+
+	clearTimeout(cache.timer);
+	cache.timer = setTimeout(function(){
+		jQuery.ajax({
+			url: pagelayer_ajax_url + '&action=pagelayer_handle_markdown',
+			type: 'post',
+			data: {data: el.atts, pagelayer_nonce: pagelayer_ajax_nonce},
+			success: function(response){
+				var json = jQuery.parseJSON(response);
+
+				output_div.html(json.html);
+				el.atts['markdown_rendered'] = json.html;
+				cache.html = json.html; 
+
+				if(json.is_error){
+					return;
+				}
+
+				if(json.raw_text){
+					var input_name = src_type === 'upload' ? 'markdown_text_file' : 'markdown_text_url';
+					var current_saved_text = el.atts[input_name] || '';
+
+					if(current_saved_text === '' || current_saved_text.indexOf(default_placeholder) !== -1){
+						el.atts[input_name] = json.raw_text;
+						cache.text = json.raw_text; 
+						wrapper.find('.pagelayer-markdown-hidden-raw').val(json.raw_text);
+
+						var sidebar_input = pagelayer.$$('[pagelayer-elp-name="' + input_name + '"] .pagelayer-elp-textarea');
+						if(sidebar_input.length > 0 && sidebar_input.val() !== json.raw_text){
+							sidebar_input.val(json.raw_text).trigger('input'); 
+						}
+					}
+				}
+			}, error: function(){
+				var error_html = 'Failed to load content. Please check your connection or try clicking "Fetch File Content".';
+				output_div.html('');
+				el.atts['markdown_rendered'] = '';
+				cache.html = '';
+			}
+		});
+	}, 1000);
+}
+
+// Open Markdown Modal
+function pagelayer_open_md_modal(e){
+	e.preventDefault();
+
+	var wrapper = jQuery(e.target).closest('.pagelayer-markdown-wrapper');
+	if(wrapper.length === 0) return;
+
+	var el = pagelayer_active ? pagelayer_active.el : null;
+	var widget_id = wrapper.closest('.pagelayer-ele').attr('id');
+	var cache = (typeof pagelayer_render_end_pl_markdown.vault !== 'undefined') ? pagelayer_render_end_pl_markdown.vault[widget_id] : null;
+
+	if(!pagelayer_active || !pagelayer_active.el){
+		// If clicking button before clicking widget, force Pagelayer to select the widget first
+		wrapper.closest('.pagelayer-ele').click();
+	}
+
+	var modal = jQuery('body > .pagelayer-markdown-modal');
+	if (modal.length === 0){
+		var editor_html = `
+			<div class="pagelayer-markdown-modal" style="display: none;">
+				<div class="pagelayer-mardown-modal-editor">
+					<div class="pagelayer-markdown-modal-header">
+						<h3>Markdown Editor</h3>
+						<span>Press <strong>Ctrl + Enter</strong> to Compile and Preview</span>
+						<button type="button" class="pagelayer-btn-success" onclick="pagelayer_close_md_modal(event)">Save & Close</button>
+						<span class="pagelayer-markdown-close-btn" onclick="pagelayer_cancel_md_modal(event)" title="Discard Changes">&times;</span>
+					</div>
+					<div class="pagelayer-markdown-modal-container">
+						<div class="pagelayer-markdown-modal-input-box">
+							<textarea class="pagelayer-markdown-modal-input" placeholder="Type Markdown here..."></textarea>
+						</div>
+						<div class="pagelayer-markdown-modal-preview">
+							Loading preview...
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
+		jQuery('body').append(editor_html);
+		modal = jQuery('body > .pagelayer-markdown-modal');
+	}
+
+	var textarea = modal.find('.pagelayer-markdown-modal-input');
+	var preview = modal.find('.pagelayer-markdown-modal-preview');
+
+	var el = cache ? cache.el : (pagelayer_active ? pagelayer_active.el : null);
+	var src_type = (el && el.atts['src_type']) ? el.atts['src_type'] : 'upload';
+	
+	// If sidebar is open, it might have more recent unsaved changes for src_type
+	var active_radio_btn = pagelayer.$$('[pagelayer-elp-name="src_type"] .pagelayer-elp-radio-active');
+	if(active_radio_btn.length > 0){
+		src_type = active_radio_btn.attr('val');
+	}
+
+	var active_input_name = (src_type === 'upload') ? 'markdown_text_file' : 'markdown_text_url';
+
+	modal.data('parent_wrapper', wrapper);
+
+	var backup_text = wrapper.find('.pagelayer-markdown-hidden-raw').val() || '';
+	var backup_html = wrapper.find('.pagelayer-markdown-output').html() || '';
+	modal.data('backup_text', backup_text);
+	modal.data('backup_html', backup_html);
+	modal.data('is_modified', false);
+
+	var current_text = wrapper.find('.pagelayer-markdown-hidden-raw').val() || '';
+	var default_placeholder = 'Select a Markdown file or enter a URL to load content.';
+
+	if(current_text === default_placeholder){
+		current_text = '';
+	} else{
+		if(el){
+			el.atts[active_input_name] = current_text;
+		}
+	}
+
+	textarea.val(current_text);
+	modal.fadeIn(200);
+
+	if(current_text !== ''){
+		pagelayer_modal_compile(current_text, preview, wrapper, false);
+	} else{
+		preview.html('<p>Type Markdown here to see preview...</p>');
+	}
+
+	textarea.off('keydown').on('keydown', function(e){
+		if((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.keyCode === 13)){
+			e.preventDefault();
+			var new_text = jQuery(this).val();
+			modal.data('is_modified', true);
+
+			if(el){
+				el.atts[active_input_name] = new_text;
+			}
+			wrapper.find('.pagelayer-markdown-hidden-raw').val(new_text);
+
+			var sidebar_input = pagelayer.$$('[pagelayer-elp-name="' + active_input_name + '"] .pagelayer-elp-textarea');
+			if(sidebar_input.length > 0){
+				sidebar_input.val(new_text).trigger('input');
+			}
+			pagelayer_modal_compile(new_text, preview, wrapper);
+		}
+	});
+
+	textarea.off('paste').on('paste', function(e){
+		e.preventDefault(); 
+		e.stopPropagation(); 
+
+		var pasted_data = (e.originalEvent || e).clipboardData.getData('text/plain');
+		var $this = jQuery(this);
+		var current_val = $this.val();
+		var start = this.selectionStart;
+		var end = this.selectionEnd;
+		var new_text = current_val.substring(0, start) + pasted_data + current_val.substring(end);
+		
+		$this.val(new_text); 
+		modal.data('is_modified', true);
+  
+		if(el) {
+			el.atts[active_input_name] = new_text;
+		}
+		wrapper.find('.pagelayer-markdown-hidden-raw').val(new_text);
+
+		var sidebar_input = pagelayer.$$('[pagelayer-elp-name="' + active_input_name + '"] .pagelayer-elp-textarea');
+		if(sidebar_input.length > 0){
+			sidebar_input.val(new_text).trigger('input'); 
+		}
+		pagelayer_modal_compile(new_text, preview, wrapper);
+	});
+}
+
+// Close Markdown Modal
+function pagelayer_close_md_modal(e){
+	e.preventDefault();
+	var modal = jQuery(e.target).closest('.pagelayer-markdown-modal');
+	modal.hide();
+	var wrapper = modal.data('parent_wrapper');
+
+	if(modal.data('is_modified') && pagelayer_active && pagelayer_active.el){
+		var active_radio_btn = pagelayer.$$('[pagelayer-elp-name="src_type"] .pagelayer-elp-radio-active');
+		var src_type = active_radio_btn.length > 0 ? active_radio_btn.attr('val') : (pagelayer_active.el.atts['src_type'] || 'upload');
+		var active_input_name = (src_type === 'upload') ? 'markdown_text_file' : 'markdown_text_url';
+		
+		var sidebar_input = pagelayer.$$('[pagelayer-elp-name="' + active_input_name + '"] .pagelayer-elp-textarea');
+		if(sidebar_input.length > 0){
+			sidebar_input.trigger('input'); 
+		}
+		modal.data('is_modified', false);
+	}
+
+	modal.remove();
+}
+
+// Cancel Markdown Modal
+function pagelayer_cancel_md_modal(e){
+	e.preventDefault();
+	var modal = jQuery(e.target).closest('.pagelayer-markdown-modal');
+	var wrapper = modal.data('parent_wrapper');
+	if(!wrapper) return;
+
+	var widget_id = wrapper.closest('.pagelayer-ele').attr('id');
+	var cache = (typeof pagelayer_render_end_pl_markdown.vault !== 'undefined') ? pagelayer_render_end_pl_markdown.vault[widget_id] : null;
+	var el = cache ? cache.el : (pagelayer_active ? pagelayer_active.el : null);
+
+	var backup_text = modal.data('backup_text') || '';
+	var backup_html = modal.data('backup_html') || '';
+
+	// Restore state if we have the element
+	if(el){
+		var src_type = el.atts['src_type'] || 'upload';
+		var active_radio_btn = pagelayer.$$('[pagelayer-elp-name="src_type"] .pagelayer-elp-radio-active');
+		if(active_radio_btn.length > 0){
+			src_type = active_radio_btn.attr('val');
+		}
+		var active_input_name = (src_type === 'upload') ? 'markdown_text_file' : 'markdown_text_url';
+
+		el.atts[active_input_name] = backup_text;
+		el.atts['markdown_rendered'] = backup_html;
+
+		if(cache){
+			cache.html = backup_html;
+			cache.text = backup_text;
+		}
+
+		var sidebar_input = pagelayer.$$('[pagelayer-elp-name="' + active_input_name + '"] .pagelayer-elp-textarea');
+		if(sidebar_input.length > 0 && sidebar_input.val() !== backup_text){
+			sidebar_input.val(backup_text).trigger('input');
+		}
+	}
+
+	// Restore UI
+	wrapper.find('.pagelayer-markdown-hidden-raw').val(backup_text);
+	wrapper.find('.pagelayer-markdown-output').html(backup_html);
+
+	modal.fadeOut(200, function(){
+		modal.appendTo(wrapper.find('.pagelayer-markdown-editor-ui'));
+	});
+}
+
+// Compile Markdown
+function pagelayer_modal_compile(text, preview_element, wrapper_element){
+	var widget_id = wrapper_element.closest('.pagelayer-ele').attr('id');
+	var cache = (typeof pagelayer_render_end_pl_markdown.vault !== 'undefined') ? pagelayer_render_end_pl_markdown.vault[widget_id] : null;
+	var el = cache ? cache.el : (pagelayer_active ? pagelayer_active.el : null);
+
+	if(!el) return;
+
+	preview_element.html('<p>Compiling...</p>');
+
+	var src_type = el.atts['src_type'] || 'upload';
+	var active_radio_btn = pagelayer.$$('[pagelayer-elp-name="src_type"] .pagelayer-elp-radio-active');
+	if(active_radio_btn.length > 0){
+		src_type = active_radio_btn.attr('val');
+	}
+
+	var active_input_name = (src_type === 'upload') ? 'markdown_text_file' : 'markdown_text_url';
+
+	var ajax_data = jQuery.extend(true, {}, el.atts);
+	ajax_data[active_input_name] = text;
+	ajax_data['src_type'] = src_type;
+
+	jQuery.ajax({
+		url: pagelayer_ajax_url + '&action=pagelayer_handle_markdown',
+		type: 'post',
+		data: {data: ajax_data, pagelayer_nonce: pagelayer_ajax_nonce},
+		success: function(response){
+			var json = jQuery.parseJSON(response);
+			preview_element.html(json.html);
+			
+			wrapper_element.find('.pagelayer-markdown-output').html(json.html);
+			el.atts['markdown_rendered'] = json.html;
+
+			if(cache){
+				cache.html = json.html;
+			}
+
+			if(json.is_error){
+				return;
+			}
+
+			if(cache){
+				cache.text = json.raw_text || text;
+			}
+
+			if(json.raw_text){
+				var default_placeholder = 'Select a Markdown file or enter a URL to load content.';
+				var current_saved_text = el.atts[active_input_name] || '';
+				
+				if(current_saved_text === '' || current_saved_text.indexOf(default_placeholder) !== -1){
+					wrapper_element.find('.pagelayer-markdown-modal-input').val(json.raw_text);
+					el.atts[active_input_name] = json.raw_text;
+					wrapper_element.find('.pagelayer-markdown-hidden-raw').val(json.raw_text);
+
+					var sidebar_input = pagelayer.$$('[pagelayer-elp-name="' + active_input_name + '"] .pagelayer-elp-textarea');
+					if(sidebar_input.length > 0){
+						sidebar_input.val(json.raw_text).trigger('input');
+					}
+				}
+			}
+		}, 
+		error: function(){
+			var error_html = 'Failed to compile. The server did not respond correctly. Please check your connection and try again.';
+			preview_element.html(error_html);
+		}
+	});
+}
+
 ////////////////
 // Freemium End
 ////////////////

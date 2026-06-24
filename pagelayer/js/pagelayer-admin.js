@@ -423,6 +423,17 @@ jQuery(document).ready(function($){
 			// Move the entire .wrap inside the settings content!
 			$settings_content.append($wrap);
 			
+			// Move screen options and help tabs below the top header
+			if ($('#screen-meta').length) {
+				$('#screen-meta').insertBefore($body_row);
+			}
+
+			if ($('#screen-meta-links').length) {
+				var $metaWrap = $('<div id="pagelayer-screen-meta-wrap" style="padding-top:20px;padding-right:20px; overflow: hidden; width: 100%; box-sizing: border-box;"></div>');
+				$metaWrap.append($('#screen-meta-links'));
+				$metaWrap.insertBefore($body_row);
+			}
+			
 			// Hide the duplicate/original title and actions inside .wrap
 			$wrap.find('.wp-heading-inline, .page-title-action, .pagelayer-temp-export-but, hr-wp-header-end').hide();
 			$wrap.find('> h1, > hr').hide();

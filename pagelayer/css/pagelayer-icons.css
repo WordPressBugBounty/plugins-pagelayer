@@ -597,3 +597,8 @@ content: "\e03d";
 .pagelayer-pl_image_map:before{
   content:"\f279";
 }
+
+.pagelayer-pl_markdown:before{
+content:"\f60f";
+font-family: "Font Awesome 5 Brands";
+}

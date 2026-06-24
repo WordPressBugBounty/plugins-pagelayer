@@ -683,6 +683,17 @@ function pagelayer_settings_page(){
 		
 		// Enable Google Font Downloader  
 		$enable_gfont_downloader = get_option('pagelayer_local_gfont');
+
+		// Enable Markdown Upload
+		if(isset($_POST['submit']) || isset($_POST['pagelayer_markdown_upload'])){
+			$done = 1;
+			$enable_markdown_upload = !empty($_REQUEST['pagelayer_markdown_upload']);
+
+			update_option('pagelayer_markdown_upload', $enable_markdown_upload);
+		}
+
+		// Enable Markdown Upload
+		$enable_markdown_upload = get_option('pagelayer_markdown_upload');
 	}
 	
 	// User roles to allow saving js content
@@ -820,6 +831,22 @@ function pagelayer_settings_page(){
 						<div class="pagelayer-setting-row-control">
 							<label class="pl-toggle">
 								<input type="checkbox" name="pagelayer_local_gfont" <?php echo ((!empty($enable_gfont_downloader) && $enable_gfont_downloader == 1) ? 'checked' : ''); ?>>
+								<span class="pl-toggle-slider"></span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Markdown Upload -->
+					<div class="pagelayer-setting-row">
+						<div class="pagelayer-setting-row-left">
+							<span class="pagelayer-setting-row-label"><?php _e('Markdown Upload', 'pagelayer'); ?></span>
+							<p class="pagelayer-setting-row-desc">
+								<?php _e('Enable uploading .md and .markdown files to your media library.'); ?>
+							</p>
+						</div>
+						<div class="pagelayer-setting-row-control">
+							<label class="pl-toggle">
+								<input type="checkbox" name="pagelayer_markdown_upload" value="true" <?php checked($enable_markdown_upload, true); ?>>
 								<span class="pl-toggle-slider"></span>
 							</label>
 						</div>

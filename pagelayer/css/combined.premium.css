@@ -7101,3 +7101,24 @@ height: 100%;
 margin: 0 !important;
 }
 
+/* Markdown Widget */
+.pagelayer-markdown-wrapper{
+position: relative;
+overflow: hidden;
+}
+
+.pagelayer-markdown-hidden-raw{
+display:none;
+}
+
+.pagelayer-markdown-placeholder{
+text-align: center;
+padding: 20px;
+color: #888;
+}
+
+.pagelayer-markdown-output{
+font-size:18px;
+margin-left: 5px;
+}
+

@@ -1898,6 +1898,56 @@ function pagelayer_products_ajax(){
 	wp_die();
 }
 
+// Markdown Handler
+add_action('wp_ajax_pagelayer_handle_markdown', 'pagelayer_handle_markdown');
+function pagelayer_handle_markdown(){
+
+	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
+
+	if(!defined('PAGELAYER_PRO_VERSION')){
+		wp_send_json_error(['message' => __('Markdown feature requires Pagelayer Pro.', 'pagelayer')]);
+		return;
+	}
+
+	include_once(PAGELAYER_PRO_DIR.'/main/premium_functions.php');
+
+	$raw_atts = isset($_POST['data']) && is_array($_POST['data']) ? wp_unslash($_POST['data']) : [];
+	$atts = [];
+
+	foreach($raw_atts as $key => $value){
+		$clean_key = sanitize_key($key);
+
+		// Check for invalid UTF-8 to prevent database errors
+		if(in_array($clean_key, ['markdown_text_file', 'markdown_text_url', 'active_markdown_text'])){
+			$atts[$clean_key] = wp_check_invalid_utf8($value);
+		} else{
+			$atts[$clean_key] = sanitize_text_field($value);
+		}
+	}
+
+	$fetched = pagelayer_get_markdown_content($atts);
+	$current_text = $fetched['text'];
+	$default_text = __pl('Select a Markdown file or enter a URL to load content.');
+	
+	// Compile HTML
+	$html = '';
+	if(!empty($fetched['is_error'])){
+		$html = '<div class="pagelayer-markdown-error">' . esc_html($current_text) . '</div>';
+	} else if($current_text === $default_text){
+		$html = '<div class="pagelayer-markdown-placeholder">' . $default_text . '</div>';
+	} else if(function_exists('pagelayer_markdown_to_html')){
+		$html = pagelayer_markdown_to_html($current_text);
+	}
+	
+	$wp['html'] = wp_kses_post($html);
+	$wp['raw_text'] = $current_text;
+	$wp['is_error'] = !empty($fetched['is_error']);
+
+	pagelayer_json_output($wp);
+
+	wp_die();
+}
+
 // Get Taxamony List for SiteMap
 add_action('wp_ajax_pagelayer_get_taxonomy_list', 'pagelayer_get_taxonomy_list');
 function pagelayer_get_taxonomy_list(){

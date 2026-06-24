@@ -252,8 +252,15 @@ function pagelayer_modal(sel){
 jQuery(document).ready(function(){
 	var $ = jQuery;
 
-	var choose_image = function(jEle){		
-		$("#pagelayer_display_image").attr("src", jEle.find("img").attr("src"));
+	var choose_image = function(jEle){
+		if(!jEle || !jEle.length){
+			return;
+		}
+		var img_src = jEle.find("img").attr("src");
+		if(typeof img_src === "undefined"){
+			return;
+		}
+		$("#pagelayer_display_image").attr("src", img_src);
 		
 		$(".pagelayer_img_screen").removeClass("pagelayer_img_selected");
 		jEle.addClass("pagelayer_img_selected");
@@ -266,7 +273,9 @@ jQuery(document).ready(function(){
 		first = home;
 	}
 	
-	choose_image(first);
+	if(first.length > 0){
+		choose_image(first);
+	}
 	
 	$(".pagelayer_img_screen").on("click", function(){
 		choose_image($(this));
