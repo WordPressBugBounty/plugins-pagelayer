@@ -247,15 +247,15 @@ pagelayer_page_header('Getting Started', 1);
 }
 
 .pagelayer-getting-started-btn .button-primary {
-	background: #4f46e5 !important;
+	background: #2563eb !important;
 	color: #fff !important;
 	border: none !important;
-	box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 2px 4px -1px rgba(79, 70, 229, 0.1) !important;
+	box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.15), 0 2px 4px -1px rgba(37, 99, 235, 0.1) !important;
 }
 
 .pagelayer-getting-started-btn .button-primary:hover {
-	background: #4338ca !important;
-	box-shadow: 0 6px 12px -2px rgba(79, 70, 229, 0.25) !important;
+	background: #1d4ed8 !important;
+	box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.25) !important;
 	transform: translateY(-1px);
 }
 
@@ -326,7 +326,7 @@ pagelayer_page_header('Getting Started', 1);
 
 .feature-block i{
 	font-size: 22px;
-	color: #4f46e5;
+	color: #2563eb;
 }
 
 .feature-block-content h5{

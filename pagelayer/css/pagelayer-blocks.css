@@ -37,12 +37,12 @@ color: #3e8ef7;
 
 .pagelayer-elp-button{
 text-transform: unset;
-border: 1px solid #00A0D2;
+border: 1px solid #2563eb;
 font-weight: unset;
 font-size: 12px;
 margin:5px;
 min-height: unset;
-background-color: #00A0D2;
+background-color: #2563eb;
 color: #fff;
 transition: all 0.3s;
 border-radius: unset;
@@ -52,8 +52,8 @@ cursor:pointer;
 }
 
 .pagelayer-elp-button:hover{
-background-color: #00A0D2bf;
-border-color: #00A0D2;
+background-color: rgba(37, 99, 235, 0.75);
+border-color: #2563eb;
 }
 
 .pagelayer-block-appender{
@@ -145,11 +145,11 @@ line-height: 20px;
 }
 
 .pagelayer-elp-screen .pli:not(.pagelayer-prop-screen):hover{
-background-color: #3E8EF7;
+background-color: #2563eb;
 }
 
 .pagelayer-elp-screen .pagelayer-prop-screen:hover{
-color: #3E8EF7;
+color: #2563eb;
 }
 /* Screen Control End */
 
@@ -440,7 +440,7 @@ background: #3e8ef7;
 width: 15px;
 height: 15px;
 border-radius: 50%;
-background: #00A0D2;
+background: #2563eb;
 cursor: pointer;
 }
 
@@ -615,6 +615,13 @@ padding: 10px 0;
 
 .pagelayer-elp-gradient-div .pagelayer-elp-prop-grp{
 padding: 5px 0;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.pagelayer-elp-gradient-div .pagelayer-elp-label{
+width: auto !important;
 }
 
 .pagelayer-elp-gradient-color{
@@ -837,7 +844,7 @@ padding: 3px;
 }
 
 .pagelayer-elp-icon-span:hover{
-border-color: #00A0D2;
+border-color: #2563eb;
 background-color: #3e8ef7;
 color: #ffffff;
 box-shadow: 0px 1px 1px #3e8ef7bf;
@@ -2068,3 +2075,166 @@ width: 18px;
 outline: 1px solid #ff6b6b;
 }
 /* image map end*/
+
+/* Fix device icon overlapping/showing on top of select and input fields */
+.pagelayer-elp-screen {
+flex-shrink: 0 !important;
+}
+
+.pagelayer-form-item:has(.pagelayer-elp-select-div) .pagelayer-elp-label-div,
+.pagelayer-form-item:has(.pagelayer-elp-spinner-div) .pagelayer-elp-label-div,
+.pagelayer-form-item:has(.pagelayer-elp-color-div-holder) .pagelayer-elp-label-div,
+.pagelayer-form-item:has(.pagelayer-elp-color-div) .pagelayer-elp-label-div,
+.pagelayer-base-control:has(.pagelayer-elp-select-div) .pagelayer-elp-label-div,
+.pagelayer-base-control:has(.pagelayer-elp-spinner-div) .pagelayer-elp-label-div,
+.pagelayer-base-control:has(.pagelayer-elp-color-div-holder) .pagelayer-elp-label-div,
+.pagelayer-base-control:has(.pagelayer-elp-color-div) .pagelayer-elp-label-div {
+max-width: 45% !important;
+flex-wrap: wrap !important;
+padding-right: 10px !important;
+box-sizing: border-box !important;
+}
+
+.pagelayer-elp-typo {
+display: flex !important;
+align-items: center !important;
+justify-content: space-between !important;
+flex-wrap: wrap !important;
+}
+
+.pagelayer-elp-typo .pagelayer-elp-label {
+width: 48% !important;
+max-width: 48% !important;
+display: flex !important;
+align-items: center !important;
+flex-wrap: wrap !important;
+gap: 6px !important;
+margin-bottom: 0 !important;
+padding-right: 8px !important;
+box-sizing: border-box !important;
+}
+
+.pagelayer-elp-typo .pagelayer-elp-typo-input {
+width: 48% !important;
+max-width: 48% !important;
+}
+
+/* Fix restore/revert default icon position to sit in front of select/input field and be vertically aligned */
+.pagelayer-elp-label-div,
+.pagelayer-elp-link-label-div,
+.pagelayer-elp-typo .pagelayer-elp-label {
+position: static !important;
+}
+
+.pagelayer-elp-default,
+.pagelayer-typo-default {
+position: absolute !important;
+right: calc(50% + 8px) !important;
+top: 9px !important;
+transform: none !important;
+left: auto !important;
+margin: 0 !important;
+z-index: 5 !important;
+}
+
+.pagelayer-form-item:hover .pagelayer-elp-default[data_show=true],
+.pagelayer-base-control:hover .pagelayer-elp-default[data_show=true] {
+display: inline-block !important;
+}
+
+/* Fix link input field and gear icon alignment to form a unified input group */
+.pagelayer-elp-link-div {
+display: flex !important;
+align-items: stretch !important;
+flex-wrap: wrap !important;
+width: 100% !important;
+}
+
+.pagelayer-elp-link-div input.pagelayer-elp-link {
+flex: 1 1 auto !important;
+width: 0 !important;
+height: 32px !important;
+border: 1px solid #cbd5e1 !important;
+border-right: none !important;
+border-radius: 4px 0 0 4px !important;
+box-sizing: border-box !important;
+padding: 6px 10px !important;
+font-size: 13px !important;
+background-color: #fff !important;
+margin: 0 !important;
+}
+
+.pagelayer-dark .pagelayer-elp-link-div input.pagelayer-elp-link {
+background-color: #252529 !important;
+border-color: #475569 !important;
+color: #cbd5e1 !important;
+}
+
+.pagelayer-elp-link-div i.pagelayer-elp-link-icon {
+flex: 0 0 auto !important;
+width: 36px !important;
+height: 32px !important;
+border: 1px solid #cbd5e1 !important;
+border-radius: 0 4px 4px 0 !important;
+box-sizing: border-box !important;
+background-color: #f8fafc !important;
+color: #64748b !important;
+cursor: pointer !important;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+margin: 0 !important;
+position: static !important;
+font-size: 14px !important;
+line-height: normal !important;
+transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.pagelayer-elp-link-div i.pagelayer-elp-link-icon:hover {
+background-color: #f1f5f9 !important;
+color: #2563eb !important;
+}
+
+.pagelayer-dark .pagelayer-elp-link-div i.pagelayer-elp-link-icon {
+background-color: #1e1e24 !important;
+border-color: #475569 !important;
+color: #94a3b8 !important;
+}
+
+.pagelayer-dark .pagelayer-elp-link-div i.pagelayer-elp-link-icon:hover {
+background-color: #2d2d34 !important;
+color: #3b82f6 !important;
+}
+
+.pagelayer-elp-link-no-addons > .pagelayer-elp-link {
+border-radius: 4px !important;
+border-right: 1px solid #cbd5e1 !important;
+}
+
+.pagelayer-dark .pagelayer-elp-link-no-addons > .pagelayer-elp-link {
+border-right-color: #475569 !important;
+}
+
+.pagelayer-elp-link-div .pagelayer-elp-link-addons {
+width: 100% !important;
+margin-right: 0 !important;
+}
+
+.pagelayer-elp-link-div .pagelayer-elp-link-list {
+width: 100% !important;
+}
+
+/* Match sidebar top header section and bottombar section background in dark mode */
+.pagelayer-dark td.pagelayer-topbar-holder,
+.pagelayer-dark .pagelayer-bottombar-row {
+background: #0b0f19 !important;
+}
+
+.pagelayer-dark td.pagelayer-topbar-holder {
+border-bottom: 1px solid #1e293b !important;
+}
+
+.pagelayer-dark .pagelayer-bottombar-holder {
+border-top: 1px solid #1e293b !important;
+background: #0b0f19 !important;
+}

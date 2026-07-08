@@ -210,7 +210,7 @@ function pagelayer_render_recommended_plugins(){
 	
 	echo '<div class="pagelayer-settings-card pagelayer-recommended-plugins">
 		<div class="pagelayer-settings-card-header">
-			<h3><span class="dashicons dashicons-admin-plugins" style="margin-right: 6px; vertical-align: text-bottom; color: #4f46e5;"></span>'.esc_html__('Recommended Plugins', 'pagelayer').'</h3>
+			<h3><span class="dashicons dashicons-admin-plugins" style="margin-right: 6px; vertical-align: text-bottom; color: #2563eb;"></span>'.esc_html__('Recommended Plugins', 'pagelayer').'</h3>
 		</div>
 		<div class="pagelayer-recommended-plugins-body">';
 	

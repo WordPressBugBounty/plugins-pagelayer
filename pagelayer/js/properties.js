@@ -192,7 +192,7 @@ function pagelayer_elpd_setup(){
 	pagelayer_elpd_html = '<div class="pagelayer-elpd-tabs">'+
 			'<div class="pagelayer-elpd-tab" pagelayer-elpd-tab="settings" pagelayer-elpd-active-tab=1>Settings</div>'+
 			//'<div class="pagelayer-elpd-tab" pagelayer-elpd-tab="styles">Style</div>'+
-			'<div class="pagelayer-elpd-tab" pagelayer-elpd-tab="options">Options</div>'+
+			'<div class="pagelayer-elpd-tab" pagelayer-elpd-tab="options">Style</div>'+
 			'<div class="pagelayer-advanced-props pagelayer-elpd-tab pagelayer-hidden" pagelayer-elpd-tab="advanced">Advanced</div>'+
 			'<div class="pagelayer-elpd-options">'+
 				'<i class="pli pli-clone" ></i>'+
@@ -270,6 +270,10 @@ function pagelayer_elpd_setup(){
 // Open the properties
 function pagelayer_elpd_open(jEle){
 	
+	var el_data = pagelayer_data(jEle);
+	var is_same = (!pagelayer_empty(pagelayer_active.el) && pagelayer_active.el.id === el_data.id);
+	var active_tab = pagelayer_elpd.find('[pagelayer-elpd-active-tab]').attr('pagelayer-elpd-tab');
+
 	// Set pagelayer history FALSE
 	pagelayer.history_action = false;
 	
@@ -280,6 +284,14 @@ function pagelayer_elpd_open(jEle){
 	pagelayer.$$('[pagelayer-elpd-tab=settings]').show();
 	pagelayer.$$('.pagelayer-elpd-header').show();
 	pagelayer.$$('.pagelayer-logo').hide();
+	
+	// Activate settings tab by default or keep active tab if it's the same element
+	pagelayer_elpd.find('.pagelayer-elpd-tab').removeAttr('pagelayer-elpd-active-tab');
+	if (is_same && active_tab) {
+		pagelayer_elpd.find('[pagelayer-elpd-tab="' + active_tab + '"]').attr('pagelayer-elpd-active-tab', 1);
+	} else {
+		pagelayer_elpd.find('[pagelayer-elpd-tab="settings"]').attr('pagelayer-elpd-active-tab', 1);
+	}
 	
 	// The property holder
 	var holder = pagelayer.$$('.pagelayer-elpd-body');
@@ -299,6 +311,10 @@ function pagelayer_elpd_open(jEle){
 	// Render tooltips for the ELPD
 	pagelayer_tooltip_setup();
 	
+	// Setup instant properties search
+	if (typeof pagelayer_setup_properties_search === 'function') {
+		pagelayer_setup_properties_search();
+	}
 };
 
 // Show the properties window
@@ -455,7 +471,10 @@ function pagelayer_elpd_generate(jEle, holder){
 	});
 	
 	if(!pagelayer_empty(pagelayer_active_tab) && pagelayer_active_tab.id == el.id){
-		holder.find('>[section='+pagelayer_active_tab.section+']>.pagelayer-elpd-section-name').click();
+		var target_sec = holder.find('>[section='+pagelayer_active_tab.section+']');
+		if(target_sec.length > 0 && !target_sec.find('.pagelayer-elpd-section-rows').is(':visible')){
+			target_sec.find('.pagelayer-elpd-section-name').click();
+		}
 	}
 	
 	// Handle the showing of rows
@@ -1239,11 +1258,6 @@ function pagelayer_elp_image(row, prop){
 	
 	var imgObj = {};
 	var isRetina = false;
-	
-	// Is retina images options?
-	if('retina' in prop && !pagelayer_empty(prop['retina'])){
-		isRetina = true;
-	}
 	
 	// Previously saved values
 	if(typeof prop.c['val'] === 'object'){
@@ -2182,7 +2196,7 @@ function pagelayer_elp_editor(row, prop){
 	row.append(div);
 	
 	var editor = row.find('.pagelayer-elp-editor');
-	editor.val(prop.c['val']);
+	editor.val(pagelayer_trim(prop.c['val']));
 	
 	// Handle on change
 	editor.on('input', function(){
@@ -2493,7 +2507,7 @@ function pagelayer_elp_textarea(row, prop){
 			'</div>';
 			
 	row.append(div);
-	row.find('.pagelayer-elp-textarea').val(prop.c['val']);
+	row.find('.pagelayer-elp-textarea').val(pagelayer_trim(prop.c['val']));
   
 	// Handle on change
 	row.find('.pagelayer-elp-textarea').on('input', function(){
@@ -3227,7 +3241,10 @@ function pagelayer_elp_group(row, prop){
 		}
 		
 		// Setup the toggle
-		holder.find('.pagelayer-elp-group-item-title').first().on('click', function(){
+		holder.find('.pagelayer-elp-group-item-head').first().on('click', function(e){
+			if(jQuery(e.target).closest('.pagelayer-elp-group-item-clone, .pagelayer-elp-group-item-del, .pagelayer-elp-group-item-drag').length > 0){
+				return;
+			}
 			var rEle = holder.find('.pagelayer-elp-group-item-body').first();
 			var r_id = holder.attr('pagelayer-group-item-id');
 			
@@ -3386,10 +3403,10 @@ function pagelayer_elp_padding(row, prop){
 	}
 	
 	var div = '<div class="pagelayer-elp-padding-div">'+
-				'<input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[0])+'"></input>'+
-				'<input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[1])+'"></input>'+
-				'<input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[2])+'"></input>'+
-				'<input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[3])+'"></input>'+
+				'<div class="pagelayer-elp-padding-inner"><input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[0])+'"></input><span class="pagelayer-elp-padding-lbl">Top</span></div>'+
+				'<div class="pagelayer-elp-padding-inner"><input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[1])+'"></input><span class="pagelayer-elp-padding-lbl">Right</span></div>'+
+				'<div class="pagelayer-elp-padding-inner"><input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[2])+'"></input><span class="pagelayer-elp-padding-lbl">Bottom</span></div>'+
+				'<div class="pagelayer-elp-padding-inner"><input type="number" class="pagelayer-elp-padding" value="'+parseFloat(val[3])+'"></input><span class="pagelayer-elp-padding-lbl">Left</span></div>'+
 				'<i class="pli pli-link" ></i>'+
 			'</div>';
 	
@@ -3687,7 +3704,7 @@ function pagelayer_elp_filter(row, prop){
 		jQuery.each(val,function(key, value){
 			div += '<div class="pagelayer-elp-prop-grp pagelayer-elp-filter-'+filters[key][0]+'">'+
 				'<label class="pagelayer-elp-label">'+filters[key][0]+'</label>'+
-				'<input class="pagelayer-elp-slider pagelayer-elp-filter-input" type="range" max="'+filters[key][1]+'" min="0" step="'+filters[key][2]+'" class="pagelayer-elp-filter-'+filters[key][0]+'" value="'+value+'"></input>'+
+				'<input class="pagelayer-elp-slider pagelayer-elp-filter-input pagelayer-elp-filter-'+filters[key][0]+'" type="range" max="'+filters[key][1]+'" min="0" step="'+filters[key][2]+'" value="'+value+'"></input>'+
 				'<span class="pagelayer-elp-filter-val">'+value+'</span>'+
 			'</div>';
 		});
@@ -5098,7 +5115,10 @@ function pagelayer_elp_menus(row, prop){
 		row.find('.pagelayer-elp-menu-items-holder').append(holder);
 		
 		// Setup the toggle
-		holder.find('.pagelayer-elp-group-item-title').first().on('click', function(){
+		holder.find('.pagelayer-elp-group-item-head').first().on('click', function(e){
+			if(jQuery(e.target).closest('.pagelayer-elp-group-item-clone, .pagelayer-elp-group-item-del, .pagelayer-elp-group-item-drag').length > 0){
+				return;
+			}
 			
 			var editArea = jEle.find('.pagelayer-mega-editor-'+item['ID']);
 			var child = editArea.find('[pagelayer-tag="pl_nav_menu_item"]');

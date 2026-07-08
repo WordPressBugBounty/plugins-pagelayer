@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.1.3');
+define('PAGELAYER_VERSION', '2.1.4');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -598,7 +598,7 @@ function pagelayer_tools_page_handler(){
 		// Output high premium promotion templates for export & import tools to enable hash tab switching and prevent page reload in Free version
 		echo'<div id="export_theme" class="pagelayer-tab-panel" style="display:none;">
 			<div class="pagelayer-settings-card" style="padding: 40px 24px; text-align: center; max-width: 600px; margin: 40px auto; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); background: #fff; border: 1px solid #f0f0f0;">
-			<span class="dashicons dashicons-upload" style="font-size: 64px; width: 64px; height: 64px; color: #4f46e5; margin-bottom: 16px;"></span>
+			<span class="dashicons dashicons-upload" style="font-size: 64px; width: 64px; height: 64px; color: #2563eb; margin-bottom: 16px;"></span>
 			<h2 style="font-size: 24px; margin-top: 0; color: #333; font-weight: 600;">' . __('Export Theme', 'pagelayer') . '</h2>
 				<p style="color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;">' . __('Exporting your customized Pagelayer designs and layouts directly into a standalone WordPress theme is a Premium feature. Upgrade to Pagelayer Pro to build and export your own custom themes!', 'pagelayer') . '</p>
 				<a href="' . esc_url(PAGELAYER_PRO_PRICE_URL) . '" target="_blank" class="button-pagelayer" style="text-decoration: none;">' . __('Upgrade to Pagelayer Pro', 'pagelayer') . '</a>
@@ -607,7 +607,7 @@ function pagelayer_tools_page_handler(){
 
 		echo'<div id="import_theme" class="pagelayer-tab-panel" style="display:none;">
 			<div class="pagelayer-settings-card" style="padding: 40px 24px; text-align: center; max-width: 600px; margin: 40px auto; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); background: #fff; border: 1px solid #f0f0f0;">
-				<span class="dashicons dashicons-download" style="font-size: 64px; width: 64px; height: 64px; color: #4f46e5; margin-bottom: 16px;"></span>
+				<span class="dashicons dashicons-download" style="font-size: 64px; width: 64px; height: 64px; color: #2563eb; margin-bottom: 16px;"></span>
 				<h2 style="font-size: 24px; margin-top: 0; color: #333; font-weight: 600;">' . __('Import Theme', 'pagelayer') . '</h2>
 				<p style="color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;">' . __('Importing pre-designed custom themes with all layouts, options, and page structures is a Premium feature. Upgrade to Pagelayer Pro to import complete themes with a single click!', 'pagelayer') . '</p>
 				<a href="' . esc_url(PAGELAYER_PRO_PRICE_URL) . '" target="_blank" class="button-pagelayer" style="text-decoration: none;">' . __('Upgrade to Pagelayer Pro', 'pagelayer') . '</a>
@@ -616,7 +616,7 @@ function pagelayer_tools_page_handler(){
 
 		echo'<div id="custom_fonts" class="pagelayer-tab-panel" style="display:none;">
 			<div class="pagelayer-settings-card" style="padding: 40px 24px; text-align: center; max-width: 600px; margin: 40px auto; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); background: #fff; border: 1px solid #f0f0f0;">
-				<span class="dashicons dashicons-editor-bold" style="font-size: 64px; width: 64px; height: 64px; color: #4f46e5; margin-bottom: 16px;"></span>
+				<span class="dashicons dashicons-editor-bold" style="font-size: 64px; width: 64px; height: 64px; color: #2563eb; margin-bottom: 16px;"></span>
 				<h2 style="font-size: 24px; margin-top: 0; color: #333; font-weight: 600;">' . __('Custom Fonts', 'pagelayer') . '</h2>
 				<p style="color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;">' . __('Adding and using custom typography/fonts directly in your designs is a Premium feature. Upgrade to Pagelayer Pro to upload and manage your own custom fonts!', 'pagelayer') . '</p>
 				<a href="' . esc_url(PAGELAYER_PRO_PRICE_URL) . '" target="_blank" class="button-pagelayer" style="text-decoration: none;">' . __('Upgrade to Pagelayer Pro', 'pagelayer') . '</a>

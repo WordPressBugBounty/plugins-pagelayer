@@ -1134,6 +1134,10 @@ function pagelayer_video_url($source, $no_url = false){
 // As per the JS specification
 function pagelayer_escapeHTML($str){
 	
+	if(is_null($str)){
+		return '';
+	}
+	
 	$replace = [
 		']' => '&#93;',
 		'[' => '&#91;',
@@ -1153,6 +1157,11 @@ function pagelayer_escapeHTML($str){
 
 // As per the JS specification
 function pagelayer_unescapeHTML($str){
+
+	if(is_null($str)){
+		return '';
+	}
+	
 	$replace = [
 		'#93' => ']',
 		'#91' => '[',
@@ -3442,6 +3451,10 @@ function pagelayer_maybe_implode($array, $separator = ','){
 	
 	if(is_array($array)){
 		return @implode($separator, $array);
+	}
+	
+	if(is_null($array)){
+		return '';
 	}
 	
 	return $array;
