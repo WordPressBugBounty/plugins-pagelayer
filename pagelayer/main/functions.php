@@ -1274,6 +1274,9 @@ function pagelayer_xss_content($data){
 	
 	$data = pagelayer_optimized_decode_entities($data);
 	
+	// Keep a whitespace-preserved copy for the on* event-handler scan.
+	$orig = $data;
+	
 	$data = preg_split('/\s/', $data);
 	$data = implode('', $data);
 	//echo $data;
@@ -1298,13 +1301,10 @@ function pagelayer_xss_content($data){
 		return $matches[1];
 	}
 	
-	// These events not start with on
-	$not_allowed = array('click', 'dblclick', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'load', 'unload', 'change', 'submit', 'reset', 'select', 'blur', 'focus', 'keydown', 'keypress', 'keyup', 'afterprint', 'beforeprint', 'beforeunload', 'error', 'hashchange', 'message', 'offline', 'online', 'pagehide', 'pageshow', 'popstate', 'resize', 'storage', 'contextmenu', 'input', 'invalid', 'search', 'mousewheel', 'wheel', 'drag', 'dragend', 'dragenter', 'dragleave', 'dragover', 'dragstart', 'drop', 'scroll', 'copy', 'cut', 'paste', 'abort', 'canplay', 'canplaythrough', 'cuechange', 'durationchange', 'emptied', 'ended', 'loadeddata', 'loadedmetadata', 'loadstart', 'pause', 'play', 'playing', 'progress', 'ratechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate', 'volumechange', 'waiting', 'toggle', 'animationstart', 'animationcancel', 'animationend', 'animationiteration', 'auxclick', 'beforeinput', 'beforematch', 'beforexrselect', 'compositionend', 'compositionstart', 'compositionupdate', 'contentvisibilityautostatechange', 'focusout', 'focusin', 'fullscreenchange', 'fullscreenerror', 'gotpointercapture', 'lostpointercapture', 'mouseenter', 'mouseleave', 'pointercancel', 'pointerdown', 'pointerenter', 'pointerleave', 'pointermove', 'pointerout', 'pointerover', 'pointerrawupdate', 'pointerup', 'scrollend', 'securitypolicyviolation', 'touchcancel', 'touchend', 'touchmove', 'touchstart', 'transitioncancel', 'transitionend', 'transitionrun', 'transitionstart', 'MozMousePixelScroll', 'DOMActivate', 'afterscriptexecute', 'beforescriptexecute', 'DOMMouseScroll', 'willreveal', 'gesturechange', 'gestureend', 'gesturestart', 'mouseforcechanged', 'mouseforcedown', 'mouseforceup', 'mouseforceup', 'beforetoggle', 'selectstart', 'selectionchange');
-	
-	$not_allowed = implode('|', $not_allowed);
-		
-	if(preg_match('/(on|onwebkit)+('.($not_allowed).')=/is', $data, $matches)){
-		return $matches[1].$matches[2];
+	// Reject ANY on* event handler attribute. Per the HTML spec every attribute
+	// name beginning with "on" (optionally followed by a letter and word chars)
+	if(preg_match('/\bon(?:[a-z][a-z0-9-]*)?\s*=/i', $orig, $matches)){
+		return $matches[0];
 	}
 	
 	return;
