@@ -1274,9 +1274,7 @@ function pagelayer_xss_content($data){
 	
 	$data = pagelayer_optimized_decode_entities($data);
 	
-	// Keep a whitespace-preserved copy for the on* event-handler scan.
-	$orig = $data;
-	
+	// Collapse all whitespace for pattern matching
 	$data = preg_split('/\s/', $data);
 	$data = implode('', $data);
 	//echo $data;
@@ -1303,8 +1301,8 @@ function pagelayer_xss_content($data){
 	
 	// Reject ANY on* event handler attribute. Per the HTML spec every attribute
 	// name beginning with "on" (optionally followed by a letter and word chars)
-	if(preg_match('/\bon(?:[a-z][a-z0-9-]*)?\s*=/i', $orig, $matches)){
-		return $matches[0];
+	if(preg_match('/(on[a-z0-9]{1,60})=/i', $data, $matches)){
+			return $matches[0];
 	}
 	
 	return;

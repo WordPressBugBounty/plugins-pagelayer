@@ -343,7 +343,7 @@ function pagelayer_render_shortcode($atts, $content = '', $tag = '', $inner_bloc
 
 							if(!empty($atts_ar)){
 								foreach($atts_ar as $att => $value){
-									$el['attr'][][$param['selector']] = $att.'="'.$value.'"';							
+									$el['attr'][][$param['selector']] = $att.'="'.esc_attr($value).'"';
 								}
 							}
 						}
