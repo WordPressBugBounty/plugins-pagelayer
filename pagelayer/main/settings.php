@@ -56,6 +56,10 @@ function pagelayer_page_header($title = 'Pagelayer Editor', $no_sidebar = 0){
 			'import_theme' => array( 'label' => __('Import Theme'), 'icon' => 'dashicons-download', 'hash' => admin_url('admin.php?page=pagelayer_tools#import_theme_tab') ),
 			'custom_fonts' => array( 'label' => __('Custom Fonts'), 'icon' => 'dashicons-editor-bold', 'hash' => (defined('PAGELAYER_PREMIUM') ? admin_url('edit.php?post_type=pagelayer-fonts') : admin_url('admin.php?page=pagelayer_tools#custom_fonts_tab')) ),
 		);
+	} elseif ($current_page === 'pagelayer_ai_agents') {
+		$nav_items = array(
+			'connection' => array( 'label' => __('Connection'), 'icon' => 'dashicons-admin-network', 'hash' => admin_url('admin.php?page=pagelayer_ai_agents#connection') ),
+		);
 	} elseif ($current_page === 'pagelayer_license' || $current_page === 'pagelayer_getting_started') {
 		$nav_items = array(
 			'settings' => array( 'label' => __('Settings'), 'icon' => 'dashicons-admin-settings', 'hash' => admin_url('admin.php?page=pagelayer') ),
@@ -107,7 +111,7 @@ function pagelayer_page_header($title = 'Pagelayer Editor', $no_sidebar = 0){
 		echo '<nav id="pagelayer-sidebar-nav">';
 		$first_key = key($nav_items); foreach( $nav_items as $key => $item ){
 			$is_active = false;
-			if ($current_page === 'pagelayer_website_settings' || $current_page === 'pagelayer') {
+			if ($current_page === 'pagelayer_website_settings' || $current_page === 'pagelayer' || $current_page === 'pagelayer_ai_agents') {
 				$is_active = ($key === $first_key);
 			} else {
 				if ($current_page === 'pagelayer_template_export' && $key === 'export_theme') {

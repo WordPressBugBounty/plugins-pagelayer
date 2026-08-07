@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.1.6');
+define('PAGELAYER_VERSION', '2.1.7');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -147,6 +147,10 @@ add_action('plugins_loaded', 'pagelayer_load_plugin', 9);
 // The function that will be called when the plugin is loaded
 function pagelayer_load_plugin(){
 
+	// Init MCP Abilities
+	add_action('wp_abilities_api_categories_init', 'pagelayer_wp_abilities_api_categories_init');
+	add_action('wp_abilities_api_init', 'pagelayer_wp_abilities_api_init');
+
 	global $pagelayer;
 
 	// Check if the installed version is outdated
@@ -284,6 +288,23 @@ function pagelayer_admin_enqueue_scripts($hook){
 		'admin_url' => admin_url(),
 		'is_sitepad' => defined('SITEPAD') ? 1 : 0,
 	));
+
+	if(strpos($hook, "pagelayer_ai_agents") !== false){
+		include_once(PAGELAYER_DIR.'/main/abilities.php');
+		wp_enqueue_style("pagelayer-abilities", PAGELAYER_CSS."/pagelayer-abilities.css", array(), PAGELAYER_VERSION);
+		wp_enqueue_script("pagelayer-abilities", PAGELAYER_JS."/pagelayer-abilities.js", array("jquery"), PAGELAYER_VERSION, true);
+
+		$site_url = trailingslashit(rtrim(home_url(), '/'));
+		$username = function_exists('wp_get_current_user') ? wp_get_current_user()->user_login : '';
+		$mcp_server_url = $site_url . ltrim(Pagelayer_Abilities::$MCP_SERVER_ENDPOINT, '/');
+
+		wp_localize_script("pagelayer-abilities", "pagelayer_abilities_data", array(
+			'siteUrl' => $site_url,
+			'mcpServerUrl' => $mcp_server_url,
+			'username' => $username,
+			'nonce' => wp_create_nonce('pagelayer_mcp_nonce')
+		));
+	}
 }
 
 function pagelayer_admin_menu() {
@@ -322,6 +343,9 @@ function pagelayer_admin_menu() {
 	// Register Tools Submenu page under pagelayer
 	add_submenu_page('pagelayer', __('Tools'), __('Tools'), $capability, 'pagelayer_tools', 'pagelayer_tools_page_handler');
 	
+	// AI Agents Connection
+	add_submenu_page('pagelayer', __('AI Agents', 'pagelayer'), __('AI Agents', 'pagelayer') . ' <span  style="vertical-align:middle;background:#d63638;font-size:9px;padding:0 6px;border-radius:10px;line-height:18px;color:#fff;">New!</span>' , $capability, 'pagelayer_ai_agents', 'pagelayer_ai_agents_page_handler');
+
 	// Getting Started
 	add_submenu_page('pagelayer', __('Getting Started'), __('Getting Started'), $capability, 'pagelayer_getting_started', 'pagelayer_getting_started');
 
@@ -352,6 +376,28 @@ function pagelayer_website_page(){
 	
 	pagelayer_website_settings();
 
+}
+
+function pagelayer_wp_abilities_api_categories_init(){
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	include_once(PAGELAYER_DIR.'/main/abilitiesregister.php');
+	if(class_exists('Pagelayer_Abilities_Register')){
+		Pagelayer_Abilities_Register::register_categories();
+	}
+}
+
+function pagelayer_wp_abilities_api_init(){
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	include_once(PAGELAYER_DIR.'/main/abilitiesregister.php');
+	if(class_exists('Pagelayer_Abilities_Register')){
+		Pagelayer_Abilities_Register::register_abilities();
+	}
+}
+
+// This function handles the AI Agents page
+function pagelayer_ai_agents_page_handler(){
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	Pagelayer_Abilities::render_page();
 }
 
 // Getting Started
@@ -977,11 +1023,17 @@ function pagelayer_global_styles(){
 	
 	// Set global colors
 	foreach($pagelayer->global_colors as $gk => $gv){
-		$styles .= '--pagelayer-color-'.$gk.':'.$gv['value'].';';
+		if (isset($gv['value'])) {
+			$styles .= '--pagelayer-color-'.$gk.':'.$gv['value'].';';
+		}
 	}
 	
 	// Set global fonts
 	foreach($pagelayer->global_fonts as $gk => $gv){
+
+		if (empty($gv['value']) || !is_array($gv['value'])) {
+			continue;
+		}
 
 		foreach($gv['value'] as $fk => $fv){
 			
@@ -1379,7 +1431,7 @@ function pagelayer_gutenberg_after_title(){
 
 	echo '
 <div id="pagelayer-editor-button-row" style="margin-left:15px; display:none">
-	<a id="pagelayer-editor-button" href="'.$link.'" class="button button-primary button-large" style="height:auto; padding:4px 8px; font-size:13px; display:flex; align-items:center;width: max-content;">
+	<a id="pagelayer-editor-button" href="'.$link.'" class="button button-primary button-large" style="height:auto; font-size:13px; display:flex; align-items:center;width: max-content;">
 		<img src="'.PAGELAYER_URL.'/images/pagelayer-logo-40.png" align="top" width="22" style="margin-right:4px"/> <span>'.__('Edit with Pagelayer').'</span>
 	</a>
 </div>

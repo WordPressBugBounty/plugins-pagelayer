@@ -133,6 +133,328 @@ function pagelayer_activate_recommended_plugin(){
 	wp_send_json_success(array('message' => __('Plugin activated successfully.', 'pagelayer')));
 }
 
+// AI Agents Connection AJAX handlers
+// NOTE: These must be registered BEFORE the pagelayer_nonce gate below,
+// because they use their own nonce (pagelayer_mcp_nonce) or basic auth.
+add_action('wp_ajax_pagelayer_mcp_generate_app_password', 'pagelayer_mcp_generate_app_password');
+add_action('wp_ajax_pagelayer_mcp_adapter_action', 'pagelayer_mcp_adapter_action');
+add_action('wp_ajax_pagelayer_mcp_test_connection', 'pagelayer_mcp_test_connection');
+add_action('wp_ajax_pagelayer_mcp_save_test_status', 'pagelayer_mcp_save_test_status');
+add_action('wp_ajax_pagelayer_mcp_save_image_api_key', 'pagelayer_mcp_save_image_api_key');
+
+// Verifies, without any HTTP round trip, the two things a loopback request would
+// have proved: that the supplied Application Password authenticates this user,
+// and that the Pagelayer abilities are registered. Used when the loopback itself
+// fails (cURL timeout etc.) so the panel can still tell the user where they stand.
+function pagelayer_mcp_verify_locally($username, $password) {
+	$result = array('password_ok' => false, 'abilities' => 0, 'message' => '');
+
+	if(!class_exists('WP_Application_Passwords')){
+		$result['message'] = __('Application Passwords are not supported on this WordPress version.', 'pagelayer');
+		return $result;
+	}
+
+	$user = get_user_by('login', $username);
+	if(!$user && is_email($username)){
+		$user = get_user_by('email', $username);
+	}
+
+	if(!$user){
+		$result['message'] = sprintf(__('No user named "%s" exists on this site.', 'pagelayer'), $username);
+		return $result;
+	}
+
+	// Core strips non-alphanumerics before comparing, so the password works with
+	// or without the readability spaces (see wp_authenticate_application_password).
+	$stripped = preg_replace('/[^a-z\d]/i', '', $password);
+
+	foreach(\WP_Application_Passwords::get_user_application_passwords($user->ID) as $item){
+		if(\WP_Application_Passwords::check_password($stripped, $item['password'])){
+			$result['password_ok'] = true;
+			break;
+		}
+	}
+
+	if(function_exists('wp_get_abilities')){
+		foreach(wp_get_abilities() as $name => $ability){
+			$name = is_string($name) ? $name : '';
+			if(strpos($name, 'pagelayer-') === 0){
+				$result['abilities']++;
+			}
+		}
+	}
+
+	if($result['password_ok']){
+		$result['message'] = sprintf(
+			__('Checked locally instead: your Application Password IS valid for "%1$s", and %2$d Pagelayer abilities are registered.', 'pagelayer'),
+			$username,
+			$result['abilities']
+		);
+	}else{
+		$result['message'] = sprintf(
+			__('Checked locally instead: the supplied Application Password does NOT match any password stored for "%s" — generate a new one below.', 'pagelayer'),
+			$username
+		);
+	}
+
+	return $result;
+}
+
+function pagelayer_mcp_test_connection() {
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	check_ajax_referer('pagelayer_mcp_nonce', 'nonce');
+
+	if(!current_user_can('manage_options')){
+		wp_send_json_error(__('You do not have permission to test the connection.', 'pagelayer'));
+	}
+
+	$start  = microtime(true);
+	$url    = trailingslashit(home_url()) . ltrim(Pagelayer_Abilities::$ABILITIES_ENDPOINT, '/');
+
+	$username = isset($_POST['username']) ? sanitize_text_field(wp_unslash($_POST['username'])) : '';
+	$password = isset($_POST['password']) ? sanitize_text_field(wp_unslash($_POST['password'])) : '';
+
+	// Application Passwords are silently inert unless the site is on HTTPS or the
+	// environment type is "local" (wp_is_application_passwords_supported()). WP
+	// still hands out a password string in that state, so the only symptom is a
+	// 401 on every request — check it up front instead of blaming the password.
+	if(function_exists('wp_is_application_passwords_available') && !wp_is_application_passwords_available()){
+		$message = sprintf(
+			__('Application Passwords are disabled on this site, so every request is treated as anonymous (HTTP 401). WordPress only enables them over HTTPS or when the environment type is "local". This site reports %1$s and environment type "%2$s". Either serve the site over HTTPS, or add define(\'WP_ENVIRONMENT_TYPE\', \'local\'); to wp-config.php for a development site.', 'pagelayer'),
+			is_ssl() ? 'HTTPS' : 'HTTP',
+			function_exists('wp_get_environment_type') ? wp_get_environment_type() : 'unknown'
+		);
+		Pagelayer_Abilities::save_test_connection_status(false, $message);
+		wp_send_json_error(['message' => $message]);
+	}
+
+	$response = wp_remote_get($url, [
+		// wp_remote_get() defaults to a 5s timeout, which a local dev stack will
+		// blow through on a loopback request (TLS handshake plus a full second
+		// WordPress bootstrap, often with WP_DEBUG on).
+		'timeout'   => 20,
+		'headers' => [
+			'Accept' => 'application/json',
+			'Authorization' => 'Basic ' . base64_encode($username . ':' . $password),
+		],
+		'sslverify' => false,
+	]);
+
+	$elapsed = round((microtime(true) - $start) * 1000);
+
+	if(is_wp_error($response)){
+		// The loopback never completed, so it told us nothing about the HTTP path.
+		// Verify in-process what we actually can — that the Application Password
+		// is valid and the abilities are registered — and say plainly which part
+		// is still unverified, instead of reporting a flat failure.
+		$local = pagelayer_mcp_verify_locally($username, $password);
+
+		$message = sprintf(
+			__('Could not complete the loopback request to %1$s (%2$s). %3$s %4$s', 'pagelayer'),
+			$url,
+			$response->get_error_message(),
+			$local['message'],
+			__('A loopback failure is usually the local server itself, not your setup: many dev stacks run too few PHP workers to serve a second request while this one is still open, so the site cannot call itself. Your AI client connects from outside and is not affected. Confirm from a terminal with: curl -ik -u "USERNAME:APP PASSWORD" ', 'pagelayer') . $url
+		);
+
+		Pagelayer_Abilities::save_test_connection_status(false, $message);
+		wp_send_json_error([
+			'message'         => $message,
+			'local_check'     => $local,
+			'loopback_failed' => true,
+		]);
+	}
+
+	$code = wp_remote_retrieve_response_code($response);
+	$body = json_decode(wp_remote_retrieve_body($response), true);
+
+	if($code >= 200 && $code < 300 && is_array($body)){
+		$pagelayer_abilities = 0;
+		foreach($body as $ability){
+			$name = isset($ability['name']) ? $ability['name'] : (isset($ability['id']) ? $ability['id'] : '');
+			if(is_string($name) && strpos($name, 'pagelayer-') === 0){
+				$pagelayer_abilities++;
+			}
+		}
+
+		$message = sprintf(__('Authenticated with your Application Password and discovered %1$d Pagelayer abilities in %2$dms. Your site is ready to connect.', 'pagelayer'), $pagelayer_abilities, $elapsed);
+
+		Pagelayer_Abilities::save_test_connection_status(true, $message);
+
+		wp_send_json_success([
+			'message'    => $message,
+			'abilities'  => $pagelayer_abilities,
+			'elapsed_ms' => $elapsed,
+		]);
+	}
+
+	// A 401 means the request arrived with no authenticated user at all; a 403
+	// means it authenticated but lacked the capability. Those need different fixes.
+	if($code === 401){
+		$auth_header_seen = (bool) (function_exists('wp_get_authorization_header') ? wp_get_authorization_header() : (!empty($_SERVER['HTTP_AUTHORIZATION']) || !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])));
+
+		$message = __('The abilities endpoint treated the request as anonymous (HTTP 401), so the Application Password never authenticated. The two usual causes are: (1) the password was revoked or mistyped — generate a new one below; or (2) your web server is stripping the Authorization header before PHP sees it. For Apache, ensure the "RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]" line is present in .htaccess and that AllowOverride permits it. For nginx/FastCGI, ensure the Authorization header is forwarded to PHP-FPM.', 'pagelayer');
+
+		if(!$auth_header_seen){
+			$message .= ' ' . __('Note: this admin request itself arrived without an Authorization header, which is normal here but means the stripping check is inconclusive — test with curl -u user:app-password against the endpoint to confirm.', 'pagelayer');
+		}
+
+		Pagelayer_Abilities::save_test_connection_status(false, $message);
+		wp_send_json_error([
+			'message' => $message,
+		]);
+	}
+
+	if($code === 403){
+		$message = __('The Application Password authenticated, but the account was refused (HTTP 403). Check that this user still has the required capabilities, and that no security plugin is blocking REST API requests.', 'pagelayer');
+		Pagelayer_Abilities::save_test_connection_status(false, $message);
+		wp_send_json_error([
+			'message' => $message,
+		]);
+	}
+
+	$message = sprintf(__('The abilities endpoint responded with status %1$d. Check the MCP Adapter is active and try again.', 'pagelayer'), $code);
+	Pagelayer_Abilities::save_test_connection_status(false, $message);
+	wp_send_json_error([
+		'message' => $message,
+	]);
+}
+
+function pagelayer_mcp_save_test_status() {
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	check_ajax_referer('pagelayer_mcp_nonce', 'nonce');
+
+	if(!current_user_can('manage_options')){
+		wp_send_json_error(__('You do not have permission to do that.', 'pagelayer'));
+	}
+
+	$ok = !empty($_POST['ok']);
+	$message = !empty($_POST['message']) ? sanitize_text_field(wp_unslash($_POST['message'])) : '';
+
+	Pagelayer_Abilities::save_test_connection_status($ok, $message);
+
+	wp_send_json_success();
+}
+
+function pagelayer_mcp_save_image_api_key() {
+	check_ajax_referer('pagelayer_mcp_nonce', 'nonce');
+
+	if(!current_user_can('manage_options')){
+		wp_send_json_error(array('message' => __('You do not have permission to do that.', 'pagelayer')));
+	}
+
+	$provider = !empty($_POST['provider']) ? sanitize_key(wp_unslash($_POST['provider'])) : '';
+	$api_key  = !empty($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
+
+	if(empty($api_key)){
+		wp_send_json_error(array('message' => __('An API key is required.', 'pagelayer')));
+	}
+
+	if($provider !== 'pexels'){
+		wp_send_json_error(array('message' => __('Unsupported image provider.', 'pagelayer')));
+	}
+
+	update_option('pagelayer_pexels_api_key', $api_key, false);
+
+	wp_send_json_success(array('message' => __('Image search API key saved.', 'pagelayer')));
+}
+
+function pagelayer_mcp_generate_app_password() {
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	check_ajax_referer('pagelayer_mcp_nonce', 'nonce');
+
+	if(!current_user_can('manage_options')){
+		wp_send_json_error('Unauthorized');
+	}
+
+	$user_id = get_current_user_id();
+	if(!class_exists('WP_Application_Passwords')){
+		wp_send_json_error('Application Passwords not supported in this WP version.');
+	}
+
+	// WP_Application_Passwords::create_new_application_password() does NOT check
+	// availability, so without this the UI happily issues a password that
+	// wp_authenticate_application_password() will always reject — a "Generated"
+	// checkmark followed by a permanent 401.
+	if(function_exists('wp_is_application_passwords_available') && !wp_is_application_passwords_available()){
+		wp_send_json_error(sprintf(
+			__('Application Passwords are disabled on this site, so a generated password could never authenticate. WordPress enables them only over HTTPS or when the environment type is "local". This site reports %1$s and environment type "%2$s". Serve the site over HTTPS, or add define(\'WP_ENVIRONMENT_TYPE\', \'local\'); to wp-config.php for a development site.', 'pagelayer'),
+			is_ssl() ? 'HTTPS' : 'HTTP',
+			function_exists('wp_get_environment_type') ? wp_get_environment_type() : 'unknown'
+		));
+	}
+
+	$passwords = \WP_Application_Passwords::get_user_application_passwords($user_id);
+	foreach($passwords as $app){
+		if(!empty($app['app_id']) && $app['app_id'] === Pagelayer_Abilities::$APP_PASSWORD_APP_ID){
+			\WP_Application_Passwords::delete_application_password($user_id, $app['uuid']);
+		}
+	}
+
+	$new_password = \WP_Application_Passwords::create_new_application_password($user_id, array(
+		'name' => Pagelayer_Abilities::$APP_PASSWORD_NAME,
+		'app_id' => Pagelayer_Abilities::$APP_PASSWORD_APP_ID,
+	));
+
+	if(is_wp_error($new_password)){
+		wp_send_json_error($new_password->get_error_message());
+	}
+
+	wp_send_json_success(array('password' => $new_password[0]));
+}
+
+function pagelayer_mcp_adapter_action() {
+	include_once(PAGELAYER_DIR.'/main/abilities.php');
+	check_ajax_referer('pagelayer_mcp_nonce', 'nonce');
+
+	if(!current_user_can('manage_options')){
+		wp_send_json_error('Unauthorized');
+	}
+
+	$type = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : '';
+
+	if(!function_exists('get_plugins')){
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
+	if ($type === 'install') {
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		include_once ABSPATH . 'wp-admin/includes/file.php';
+
+		// The MCP Adapter is hosted on GitHub, not WordPress.org, so fetch the download URL from the GitHub API
+		$download_url = Pagelayer_Abilities::get_mcp_adapter_download_url();
+
+		$upgrader = new \Plugin_Upgrader(new \Automatic_Upgrader_Skin());
+		$installed = $upgrader->install($download_url);
+
+		if(is_wp_error($installed)){
+			wp_send_json_error($installed->get_error_message());
+		}elseif(!$installed){
+			wp_send_json_error('Installation failed. The MCP Adapter plugin is downloaded from GitHub. Please check your server can reach github.com.');
+		}
+
+		$plugin_file = Pagelayer_Abilities::get_installed_mcp_adapter_file();
+		if($plugin_file){
+			activate_plugin($plugin_file);
+			wp_send_json_success('Installed and activated');
+		}
+		wp_send_json_success('Installed but not activated');
+
+	} elseif ($type === 'activate') {
+		$plugin_file = Pagelayer_Abilities::get_installed_mcp_adapter_file();
+		if($plugin_file){
+			$result = activate_plugin($plugin_file);
+			if(is_wp_error($result)){
+				wp_send_json_error($result->get_error_message());
+			}
+			wp_send_json_success('Activated');
+		}
+		wp_send_json_error('Plugin not found');
+	}
+
+	wp_send_json_error('Invalid action');
+}
+
 // Is the nonce there ?
 if(empty($_REQUEST['pagelayer_nonce'])){
 	return;

@@ -1272,6 +1272,9 @@ function pagelayer_user_can_add_js_content(){
 // Check for XSS codes in our shortcodes submitted
 function pagelayer_xss_content($data){
 	
+	// Keep a whitespace-preserved copy for the on* event-handler scan.
+	$orig = $data;
+	
 	$data = pagelayer_optimized_decode_entities($data);
 	
 	// Collapse all whitespace for pattern matching
@@ -1301,7 +1304,7 @@ function pagelayer_xss_content($data){
 	
 	// Reject ANY on* event handler attribute. Per the HTML spec every attribute
 	// name beginning with "on" (optionally followed by a letter and word chars)
-	if(preg_match('/(on[a-z0-9]{1,60})=/i', $data, $matches)){
+	if(preg_match('/\bon(?:[a-z0-9-]*)?\s*=/i', $orig, $matches)){
 			return $matches[0];
 	}
 	
@@ -1410,7 +1413,9 @@ function pagelayer_sanitize_shortcode_atts($content){
 		$new_shortcode = '[' . $shortcode_name . $atts . ']';
 		
 		if(!empty($shortcode[5])){
-			$new_shortcode .= $shortcode[5].'[/' . $shortcode_name .']';
+			// Recurse into the inner content so nested shortcodes
+			$inner = pagelayer_sanitize_shortcode_atts($shortcode[5]);
+			$new_shortcode .= $inner.'[/' . $shortcode_name .']';
 		}
 		
 		// Replace the original shortcode with sanitized attributes
@@ -1418,6 +1423,345 @@ function pagelayer_sanitize_shortcode_atts($content){
 	}
 
 	return $content;
+}
+
+// Scan post content for XSS payloads and return a structured report.
+function pagelayer_xss_scan_post($post_id = 0){
+	global $post;
+
+	$report = ['found' => false, 'items' => []];
+
+	if(empty($post_id)){
+		if(!empty($post->ID)){
+			$post_id = $post->ID;
+		}else{
+			return $report;
+		}
+	}
+
+	$content = get_post_field('post_content', $post_id);
+	if(empty($content)){
+		return $report;
+	}
+
+	// Scan the raw content (shortcodes are not yet expanded here, so we
+	// catch on*= attributes inside [pl_* ele_attributes="onclick=..."])
+	$found = pagelayer_xss_content($content);
+	if(strlen($found) > 0){
+		$report['found'] = true;
+		$report['items'][] = $found;
+	}
+
+	return $report;
+}
+
+// Determine whether the XSS warning should be shown for the current post/user.
+function pagelayer_should_show_xss_warning($post_id = 0){
+	global $post;
+
+	if(empty($post_id)){
+		if(!empty($post->ID)){
+			$post_id = $post->ID;
+		}else{
+			return false;
+		}
+	}
+
+	// Rule 1: only warn users who can edit posts
+	if(!current_user_can('edit_posts')){
+		return false;
+	}
+
+	// Rule 5: user already acknowledged — don't block again
+	$view_token = get_transient('pagelayer_xss_view_'.$post_id.'_'.get_current_user_id());
+	if(!empty($view_token) && isset($_GET['pl_xss_view']) && $_GET['pl_xss_view'] === $view_token){
+		return false;
+	}
+
+	// Rule 2: the post must contain XSS
+	$scan = pagelayer_xss_scan_post($post_id);
+	if(empty($scan['found'])){
+		return false;
+	}
+
+	// Rule 3: skip if the current user is the post author
+	$author_id = (int) get_post_field('post_author', $post_id);
+	$current_user_id = (int) get_current_user_id();
+	if($author_id > 0 && $author_id === $current_user_id){
+		return false;
+	}
+	
+	// Rule 4: skip if the post author has the JS/unfiltered_html capability.
+	// We check this by temporarily switching to the author's context.
+	$author_can_js = false;
+	if($author_id > 0){
+		$author_user = get_userdata($author_id);
+		if(!empty($author_user)){
+			$author_can_js = user_can($author_user, 'unfiltered_html');
+			if(!$author_can_js){
+				$author_can_js = pagelayer_user_can_add_js_content_for_user($author_user);
+			}
+		}
+	}
+	if($author_can_js){
+		return false;
+	}
+
+	return true;
+}
+
+// Check if a specific user (not the current user) can add JS content.
+function pagelayer_user_can_add_js_content_for_user($user){
+	if(empty($user) || !($user instanceof WP_User)){
+		return false;
+	}
+
+	if(user_can($user, 'unfiltered_html')){
+		return true;
+	}
+
+	$pagelayer_js_permission = get_option('pagelayer_js_permission');
+	if(empty($pagelayer_js_permission) || empty($user->roles)){
+		return false;
+	}
+
+	foreach($user->roles as $role){
+		if(in_array($role, $pagelayer_js_permission)){
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Render the XSS warning page that completely blocks content rendering.
+function pagelayer_render_xss_warning_block($context = 'frontend'){
+	global $post;
+
+	if(empty($post->ID)){
+		return;
+	}
+
+	if(!pagelayer_should_show_xss_warning($post->ID)){
+		return;
+	}
+
+	// Re-scan to get the items for display
+	$scan = pagelayer_xss_scan_post($post->ID);
+	if(empty($scan['found'])){
+		return;
+	}
+
+	$items_html = '';
+	foreach($scan['items'] as $item){
+		$items_html .= '<div class="pagelayer-xss-item">'.htmlspecialchars($item, ENT_QUOTES, 'UTF-8').'</div>';
+	}
+
+	// Generate a one-time view token so the admin can explicitly consent
+	$view_token = wp_generate_password(32, false);
+	set_transient('pagelayer_xss_view_'.$post->ID.'_'.get_current_user_id(), $view_token, 3600);
+
+	// Build the "view page" URL with the consent token
+	$current_url = $_SERVER['REQUEST_URI'] ?? '/';
+	$separator = strpos($current_url, '?') !== false ? '&' : '?';
+	$view_url = htmlspecialchars($current_url.$separator.'pl_xss_view='.$view_token, ENT_QUOTES, 'UTF-8');
+
+	// Build the edit link
+	$edit_link = pagelayer_livelink($post->ID);
+	$edit_link = htmlspecialchars($edit_link.$separator.'pl_xss_view='.$view_token, ENT_QUOTES, 'UTF-8');
+
+	// Get author info for the warning message
+	$author_id = (int) get_post_field('post_author', $post->ID);
+	$author_name = '';
+	if($author_id > 0){
+		$author_data = get_userdata($author_id);
+		if(!empty($author_data)){
+			$author_name = $author_data->display_name;
+		}
+	}
+
+	$warning_title = __pl('xss_warning_title');
+	$warning_body = $author_name
+		? sprintf(__pl('xss_warning_body_author'), htmlspecialchars($author_name, ENT_QUOTES, 'UTF-8'))
+		: __pl('xss_warning_body');
+	$warning_items_label = __pl('xss_warning_items');
+	$view_btn = __pl('xss_warning_view_page');
+	$edit_btn = __pl('xss_warning_edit_post');
+	$warning_blocked = __pl('xss_warning_blocked');
+
+	$dashboard_link = admin_url();
+	$go_dashboard = __pl('xss_warning_go_dashboard');
+
+	// Output the warning page and die() — the malicious post content is
+	// NEVER sent to the browser, so inline <script>, <img onerror>, and
+	// <iframe onload> payloads cannot execute.
+	$status_code = ($context === 'editor') ? 200 : 403;
+	if(!headers_sent()){
+		status_header($status_code);
+		header('Content-Type: text/html; charset=utf-8');
+	}
+
+	echo <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{$warning_title}</title>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+	background:#f0f0f1;
+	font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	min-height:100vh;
+	padding:20px;
+}
+#pagelayer-xss-block-dialog{
+	background:#fff;
+	border-radius:8px;
+	max-width:640px;
+	width:100%;
+	max-height:90vh;
+	overflow-y:auto;
+	box-shadow:0 4px 24px rgba(0,0,0,0.15);
+}
+.pagelayer-xss-block-header{
+	background:#d63638;
+	color:#fff;
+	padding:20px 24px;
+	border-radius:8px 8px 0 0;
+	font-size:20px;
+	font-weight:700;
+	display:flex;
+	align-items:center;
+	gap:12px;
+}
+.pagelayer-xss-block-body{
+	padding:24px;
+	color:#1d2327;
+	font-size:14px;
+	line-height:1.6;
+}
+.pagelayer-xss-block-body p{
+	margin:0 0 14px 0;
+}
+.pagelayer-xss-blocked-tag{
+	display:inline-block;
+	background:#fff4f4;
+	border:1px solid #d63638;
+	color:#d63638;
+	padding:3px 10px;
+	border-radius:3px;
+	font-size:12px;
+	font-weight:600;
+	margin-bottom:14px;
+}
+.pagelayer-xss-items{
+	background:#fff4f4;
+	border:1px solid #d63638;
+	border-radius:4px;
+	padding:14px;
+	margin:14px 0;
+	max-height:220px;
+	overflow-y:auto;
+}
+.pagelayer-xss-item{
+	font-family:monospace;
+	font-size:12px;
+	padding:6px 8px;
+	border-bottom:1px solid #f5cccc;
+	word-break:break-all;
+	color:#b32d2e;
+}
+.pagelayer-xss-item:last-child{
+	border-bottom:none;
+}
+.pagelayer-xss-block-actions{
+	padding:18px 24px;
+	border-top:1px solid #dcdcde;
+	display:flex;
+	gap:12px;
+	flex-wrap:wrap;
+	border-radius:0 0 8px 8px;
+}
+.pagelayer-xss-btn-view{
+	background:#2271b1;
+	color:#fff;
+	border:none;
+	border-radius:4px;
+	padding:10px 24px;
+	font-size:14px;
+	cursor:pointer;
+	font-weight:600;
+	text-decoration:none;
+	display:inline-block;
+}
+.pagelayer-xss-btn-view:hover{
+	background:#135e96;
+}
+.pagelayer-xss-btn-edit{
+	background:#fff;
+	color:#2271b1;
+	border:1px solid #2271b1;
+	border-radius:4px;
+	padding:10px 24px;
+	font-size:14px;
+	cursor:pointer;
+	font-weight:600;
+	text-decoration:none;
+	display:inline-block;
+}
+.pagelayer-xss-btn-edit:hover{
+	background:#f0f6fc;
+}
+.pagelayer-xss-btn-dashboard{
+	background:transparent;
+	color:#646970;
+	border:none;
+	border-radius:4px;
+	padding:10px 16px;
+	font-size:13px;
+	cursor:pointer;
+	text-decoration:none;
+	display:inline-block;
+	margin-left:auto;
+}
+.pagelayer-xss-btn-dashboard:hover{
+	color:#1d2327;
+}
+</style>
+</head>
+<body>
+	<div id="pagelayer-xss-block-dialog">
+		<div class="pagelayer-xss-block-header">
+			<span style="font-size:28px;">&#9888;</span>
+			{$warning_title}
+		</div>
+		<div class="pagelayer-xss-block-body">
+			<span class="pagelayer-xss-blocked-tag">{$warning_blocked}</span>
+			<p>{$warning_body}</p>
+			<p style="font-weight:600; margin-bottom:6px;">{$warning_items_label}:</p>
+			<div class="pagelayer-xss-items">{$items_html}</div>
+		</div>
+		<div class="pagelayer-xss-block-actions">
+			<a href="{$view_url}" class="pagelayer-xss-btn-view">{$view_btn}</a>
+			<a href="{$edit_link}" class="pagelayer-xss-btn-edit">{$edit_btn}</a>
+			<a href="{$dashboard_link}" class="pagelayer-xss-btn-dashboard">{$go_dashboard}</a>
+		</div>
+	</div>
+</body>
+</html>
+HTML;
+
+	// CRITICAL: die() here ensures the malicious post content (the_content,
+	// do_shortcode output, block rendering) is NEVER sent to the browser.
+	// Without die(), WordPress would continue rendering the template and
+	// output the post body — including any <script>/<img onerror>/<iframe
+	// onload> payloads — which would execute even if hidden with CSS.
+	die();
 }
 
 function pagelayer_getting_started_notice(){

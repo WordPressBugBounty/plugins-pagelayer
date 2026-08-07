@@ -28,6 +28,11 @@ if(!defined('PAGELAYER_VERSION')) {
 function pagelayer_live_body(){
 
 global $post, $pagelayer;
+
+	// XSS BLOCK (defense at the source): If the post contains XSS injected
+	if(pagelayer_should_show_xss_warning()){
+		pagelayer_render_xss_warning_block();
+	}
 	
 	$icons = pagelayer_enabled_icons();
 	$icons_list = array();
