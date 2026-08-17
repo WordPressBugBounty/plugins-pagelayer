@@ -691,7 +691,12 @@ function pagelayer_render_shortcode($atts, $content = '', $tag = '', $inner_bloc
 			$val = pagelayer_string_to_attributes($el['atts']['ele_attributes']);
 			if(!empty($val)){
 				foreach($val as $att => $value ){
-					$node->query($el['selector'])->attr($att, $value);
+					// Defense in depth at the sink: never emit on* event-handler attributes
+					if(pagelayer_should_show_xss_warning() && preg_match('/^on/i', $att)){
+						continue;
+					}
+					
+					$node->query($el['selector'])->attr($att, esc_attr($value));
 				}
 			}
 			

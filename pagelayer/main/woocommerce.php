@@ -249,7 +249,8 @@ function pagelayer_woocommerce_styles(){
 					if(isset($value[$mode])){
 						
 						// Responsive without variable
-						$mode_val = is_numeric($kk) ? $value[$mode] : $value[$mode][$kk] ;
+						$mode_val = is_numeric($kk) ? $value[$mode] : (isset($value[$mode][$kk]) ? $value[$mode][$kk] : null) ;
+
 							
 						if(empty($mode_val) && $mode_val != '0'){
 							continue;
