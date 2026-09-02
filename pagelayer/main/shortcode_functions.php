@@ -691,8 +691,10 @@ function pagelayer_render_shortcode($atts, $content = '', $tag = '', $inner_bloc
 			$val = pagelayer_string_to_attributes($el['atts']['ele_attributes']);
 			if(!empty($val)){
 				foreach($val as $att => $value ){
-					// Defense in depth at the sink: never emit on* event-handler attributes
-					if(pagelayer_should_show_xss_warning() && preg_match('/^on/i', $att)){
+					
+					// Defense in depth at the sink. Unconditional : it must not
+					// depend on the viewer, the post author or a save time scan.
+					if(pagelayer_should_show_xss_warning() && !pagelayer_is_allowed_attribute($att)){
 						continue;
 					}
 					
@@ -1753,6 +1755,167 @@ function pagelayer_icon_class_list(){
 	return array();
 }
 
+// The attribute names Pagelayer is allowed to emit from a user supplied
+// attribute string. This is an ALLOWLIST and it is enforced at parse time,
+// so it applies to every call site (Custom Attributes, link attrs, anything
+// added later), to every visitor and to content stored by any version.
+function pagelayer_allowed_attributes(){
+	
+	static $allowed = null;
+	
+	if(!is_null($allowed)){
+		return $allowed;
+	}
+	
+	$allowed = array(
+		// Generic / structural
+		'id', 'class', 'style', 'title', 'lang', 'dir', 'tabindex', 'hidden',
+		'role', 'name', 'value', 'type', 'slot', 'translate', 'draggable',
+		'spellcheck', 'accesskey', 'itemprop', 'itemtype', 'itemscope', 'itemid',
+		// Links
+		'href', 'target', 'rel', 'download', 'hreflang', 'referrerpolicy', 'ping',
+		// Media / images
+		'src', 'srcset', 'sizes', 'alt', 'width', 'height', 'loading', 'decoding',
+		'crossorigin', 'usemap', 'ismap', 'poster', 'preload', 'controls',
+		'controlslist', 'loop', 'muted', 'autoplay', 'playsinline', 'kind',
+		'srclang', 'label', 'default', 'disablepictureinpicture',
+		'disableremoteplayback',
+		// Forms
+		'placeholder', 'required', 'disabled', 'readonly', 'pattern', 'min',
+		'max', 'step', 'maxlength', 'minlength', 'multiple', 'size', 'checked',
+		'selected', 'autocomplete', 'autofocus', 'for', 'form', 'action',
+		'method', 'enctype', 'novalidate', 'accept', 'accept-charset', 'cols',
+		'rows', 'wrap', 'list', 'inputmode', 'formaction', 'formmethod',
+		'formenctype', 'formtarget', 'formnovalidate',
+		// Tables
+		'colspan', 'rowspan', 'headers', 'scope', 'abbr', 'span',
+		// Misc
+		'datetime', 'cite', 'open', 'start', 'reversed', 'coords', 'shape',
+		'high', 'low', 'optimum', 'media', 'content'
+	);
+	
+	// Add-ons can register extra attribute names. Event handlers are dropped
+	// by pagelayer_is_allowed_attribute() whatever this filter returns.
+	$allowed = apply_filters('pagelayer_allowed_attributes', $allowed);
+	$allowed = array_map('strtolower', (array) $allowed);
+	
+	return $allowed;
+}
+
+// Can this attribute name be emitted ?
+function pagelayer_is_allowed_attribute($att){
+	
+	$att = strtolower(trim((string) $att));
+	
+	if($att === ''){
+		return false;
+	}
+	
+	// Never emit an event handler, whatever the allowlist says
+	if(strpos($att, 'on') === 0){
+		return false;
+	}
+	
+	// data-* and aria-* never execute
+	if(strpos($att, 'data-') === 0 || strpos($att, 'aria-') === 0){
+		return true;
+	}
+	
+	return in_array($att, pagelayer_allowed_attributes());
+}
+
+// Does this URL carry a scheme that can execute script ?
+function pagelayer_attribute_url_is_safe($url){
+	
+	$url = pagelayer_optimized_decode_entities((string) $url);
+	
+	// Browsers also decode a numeric entity that was not closed with a
+	// semicolon (jav&#x09ascript:), so decode those the same way
+	$url = preg_replace_callback('/&#x([0-9a-f]+);?/i', function($m){
+		return chr(hexdec($m[1]) & 0xFF);
+	}, $url);
+	
+	$url = preg_replace_callback('/&#(\d+);?/', function($m){
+		return chr(((int) $m[1]) & 0xFF);
+	}, $url);
+	
+	// Browsers ignore control characters and whitespace inside a scheme
+	$url = preg_replace('/[\x00-\x20\x7f]/', '', $url);
+	
+	if($url === ''){
+		return true;
+	}
+	
+	// No colon means a relative URL, nothing to check
+	$scheme = strstr($url, ':', true);
+	
+	if($scheme === false){
+		return true;
+	}
+	
+	// A colon inside a path, a query or a fragment is not a scheme
+	if(preg_match('#[/?\#]#', $scheme)){
+		return true;
+	}
+	
+	// What is left is flattened to letters, so that a stray character cannot
+	// hide the scheme from us
+	$scheme = strtolower(preg_replace('/[^a-z]/i', '', $scheme));
+	
+	// javascript:, vbscript:, livescript: and any other script scheme
+	if(strpos($scheme, 'script') !== false){
+		return false;
+	}
+	
+	// Only plain raster data URIs are allowed, no SVG and no blob/file/about
+	if(in_array($scheme, array('data', 'blob', 'about', 'file', 'filesystem'))){
+		return (bool) preg_match('/^data:image\/(png|jpe?g|gif|webp|bmp|x-icon|vnd\.microsoft\.icon);base64,[a-z0-9+\/=]+$/i', $url);
+	}
+	
+	return true;
+}
+
+// Sanitize the value of an allowed attribute. Returns NULL if the whole
+// attribute must be dropped.
+function pagelayer_sanitize_attribute_value($att, $value){
+	
+	$att = strtolower(trim((string) $att));
+	$value = (string) $value;
+	
+	// Attributes that hold one or more URLs
+	$url_atts = array('href', 'src', 'srcset', 'poster', 'action', 'formaction',
+		'cite', 'ping', 'usemap', 'itemtype', 'itemid');
+	
+	if(in_array($att, $url_atts)){
+		
+		// srcset and ping can hold a list of URLs
+		$parts = preg_split('/[,\s]+/', trim($value), -1, PREG_SPLIT_NO_EMPTY);
+		
+		if(!empty($parts)){
+			foreach($parts as $part){
+				if(!pagelayer_attribute_url_is_safe($part)){
+					return null;
+				}
+			}
+		}
+		
+		return $value;
+	}
+	
+	// Inline CSS can execute in some engines
+	if($att == 'style'){
+		
+		$test = pagelayer_optimized_decode_entities($value);
+		$test = preg_replace('/[\x00-\x20\x7f]/', '', $test);
+		
+		if(preg_match('/(expression\(|-moz-binding|behavior:|@import|script:)/i', $test)){
+			return null;
+		}
+	}
+	
+	return $value;
+}
+
 // Function to convert string into set of attributes and their corresponding values.
 function pagelayer_string_to_attributes($val){
 	
@@ -1767,12 +1930,24 @@ function pagelayer_string_to_attributes($val){
 			continue;
 		}	
 		
-		if(!isset( $attrs[1])){
-			$final_att[$attrs[0]] = '';
+		$name = strtolower(trim($attrs[0]));
+		
+		// SECURITY : only attribute names we support are emitted. The check
+		// lives here, at the parser, so it does not depend on the call site,
+		// on who is viewing the page or on when the content was stored.
+		if(pagelayer_should_show_xss_warning() && !pagelayer_is_allowed_attribute($name)){
 			continue;
 		}
 		
-		$final_att[$attrs[0]] = $attrs[1];
+		$value = isset($attrs[1]) ? $attrs[1] : '';
+		$value = pagelayer_sanitize_attribute_value($name, $value);
+		
+		// Dropped by the value check ?
+		if(is_null($value)){
+			continue;
+		}
+		
+		$final_att[$name] = $value;
 	}
 	
 	return $final_att;

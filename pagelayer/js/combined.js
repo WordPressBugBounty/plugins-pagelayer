@@ -419,7 +419,15 @@ function pagelayer_pl_tabs(jEle) {
 			default_active = pl_id;
 		}
 		
-		jEle.children('.pagelayer-tabs-holder').append('<span tab-id="'+pl_id+'" id="'+id+'" class="pagelayer-tablinks" onclick="'+func+'"> <i class="'+icon+'"></i> <span>'+title+'</span></span>');
+		var editable = '';
+		if(!pagelayer_empty(pagelayer_is_live)){
+			 editable += ' pagelayer-ref-id="'+pl_id+'"';
+			 editable += ' pagelayer-editable="title"';
+			 editable += ' contenteditable="true"';
+		}
+		
+		jEle.children('.pagelayer-tabs-holder').append('<span tab-id="' + pl_id + '" id="' + id + '" class="pagelayer-tablinks" onclick="' + func + '"> <i class="' + icon + '"></i> <span class="pl-tab-title" ' + editable + '>'+title+'</span></span>');
+
 	});
 
 	// Default Active by Hash

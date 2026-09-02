@@ -491,6 +491,7 @@ function pagelayer_handle_website_submit(ele){
 	
 // Show the vanilla selector
 function pagelayer_show_vanilla(){
+	var Picker = typeof pagelayer_Picker !== 'undefined' ? pagelayer_Picker : (typeof Picker !== 'undefined' ? Picker : undefined);
 	if (typeof Picker === 'undefined') {
 		return;
 	}
@@ -508,7 +509,9 @@ function pagelayer_show_vanilla(){
 		
 		var picker = new Picker({
 			parent : jEle[0],
+			popup : 'left',
 			color : sColor,
+			doc : document
 		});
 		
 		// You can do what you want with the chosen color using two callbacks: onChange and onDone.

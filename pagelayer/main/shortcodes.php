@@ -7785,7 +7785,8 @@ pagelayer_add_shortcode(PAGELAYER_SC_PREFIX.'_tab', array(
 				'type' => 'text',
 				'label' => __pl('title'),
 				'default' => 'Lorem',
-				'addAttr' => 'pagelayer-tab-title="{{title}}"'
+				'addAttr' => 'pagelayer-tab-title="{{title}}"',
+				'edit' => '.pl-tab-title'
 			),
 		)
 	)

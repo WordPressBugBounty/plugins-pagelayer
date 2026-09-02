@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.1.8');
+define('PAGELAYER_VERSION', '2.1.9');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -542,16 +542,10 @@ function pagelayer_content_save_pre($content){
 	$output = '';
 	
 	foreach ( $blocks as $block ) {
-		$block_name = $block['blockName'];
 		
-		// Is pagelayer block
-		if ( is_string( $block_name ) && 0 === strpos( $block_name, 'pagelayer/' ) ) {
-			$_block = pagelayer_sanitize_blocks_save_pre($block);
-			$output .= serialize_block($_block);
-			continue;
-		}
-		
-		$output .= serialize_block($block);
+		// Sanitize Pagelayer blocks at any depth, they can be nested inside
+		// any other block
+		$output .= serialize_block( pagelayer_sanitize_block_tree( $block ) );
 	}
 	
 	return wp_slash($output);

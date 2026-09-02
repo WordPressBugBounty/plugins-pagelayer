@@ -1359,6 +1359,27 @@ function pagelayer_sanitize_blocks_save_pre($block){
 	return $block;
 }
 
+// Walk a parsed block tree and sanitize every Pagelayer block in it, at any depth
+function pagelayer_sanitize_block_tree($block){
+	
+	$block_name = isset($block['blockName']) ? $block['blockName'] : '';
+	
+	// Is pagelayer block ? pagelayer_sanitize_blocks_save_pre() walks the
+	// whole subtree, so we are done for this branch
+	if(is_string($block_name) && 0 === strpos($block_name, 'pagelayer/')){
+		return pagelayer_sanitize_blocks_save_pre($block);
+	}
+	
+	// Any other block can still hold Pagelayer blocks inside it
+	if(!empty($block['innerBlocks']) && is_array($block['innerBlocks'])){
+		foreach($block['innerBlocks'] as $k => $inner){
+			$block['innerBlocks'][$k] = pagelayer_sanitize_block_tree($inner);
+		}
+	}
+	
+	return $block;
+}
+
 // Check for XSS codes in our shortcode attributes
 function pagelayer_sanitize_shortcode_atts($content){
 	
@@ -1465,11 +1486,6 @@ function pagelayer_should_show_xss_warning($post_id = 0){
 		}else{
 			return false;
 		}
-	}
-
-	// Rule 1: only warn users who can edit posts
-	if(!current_user_can('edit_posts')){
-		return false;
 	}
 
 	// Rule 5: user already acknowledged — don't block again

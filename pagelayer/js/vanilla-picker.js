@@ -603,6 +603,7 @@
       EVENT_TAB_MOVE = 'focusin';
 
   function parseHTML(htmlString, doc) {
+      doc = doc || document;
       var div = doc.createElement('div');
       div.innerHTML = htmlString;
       return div.firstElementChild;
@@ -632,7 +633,7 @@
   
 	// Add the CSS
 	function appendCSS(doc){
-		
+		doc = doc || document;
 		if(doc.querySelector('#vanilla-picker-style')){
 			return;
 		}
@@ -653,13 +654,15 @@
 
           classCallCheck(this, Picker);
 
+          options = options || {};
 
           this.settings = {
               popup: 'right',
               layout: 'default',
               alpha: true,
               editor: true,
-              editorFormat: 'hex'
+              editorFormat: 'hex',
+              doc: options.doc || document
           };
 
           this._openProxy = function (e) {
@@ -671,7 +674,7 @@
           this.onOpen = null;
           this.onClose = null;
 		  
-		  appendCSS(options.doc);
+		  appendCSS(options.doc || document);
 
           this.setOptions(options);
       }
@@ -983,8 +986,8 @@
                   }
               };
 
-              addEvent(this.settings.doc, EVENT_CLICK_OUTSIDE, popupCloseProxy);
-              addEvent(this.settings.doc, EVENT_TAB_MOVE, popupCloseProxy); 
+              addEvent(this.settings.doc || document, EVENT_CLICK_OUTSIDE, popupCloseProxy);
+              addEvent(this.settings.doc || document, EVENT_TAB_MOVE, popupCloseProxy); 
               onKey(dom, ['Esc', 'Escape'], popupCloseProxy);
 
               addEvent(this._domOkay, 'click', onDoneProxy);
