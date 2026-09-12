@@ -1783,7 +1783,7 @@ class Pagelayer_Abilities_Register {
 								'stats_or_counters_row' => 'pl_counter — animated number counters (e.g. "1240+ Active Members"), not plain pl_heading numbers in a row.',
 								'image_gallery_or_portfolio' => 'pl_grid_gallery — real masonry/grid gallery widget, not a manual grid of pl_image nodes.',
 								'before_after_or_carousel_images' => 'pl_image_slider for a slideshow of images.',
-								'feature_or_service_cards' => 'pl_iconbox — icon + heading + text card (real fields: service_icon/service_heading/service_text/service_icon_color, NOT icon/title/desc). For a card with a real photo instead of an icon, use pl_service ("Image Box": service_image/service_heading/service_text) instead. Always confirm exact field names via get_widget_examples before using either.',
+								'feature_or_service_cards' => 'pl_iconbox — icon + heading + text card (real fields: service_icon/service_heading/service_text/service_icon_color, NOT icon/title/desc). For a card with a real photo instead of an icon, use pl_service ("Image Box": service_image/service_heading/service_text) instead. Always structure cards in balanced multiples: either 3 cards (or 6 across 2 rows of 3), or 2 cards (or 4 across 2 rows of 2). NEVER create an uneven count like 4 cards split as 3 on top and 1 alone below; if creating 4 cards, place them in 2 rows of 2 (col 6 each) or round them out cleanly so no single lonely card sits on a new line.',
 								'testimonials_or_reviews' => 'pl_testimonial — real fields are quote_content/cite/designation/avatar, NOT content/name/image.',
 								'star_ratings' => 'pl_stars for a review/rating display, not text like "★★★★★".',
 								'progress_or_skill_bars' => 'pl_progress for animated progress/skill bars.',

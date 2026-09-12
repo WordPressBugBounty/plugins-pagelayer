@@ -6558,6 +6558,7 @@ function pagelayer_add_widget(){
 		'<div class="pagelayer-add-buttons-container">'+
 			'<button type="button" class="pagelayer-add-circle-btn pagelayer-add-circle-plus" title="Add New Row"><i class="fas fa-plus"></i></button>'+
 			'<button type="button" class="pagelayer-add-circle-btn pagelayer-add-circle-folder pagelayer-add-section" title="Add Template"><i class="fas fa-folder"></i></button>'+
+			'<button type="button" class="pagelayer-add-circle-btn pagelayer-add-circle-ai pagelayer-add-ai" title="Build with AI"><i class="fas fa-magic"></i></button>'+
 		'</div>'+
 		'<p class="pagelayer-add-widget-text">Click here to add new row OR drag widgets</p>'+
 	'</div>';
@@ -6635,6 +6636,20 @@ function pagelayer_add_widget(){
 	add_area.find('.pagelayer-add-section').on('click', function(e){
 		e.stopPropagation();
 		pagelayer_add_section_area();// Setup and show sections modal
+	});
+	
+	// Handle Click on Build with AI Button
+	add_area.find('.pagelayer-add-ai, .pagelayer-add-circle-ai').on('click', function(e){
+		e.stopPropagation();
+		if(typeof PagelayerAI !== 'undefined' && PagelayerAI.showPanel){
+			PagelayerAI.showPanel();
+		} else if(typeof window.parent !== 'undefined' && typeof window.parent.PagelayerAI !== 'undefined' && window.parent.PagelayerAI.showPanel){
+			window.parent.PagelayerAI.showPanel();
+		} else if(jQuery('.pagelayer-ai-topbar-btn').length > 0){
+			jQuery('.pagelayer-ai-topbar-btn').trigger('click');
+		} else if(window.parent && window.parent.jQuery && window.parent.jQuery('.pagelayer-ai-topbar-btn').length > 0){
+			window.parent.jQuery('.pagelayer-ai-topbar-btn').trigger('click');
+		}
 	});
 	
 

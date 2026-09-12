@@ -584,6 +584,88 @@ function pagelayer_wp_widget_ajax(){
 	
 }
 
+// Build with AI — wrappers; generation/settings logic lives in Pagelayer_AI_Controller
+add_action('wp_ajax_pagelayer_ai_generate', 'pagelayer_ai_generate');
+function pagelayer_ai_generate(){
+
+	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
+
+	$done = [];
+
+	if(!current_user_can('edit_posts')){
+		$done['error'][] = __pl('no_permission');
+		pagelayer_json_output($done);
+	}
+
+	$ctrl = Pagelayer_AI_Controller::get_instance();
+	$res = $ctrl->process_generate();
+
+	if(is_wp_error($res)){
+		$done['error'] = $res->get_error_message();
+		pagelayer_json_output($done);
+	}
+
+	$done = is_array($res) ? $res : [];
+	if(!isset($done['success'])){
+		$done['success'] = true;
+	}
+	pagelayer_json_output($done);
+}
+
+add_action('wp_ajax_pagelayer_ai_settings', 'pagelayer_ai_settings');
+function pagelayer_ai_settings(){
+
+	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
+
+	$done = [];
+
+	if(!current_user_can('edit_posts')){
+		$done['error'][] = __pl('no_permission');
+		pagelayer_json_output($done);
+	}
+
+	$ctrl = Pagelayer_AI_Controller::get_instance();
+	$res = $ctrl->process_get_settings();
+
+	if(is_wp_error($res)){
+		$done['error'] = $res->get_error_message();
+		pagelayer_json_output($done);
+	}
+
+	$done = is_array($res) ? $res : [];
+	if(!isset($done['success'])){
+		$done['success'] = true;
+	}
+	pagelayer_json_output($done);
+}
+
+add_action('wp_ajax_pagelayer_ai_save_settings', 'pagelayer_ai_save_settings');
+function pagelayer_ai_save_settings(){
+
+	check_ajax_referer('pagelayer_ajax', 'pagelayer_nonce');
+
+	$done = [];
+
+	if(!current_user_can('edit_posts')){
+		$done['error'][] = __pl('no_permission');
+		pagelayer_json_output($done);
+	}
+
+	$ctrl = Pagelayer_AI_Controller::get_instance();
+	$res = $ctrl->process_save_settings();
+
+	if(is_wp_error($res)){
+		$done['error'] = $res->get_error_message();
+		pagelayer_json_output($done);
+	}
+
+	$done = is_array($res) ? $res : [];
+	if(!isset($done['success'])){
+		$done['success'] = true;
+	}
+	pagelayer_json_output($done);
+}
+
 // Update Post content
 add_action('wp_ajax_pagelayer_save_content', 'pagelayer_save_content');
 function pagelayer_save_content(){

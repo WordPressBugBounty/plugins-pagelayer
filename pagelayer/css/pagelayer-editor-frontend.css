@@ -1029,6 +1029,17 @@ background-color: #556068 !important; /* Slate-grey */
 background-color: #3f464b !important;
 }
 
+.pagelayer-add-circle-ai {
+background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+color: #ffffff !important;
+}
+
+.pagelayer-add-circle-ai:hover {
+background: linear-gradient(135deg, #4f46e5 0%, #7c3aed) !important;
+transform: scale(1.08) !important;
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45) !important;
+}
+
 .pagelayer-add-widget-text {
 margin: 0 !important;
 color: #7e8b96 !important;

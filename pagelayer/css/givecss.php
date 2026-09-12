@@ -40,7 +40,8 @@ $files = array(
 		'premium-frontend.css',
 		'animate.min.css',
 		'chartist.min.css',
-		'pagelayer-pen.css'
+		'pagelayer-pen.css',
+		'pagelayer-ai.css'
 	);
 
 // What files to give		

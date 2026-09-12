@@ -71,6 +71,12 @@ class PageLayer_LiveEditor{
 		wp_register_style('pagelayer-editor', $css_url.'give=pagelayer-editor-frontend.css,pagelayer-pen.css,'.(defined('PAGELAYER_PREMIUM') ? ',owl.theme.default.min.css,owl.carousel.min.css' : '').$premium_css, array(), PAGELAYER_VERSION);
 		wp_enqueue_style('pagelayer-editor');
 
+		// Enqueue AI Layout Generator
+		wp_register_script('pagelayer-ai', PAGELAYER_JS.'/pagelayer-ai.js', array('jquery', 'pagelayer-editor'), PAGELAYER_VERSION, true);
+		wp_enqueue_script('pagelayer-ai');
+		wp_register_style('pagelayer-ai', PAGELAYER_CSS.'/pagelayer-ai.css', array(), PAGELAYER_VERSION);
+		wp_enqueue_style('pagelayer-ai');
+
 		// Enqueue the DateTime picker CSS
 		/* wp_register_style('datetime-picker', PAGELAYER_CSS.'/datetime-picker.css', array(), PAGELAYER_VERSION);
 		wp_enqueue_style('datetime-picker'); */
@@ -188,7 +194,19 @@ pagelayer_customizer_values = '.json_encode(pagelayer_get_customizer_options()).
 pagelayer_global_colors = '.json_encode($pagelayer->global_colors).';
 pagelayer_global_fonts = '.json_encode($pagelayer->global_fonts).';
 pagelayer_customizer_url = "'.admin_url("/customize.php?return=").urlencode($referer).'";
-pagelayer_support_url = "'.$pagelayer->support .'";';
+pagelayer_support_url = "'.$pagelayer->support .'";
+pagelayer_ai_settings = '.json_encode(array(
+	'rest_url' => esc_url_raw(rest_url('pagelayer/v1/ai/')),
+	'nonce' => wp_create_nonce('wp_rest'),
+	'ajax_url' => admin_url('admin-ajax.php'),
+	'ajax_nonce' => wp_create_nonce('pagelayer_ajax'),
+	'css_url' => PAGELAYER_CSS.'/pagelayer-ai.css',
+	'current_post_id' => $post->ID,
+	'current_post_title' => $post->post_title,
+	'has_custom_globals' => class_exists('Pagelayer_AI_Layout_Engine') ? Pagelayer_AI_Layout_Engine::instance()->has_custom_globals() : false,
+	'providers' => class_exists('Pagelayer_AI_Controller') ? Pagelayer_AI_Controller::get_instance()->get_available_models() : array(),
+	'user_settings' => class_exists('Pagelayer_AI_Controller') ? Pagelayer_AI_Controller::get_instance()->get_user_ai_settings() : array(),
+)).';';
 
 if(defined('PAGELAYER_PREMIUM')){
 	echo 'pagelayer_shortcodes.pl_popup.advance_options.popup_cookie_name.default = "popup_cookie_'.rand(100, 999).'";';

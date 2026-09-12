@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 
 define('PAGELAYER_BASE', plugin_basename(PAGELAYER_FILE));
 define('PAGELAYER_PREMIUM_BASE', 'pagelayer-pro/pagelayer-pro.php');
-define('PAGELAYER_VERSION', '2.1.9');
+define('PAGELAYER_VERSION', '2.2.0');
 define('PAGELAYER_DIR', dirname(PAGELAYER_FILE));
 define('PAGELAYER_SLUG', 'pagelayer');
 define('PAGELAYER_URL', plugins_url('', PAGELAYER_FILE));
@@ -26,6 +26,7 @@ define('PAGELAYER_FONT_POST_TYPE', 'pagelayer-fonts');
 
 include_once(PAGELAYER_DIR.'/main/functions.php');
 include_once(PAGELAYER_DIR.'/main/class.php');
+include_once(PAGELAYER_DIR.'/main/ai-controller.php');
 
 function pagelayer_died(){
 	 print_r(error_get_last());

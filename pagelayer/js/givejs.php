@@ -40,6 +40,7 @@ $files = array(
 		'vanilla-picker.min.js',
 		'tlite.min.js',
 		'pagelayer-pen.js',
+		'pagelayer-ai.js',
 		// Enduser JS
 		'imagesloaded.min.js',
 		'nivo-lightbox.min.js',

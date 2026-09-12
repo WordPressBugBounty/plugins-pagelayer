@@ -73,7 +73,7 @@ global $post, $pagelayer;
 <html>
 <head>
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> 
-	<link rel="stylesheet" href="'.$css_url.'give=pagelayer-editor.css,trumbowyg.min.css,pagelayer-icons.css,'.implode(',' ,$icons_list).'&ver='.PAGELAYER_VERSION.'">';
+	<link rel="stylesheet" href="'.$css_url.'give=pagelayer-editor.css,trumbowyg.min.css,pagelayer-icons.css,pagelayer-ai.css,'.implode(',' ,$icons_list).'&ver='.PAGELAYER_VERSION.'">';
 	
 	do_action('pagelayer_live_body_head');
 	

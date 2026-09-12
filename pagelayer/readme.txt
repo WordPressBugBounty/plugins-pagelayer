@@ -4,7 +4,7 @@ Tags: page builder, editor, drag and drop, gutenberg blocks, landing-page
 Requires at least: 4.7
 Tested up to: 7.0
 Requires PHP: 5.5
-Stable tag: 2.1.9
+Stable tag: 2.2.0
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -130,6 +130,9 @@ Do you have questions related to Pagelayer? Use the following links :
 9. **Content Slides** can be designed without the effort of installing extra plugins.
 
 == Changelog ==
+
+= 2.2.0 (Sep 12, 2026) =
+[Feature] Introduced Build with AI, Create websites using AI-powered prompts.
 
 = 2.1.9 (Sep 01, 2026) =
 * [Bug-Fix] Fixed a stored XSS through the Custom Attributes and link attributes fields, where an event handler saved by a lower privileged user could be served to visitors. Attribute names are now checked against a list of supported names on every render path, and event handlers render only for content saved by a user who is allowed to add JavaScript.
