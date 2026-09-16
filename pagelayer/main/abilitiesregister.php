@@ -70,8 +70,36 @@ class Pagelayer_Abilities_Register {
 		return current_user_can('edit_posts');
 	}
 
+	public static function can_edit_pages() {
+		return current_user_can('edit_pages');
+	}
+
+	public static function can_publish_pages() {
+		return current_user_can('publish_pages');
+	}
+
+	public static function can_publish_posts() {
+		return current_user_can('publish_posts');
+	}
+
+	public static function can_delete_pages() {
+		return current_user_can('delete_pages');
+	}
+
+	public static function can_delete_posts() {
+		return current_user_can('delete_posts');
+	}
+
+	public static function can_edit_theme_options() {
+		return current_user_can('edit_theme_options');
+	}
+
 	public static function can_manage_options() {
 		return current_user_can('manage_options');
+	}
+
+	public static function can_upload_files() {
+		return current_user_can('upload_files');
 	}
 
 	// ------------------------------------------------------------------
@@ -124,6 +152,9 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function maybe_update_global_styles($input) {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
 		if (isset($input['global_colors'])) {
 			update_option('pagelayer_global_colors', json_encode(self::normalize_global_map($input['global_colors'])));
 		}
@@ -2079,6 +2110,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_create_template'),
+				'perm' => array(__CLASS__, 'can_edit_theme_options'),
 			),
 			'update_template' => array(
 				'label' => __('Update Template', 'pagelayer'),
@@ -2098,6 +2130,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_update_template'),
+				'perm' => array(__CLASS__, 'can_edit_theme_options'),
 			),
 			'delete_template' => array(
 				'label' => __('Delete Template', 'pagelayer'),
@@ -2110,6 +2143,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_delete_template'),
+				'perm' => array(__CLASS__, 'can_edit_theme_options'),
 			),
 			'save_template' => array(
 				'label' => __('Save Section Template', 'pagelayer'),
@@ -2126,6 +2160,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_save_template'),
+				'perm' => array(__CLASS__, 'can_edit_theme_options'),
 			),
 			'insert_template' => array(
 				'label' => __('Insert Template', 'pagelayer'),
@@ -2233,6 +2268,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_create_website'),
+				'perm' => array(__CLASS__, 'can_manage_options'),
 			),
 			'create_page' => array(
 				'label' => __('Create Page', 'pagelayer'),
@@ -2255,6 +2291,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_create_page'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'update_page' => array(
 				'label' => __('Update Page', 'pagelayer'),
@@ -2273,6 +2310,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_update_page'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'get_page' => array(
 				'label' => __('Get Page', 'pagelayer'),
@@ -2315,6 +2353,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_publish_page'),
+				'perm' => array(__CLASS__, 'can_publish_pages'),
 			),
 			'duplicate_page' => array(
 				'label' => __('Duplicate Page', 'pagelayer'),
@@ -2330,6 +2369,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_duplicate_page'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'delete_page' => array(
 				'label' => __('Delete Page', 'pagelayer'),
@@ -2345,6 +2385,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_delete_page'),
+				'perm' => array(__CLASS__, 'can_delete_pages'),
 			),
 			'preview_page' => array(
 				'label' => __('Preview Page', 'pagelayer'),
@@ -2387,6 +2428,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_create_design_ui'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'edit_layout' => array(
 				'label' => __('Edit Page Layout', 'pagelayer'),
@@ -2405,6 +2447,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_edit_layout'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'change_styles' => array(
 				'label' => __('Change Element Styles', 'pagelayer'),
@@ -2420,6 +2463,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_change_styles'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'get_data_structure' => array(
 				'label' => __('Get Data Structure Guide', 'pagelayer'),
@@ -2482,6 +2526,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_update_element'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'add_element' => array(
 				'label' => __('Add Element', 'pagelayer'),
@@ -2500,6 +2545,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_add_element'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'delete_element' => array(
 				'label' => __('Delete Element', 'pagelayer'),
@@ -2515,6 +2561,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_delete_element'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'move_element' => array(
 				'label' => __('Move Element', 'pagelayer'),
@@ -2532,6 +2579,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_move_element'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'duplicate_element' => array(
 				'label' => __('Duplicate Element', 'pagelayer'),
@@ -2547,6 +2595,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_duplicate_element'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'begin_transaction' => array(
 				'label' => __('Begin Transaction', 'pagelayer'),
@@ -2559,6 +2608,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_begin_transaction'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'commit_transaction' => array(
 				'label' => __('Commit Transaction', 'pagelayer'),
@@ -2571,6 +2621,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_commit_transaction'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 			'rollback_transaction' => array(
 				'label' => __('Rollback Transaction', 'pagelayer'),
@@ -2583,6 +2634,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_rollback_transaction'),
+				'perm' => array(__CLASS__, 'can_edit_pages'),
 			),
 		);
 
@@ -2615,6 +2667,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_create_post'),
+				'perm' => array(__CLASS__, 'can_edit_posts'),
 			),
 			'update_post' => array(
 				'label' => __('Update Individual Post', 'pagelayer'),
@@ -2636,6 +2689,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_update_post'),
+				'perm' => array(__CLASS__, 'can_edit_posts'),
 			),
 			'get_post' => array(
 				'label' => __('Get Individual Post', 'pagelayer'),
@@ -2675,6 +2729,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_publish_post'),
+				'perm' => array(__CLASS__, 'can_publish_posts'),
 			),
 			'duplicate_post' => array(
 				'label' => __('Duplicate Individual Post', 'pagelayer'),
@@ -2690,6 +2745,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_duplicate_post'),
+				'perm' => array(__CLASS__, 'can_edit_posts'),
 			),
 			'delete_post' => array(
 				'label' => __('Delete Individual Post', 'pagelayer'),
@@ -2705,6 +2761,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_delete_post'),
+				'perm' => array(__CLASS__, 'can_delete_posts'),
 			),
 		);
 
@@ -2729,6 +2786,7 @@ class Pagelayer_Abilities_Register {
 					'additionalProperties' => false
 				),
 				'execute' => array(__CLASS__, 'execute_upload_media'),
+				'perm' => array(__CLASS__, 'can_upload_files'),
 			),
 		);
 
@@ -2986,6 +3044,10 @@ class Pagelayer_Abilities_Register {
 			return new \WP_Error('invalid_input', __('Valid section_id and post_id are required.', 'pagelayer'));
 		}
 
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to edit this post.', 'pagelayer'), array('status' => 403));
+		}
+
 		global $pagelayer;
 		$license_key = !empty($pagelayer->license['license']) ? $pagelayer->license['license'] : '';
 		$url = 'https://api.pagelayer.com/library.php?give_id=' . rawurlencode($section_id) . '&license=' . rawurlencode($license_key) . '&url=' . rawurlencode(site_url());
@@ -3045,8 +3107,8 @@ class Pagelayer_Abilities_Register {
 	 */
 	public static function execute_scrape_website_content($input) {
 		$url = isset($input['url']) ? esc_url_raw($input['url']) : '';
-		if (empty($url)) {
-			return new \WP_Error('missing_url', __('URL is required.', 'pagelayer'));
+		if (empty($url) || !wp_http_validate_url($url)) {
+			return new \WP_Error('invalid_url', __('A valid public URL is required.', 'pagelayer'));
 		}
 
 		$response = wp_remote_get($url, array(
@@ -3159,6 +3221,9 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_update_styles($input) {
+		if (!current_user_can('manage_options')) {
+			return new \WP_Error('forbidden', __('You do not have permission to update global styles.', 'pagelayer'), array('status' => 403));
+		}
 		self::maybe_update_global_styles($input);
 		return array('success' => true);
 	}
@@ -3663,6 +3728,10 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_create_template($input) {
+		if (!current_user_can('edit_theme_options')) {
+			return new \WP_Error('forbidden', __('You are not allowed to create theme templates.', 'pagelayer'), array('status' => 403));
+		}
+
 		$title  = isset($input['title']) ? sanitize_text_field($input['title']) : '';
 		$type   = isset($input['type']) ? sanitize_text_field($input['type']) : 'general';
 		$p_data = isset($input['pagelayer_data']) && is_array($input['pagelayer_data']) ? $input['pagelayer_data'] : array();
@@ -3770,6 +3839,10 @@ class Pagelayer_Abilities_Register {
 			return new \WP_Error('invalid_template', __('Template not found.', 'pagelayer'));
 		}
 
+		if (!current_user_can('edit_theme_options') || !current_user_can('edit_post', $template_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to edit this template.', 'pagelayer'), array('status' => 403));
+		}
+
 		$type = isset($input['type'])
 			? sanitize_text_field($input['type'])
 			: (string) get_post_meta($template_id, 'pagelayer_template_type', true);
@@ -3814,6 +3887,10 @@ class Pagelayer_Abilities_Register {
 		$template_id = isset($input['template_id']) ? (int) $input['template_id'] : 0;
 		if (!$template_id || get_post_type($template_id) !== 'pagelayer-template') {
 			return new \WP_Error('invalid_template', __('Template not found.', 'pagelayer'));
+		}
+
+		if (!current_user_can('edit_theme_options') || !current_user_can('delete_post', $template_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to delete this template.', 'pagelayer'), array('status' => 403));
 		}
 
 		$res = wp_delete_post($template_id, true);
@@ -3953,6 +4030,10 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_create_menu($input) {
+		if (!current_user_can('manage_options') && !current_user_can('edit_theme_options')) {
+			return new \WP_Error('forbidden', __('You are not allowed to manage navigation menus.', 'pagelayer'), array('status' => 403));
+		}
+
 		$name = isset($input['name']) ? sanitize_text_field($input['name']) : '';
 		if ($name === '') {
 			return new \WP_Error('missing_name', __('A menu name is required.', 'pagelayer'));
@@ -4177,6 +4258,10 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_delete_menu($input) {
+		if (!current_user_can('manage_options') && !current_user_can('edit_theme_options')) {
+			return new \WP_Error('forbidden', __('You are not allowed to delete navigation menus.', 'pagelayer'), array('status' => 403));
+		}
+
 		$menu = self::resolve_menu(isset($input['menu']) ? sanitize_text_field($input['menu']) : '');
 		if (!$menu) {
 			return new \WP_Error('invalid_menu', __('Navigation menu not found.', 'pagelayer'));
@@ -4203,6 +4288,14 @@ class Pagelayer_Abilities_Register {
 		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
 		if (!$post_id || get_post_type($post_id) !== 'page') {
 			return new \WP_Error('invalid_page', __('Page not found.', 'pagelayer'));
+		}
+
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to edit this page.', 'pagelayer'), array('status' => 403));
+		}
+
+		if (isset($input['status']) && $input['status'] === 'publish' && !current_user_can('publish_pages')) {
+			return new \WP_Error('forbidden', __('You are not allowed to publish pages.', 'pagelayer'), array('status' => 403));
 		}
 
 		if (isset($input['title'])) {
@@ -4307,8 +4400,14 @@ class Pagelayer_Abilities_Register {
 
 	public static function execute_publish_page($input) {
 		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
-		if (!$post_id || !get_post($post_id)) {
+		$post    = get_post($post_id);
+		if (!$post_id || !$post) {
 			return new \WP_Error('invalid_post', __('Post or page not found.', 'pagelayer'));
+		}
+
+		$cap = ($post->post_type === 'page') ? 'publish_pages' : 'publish_posts';
+		if (!current_user_can('edit_post', $post_id) || !current_user_can($cap)) {
+			return new \WP_Error('forbidden', __('You are not allowed to publish this item.', 'pagelayer'), array('status' => 403));
 		}
 
 		wp_update_post(array('ID' => $post_id, 'post_status' => 'publish'));
@@ -4320,6 +4419,15 @@ class Pagelayer_Abilities_Register {
 		$post    = get_post($post_id);
 		if (!$post) {
 			return new \WP_Error('invalid_post', __('Post or page not found.', 'pagelayer'));
+		}
+
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to duplicate this item.', 'pagelayer'), array('status' => 403));
+		}
+
+		$cap = ($post->post_type === 'page') ? 'edit_pages' : 'edit_posts';
+		if (!current_user_can($cap)) {
+			return new \WP_Error('forbidden', __('You are not allowed to create this item.', 'pagelayer'), array('status' => 403));
 		}
 
 		$title = isset($input['title']) ? sanitize_text_field($input['title']) : $post->post_title . ' (Copy)';
@@ -4371,6 +4479,10 @@ class Pagelayer_Abilities_Register {
 		$force   = !empty($input['force']);
 		if (!$post_id || get_post_type($post_id) !== 'page') {
 			return new \WP_Error('invalid_page', __('Page not found.', 'pagelayer'));
+		}
+
+		if (!current_user_can('delete_post', $post_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to delete this page.', 'pagelayer'), array('status' => 403));
 		}
 
 		$res = wp_delete_post($post_id, $force);
@@ -5159,6 +5271,14 @@ class Pagelayer_Abilities_Register {
 			return new \WP_Error('invalid_post', __('Blog post not found.', 'pagelayer'));
 		}
 
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to edit this post.', 'pagelayer'), array('status' => 403));
+		}
+
+		if (isset($input['status']) && $input['status'] === 'publish' && !current_user_can('publish_posts')) {
+			return new \WP_Error('forbidden', __('You are not allowed to publish posts.', 'pagelayer'), array('status' => 403));
+		}
+
 		if (isset($input['title'])) {
 			wp_update_post(array('ID' => $post_id, 'post_title' => sanitize_text_field($input['title'])));
 		}
@@ -5292,6 +5412,10 @@ class Pagelayer_Abilities_Register {
 			return new \WP_Error('invalid_post', __('Blog post not found.', 'pagelayer'));
 		}
 
+		if (!current_user_can('delete_post', $post_id)) {
+			return new \WP_Error('forbidden', __('You are not allowed to delete this post.', 'pagelayer'), array('status' => 403));
+		}
+
 		$res = wp_delete_post($post_id, $force);
 		return array('success' => (bool)$res);
 	}
@@ -5305,6 +5429,22 @@ class Pagelayer_Abilities_Register {
 		$title     = isset($input['title']) ? sanitize_text_field($input['title']) : '';
 		$post_type = isset($input['post_type']) ? sanitize_text_field($input['post_type']) : 'page';
 		$status    = isset($input['status']) ? sanitize_text_field($input['status']) : 'publish';
+
+		if ($post_type === 'page') {
+			if (!current_user_can('edit_pages')) {
+				return new \WP_Error('forbidden', __('You are not allowed to create pages.', 'pagelayer'), array('status' => 403));
+			}
+			if ($status === 'publish' && !current_user_can('publish_pages')) {
+				$status = 'draft';
+			}
+		} else {
+			if (!current_user_can('edit_posts')) {
+				return new \WP_Error('forbidden', __('You are not allowed to create posts.', 'pagelayer'), array('status' => 403));
+			}
+			if ($status === 'publish' && !current_user_can('publish_posts')) {
+				$status = 'draft';
+			}
+		}
 
 		if (empty($title)) {
 			return new \WP_Error('missing_title', __('A title is required.', 'pagelayer'));
@@ -5396,11 +5536,11 @@ class Pagelayer_Abilities_Register {
 			}
 		}
 
-		if (!empty($input['is_homepage'])) {
+		if (!empty($input['is_homepage']) && current_user_can('manage_options')) {
 			update_option('show_on_front', 'page');
 			update_option('page_on_front', $post_id);
 		}
-		if (!empty($input['is_posts_page'])) {
+		if (!empty($input['is_posts_page']) && current_user_can('manage_options')) {
 			update_option('page_for_posts', $post_id);
 		}
 
@@ -5754,6 +5894,9 @@ class Pagelayer_Abilities_Register {
 		if (!$post_id || !get_post($post_id)) {
 			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
 		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
 
 		if (!isset($input['pagelayer_data']) || !is_array($input['pagelayer_data'])) {
 			return new \WP_Error('missing_pagelayer_data', __('pagelayer_data is required.', 'pagelayer'));
@@ -5804,6 +5947,9 @@ class Pagelayer_Abilities_Register {
 		if (!$post_id || !get_post($post_id)) {
 			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
 		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
 
 		if (isset($input['pagelayer_data']) && is_array($input['pagelayer_data'])) {
 			$inline_css = self::inline_css_gate($input['pagelayer_data']);
@@ -5836,6 +5982,9 @@ class Pagelayer_Abilities_Register {
 		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
 		if (!$post_id || !get_post($post_id)) {
 			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
 		}
 
 		$styles = isset($input['styles']) && is_array($input['styles']) ? $input['styles'] : array();
@@ -5983,7 +6132,15 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_find_elements($input) {
-		$post_id = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		$post    = get_post($post_id);
+		if (!$post) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if ('publish' !== $post->post_status && !current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to view this post.', 'pagelayer'));
+		}
+
 		$data    = get_post_meta($post_id, 'pagelayer-data', true);
 		if (!is_array($data)) {
 			return array('elements' => array());
@@ -6253,7 +6410,15 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_navigator($input) {
-		$post_id = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		$post    = get_post($post_id);
+		if (!$post) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if ('publish' !== $post->post_status && !current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to view this post.', 'pagelayer'));
+		}
+
 		$data    = get_post_meta($post_id, 'pagelayer-data', true);
 		if (!is_array($data)) {
 			return array('outline' => array());
@@ -6267,7 +6432,14 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_update_element($input) {
-		$post_id    = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$element_id = self::resolve_element_ref($post_id, sanitize_text_field($input['element_id']));
 		$data       = get_post_meta($post_id, 'pagelayer-data', true);
 		if (!is_array($data)) {
@@ -6346,7 +6518,14 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_add_element($input) {
-		$post_id   = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$parent_id = isset($input['parent_id']) ? self::resolve_element_ref($post_id, sanitize_text_field($input['parent_id'])) : '';
 
 		$inline_css_found = array();
@@ -6419,7 +6598,14 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_delete_element($input) {
-		$post_id    = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$element_id = self::resolve_element_ref($post_id, sanitize_text_field($input['element_id']));
 		$data       = get_post_meta($post_id, 'pagelayer-data', true);
 		if (!is_array($data)) {
@@ -6471,7 +6657,14 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_move_element($input) {
-		$post_id    = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$element_id = self::resolve_element_ref($post_id, sanitize_text_field($input['element_id']));
 		$parent_id  = isset($input['parent_id']) ? self::resolve_element_ref($post_id, sanitize_text_field($input['parent_id'])) : '';
 		$index      = isset($input['index']) ? (int) $input['index'] : -1;
@@ -6568,7 +6761,14 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_duplicate_element($input) {
-		$post_id    = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$element_id = self::resolve_element_ref($post_id, sanitize_text_field($input['element_id']));
 		$data       = get_post_meta($post_id, 'pagelayer-data', true);
 		if (!is_array($data)) {
@@ -6641,13 +6841,16 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_begin_transaction($input) {
-		$post_id = (int) $input['post_id'];
-		$data    = get_post_meta($post_id, 'pagelayer-data', true);
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
 		$post    = get_post($post_id);
 		if (!$post) {
 			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
 		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
 
+		$data    = get_post_meta($post_id, 'pagelayer-data', true);
 		$backup = array(
 			'data'    => $data,
 			'content' => $post->post_content
@@ -6657,13 +6860,27 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_commit_transaction($input) {
-		$post_id = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		delete_option('pagelayer_tx_backup_' . $post_id);
 		return array('success' => true);
 	}
 
 	public static function execute_rollback_transaction($input) {
-		$post_id = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$backup  = get_option('pagelayer_tx_backup_' . $post_id);
 		if (!$backup) {
 			return new \WP_Error('no_backup', __('No active transaction to rollback.', 'pagelayer'));
@@ -6679,8 +6896,19 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_save_template($input) {
+		if (!current_user_can('edit_theme_options') && !current_user_can('manage_options')) {
+			return new \WP_Error('unauthorized', __('You do not have permission to save templates.', 'pagelayer'));
+		}
+
 		$template_name = sanitize_text_field($input['name']);
-		$post_id       = (int) $input['post_id'];
+		$post_id       = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$element_id    = isset($input['element_id']) ? self::resolve_element_ref($post_id, sanitize_text_field($input['element_id'])) : '';
 
 		$data = get_post_meta($post_id, 'pagelayer-data', true);
@@ -6724,8 +6952,15 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_insert_template($input) {
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
+		if (!$post_id || !get_post($post_id)) {
+			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if (!current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to edit this post.', 'pagelayer'));
+		}
+
 		$template_name = sanitize_text_field($input['name']);
-		$post_id       = (int) $input['post_id'];
 		$parent_id     = isset($input['parent_id']) ? sanitize_text_field($input['parent_id']) : '';
 		$index         = isset($input['index']) ? (int) $input['index'] : -1;
 
@@ -6804,7 +7039,15 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_upload_media($input) {
+		if (!current_user_can('upload_files')) {
+			return new \WP_Error('unauthorized', __('You do not have permission to upload files.', 'pagelayer'));
+		}
+
 		$url  = esc_url_raw($input['url']);
+		if (!wp_http_validate_url($url)) {
+			return new \WP_Error('invalid_url', __('Invalid media URL provided.', 'pagelayer'));
+		}
+
 		$desc = isset($input['alt_text']) ? sanitize_text_field($input['alt_text']) : '';
 
 		require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -6838,10 +7081,13 @@ class Pagelayer_Abilities_Register {
 	}
 
 	public static function execute_get_preview($input) {
-		$post_id = (int) $input['post_id'];
+		$post_id = isset($input['post_id']) ? (int) $input['post_id'] : 0;
 		$post    = get_post($post_id);
 		if (!$post) {
 			return new \WP_Error('invalid_post', __('Post not found.', 'pagelayer'));
+		}
+		if ('publish' !== $post->post_status && !current_user_can('edit_post', $post_id)) {
+			return new \WP_Error('unauthorized', __('You do not have permission to preview this post.', 'pagelayer'));
 		}
 		$url = ('publish' === $post->post_status)
 			? get_permalink($post_id)
