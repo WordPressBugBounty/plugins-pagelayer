@@ -4,7 +4,7 @@ Tags: page builder, editor, drag and drop, gutenberg blocks, landing-page
 Requires at least: 4.7
 Tested up to: 7.0
 Requires PHP: 5.5
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 License: LGPL v2.1
 License URI: http://www.gnu.org/licenses/lgpl-2.1.html
 
@@ -131,6 +131,9 @@ Do you have questions related to Pagelayer? Use the following links :
 
 == Changelog ==
 
+= 2.2.2 (Sep 21, 2026) =
+* [Task] Improved security checks for plugin updates by verifying plugin signatures before upgrading.
+ 
 = 2.2.1 (Sep 16, 2026) =
 * [Security-Fix] Fixed an authorization issue with page deletion reported by Sanghyeok Kim (@Hamoyeah).
 
